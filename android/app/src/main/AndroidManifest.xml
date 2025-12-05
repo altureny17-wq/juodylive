@@ -51,7 +51,7 @@
 
     <application
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="juodylive"
         tools:replace="android:icon"
         android:enableOnBackInvokedCallback="true"
         android:requestLegacyExternalStorage="true">
@@ -157,7 +157,7 @@
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:label="@string/app_name" />
+            android:label="juodylive" />
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
