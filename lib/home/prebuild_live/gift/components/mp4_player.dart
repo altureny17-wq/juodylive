@@ -118,20 +118,10 @@ class GiftMp4Player implements ZegoUIKitMediaEventInterface {
     }
   }
 
-  @override
-  void onMediaDataPublisherFileClose(ZegoMediaDataPublisher publisher, int errorCode) {
-    // TODO: implement onMediaDataPublisherFileClose
-  }
+  // تم حذف الدوال المعيبة التي تستخدم ZegoMediaDataPublisher
+  // و ZegoMediaPlayerDataInfo لأنها لم تعد معرفة في هذا الإصدار.
+  // تم الإبقاء على الدوال الأخرى المطلوبة من الواجهة (Overrides).
 
-  @override
-  void onMediaDataPublisherFileDataBegin(ZegoMediaDataPublisher publisher, ZegoMediaPlayerDataInfo info) {
-    // TODO: implement onMediaDataPublisherFileDataBegin
-  }
-
-  @override
-  void onMediaDataPublisherFileOpen(ZegoMediaDataPublisher publisher, ZegoMediaPlayerDataInfo info) {
-    // TODO: implement onMediaDataPublisherFileOpen
-  }
 
   @override
   void onMediaPlayerFrequencySpectrumUpdate(ZegoMediaPlayer mediaPlayer, List<double> spectrumList) {
