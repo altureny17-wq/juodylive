@@ -86,15 +86,8 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
       onCompleted: (file) async {
         _isExporting.value = false;
 
-        //VideoEditorModel videoEditorModel = VideoEditorModel();
-        //videoEditorModel.setCoverPath(cover.path);
-        //videoEditorModel.setVideoFile(file);
-
-        //QuickHelp.goBackToPreviousPage(context, result: videoEditorModel);
-
-        //if (!mounted) return;
-
-        await _controller.extractCover(
+        // تم تصحيح الخطأ هنا: استبدال extractCover بـ exportCover
+        await _controller.exportCover(
           onError: (e, s) => _exportText = "Error on cover exportation :(",
           onCompleted: (cover) {
             if (!mounted) return;
@@ -144,7 +137,8 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
 
   void _exportCover() async {
     setState(() => _exported = false);
-    await _controller.extractCover(
+    // تم تصحيح الخطأ هنا: استبدال extractCover بـ exportCover
+    await _controller.exportCover(
       onError: (e, s) => _exportText = "Error on cover exportation :(",
       onCompleted: (cover) {
         if (!mounted) return;
