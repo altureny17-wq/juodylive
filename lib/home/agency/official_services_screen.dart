@@ -15,7 +15,7 @@ import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sticky_grouped_list/sticky_grouped_list.dart';
-import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:stop_watch_timer/stop_watch_timer.dart'; // تم الإبقاء على استيراد الحزمة
 import 'package:trace/helpers/quick_actions.dart';
 import 'package:trace/helpers/quick_help.dart';
 import 'package:trace/models/CallsModel.dart';
@@ -153,6 +153,7 @@ class _OfficialServicesScreenState extends State<OfficialServicesScreen> {
     });
   }
 
+  // BEGIN: تصحيح StopWatchTimer
   Future<void> startRecording() async {
     Initialized.fullyInitialized;
 
@@ -169,8 +170,10 @@ class _OfficialServicesScreenState extends State<OfficialServicesScreen> {
       micButtonCaption = "message_screen.release_to_send".tr();
     });
 
-    stopWatchTimer.onExecute.add(StopWatchExecute.start);
+    // استخدام دالة مباشرة
+    stopWatchTimer.onStartTimer();
   }
+  // END: تصحيح StopWatchTimer
 
   checkMicPermission() async {
     var status = await Permission.microphone.status;
@@ -226,8 +229,10 @@ class _OfficialServicesScreenState extends State<OfficialServicesScreen> {
     }
   }
 
+  // BEGIN: تصحيح StopWatchTimer
   void play(String voiceUrl) async {
-    audioTimer.onExecute.add(StopWatchExecute.reset);
+    audioTimer.onResetTimer(); // استخدام دالة مباشرة
+    
     await myPlayer.startPlayer(
       fromURI: voiceUrl,
       codec: Codec.aacADTS,
@@ -235,11 +240,12 @@ class _OfficialServicesScreenState extends State<OfficialServicesScreen> {
         setState(() {
           audioPlaying = false;
           animateAudioPlaying = false;
-          audioTimer.onExecute.add(StopWatchExecute.reset);
+          audioTimer.onResetTimer(); // استخدام دالة مباشرة
         });
       },
     );
-    audioTimer.onExecute.add(StopWatchExecute.start);
+    audioTimer.onStartTimer(); // استخدام دالة مباشرة
+    
     setState(() {
       audioPlaying = true;
       animateAudioPlaying = true;
@@ -254,23 +260,25 @@ class _OfficialServicesScreenState extends State<OfficialServicesScreen> {
         audioPlaying = false;
         animateAudioPlaying = false;
       });
-      audioTimer.onExecute.add(StopWatchExecute.stop);
+      audioTimer.onStopTimer(); // استخدام دالة مباشرة
     } else if (myPlayer.isPaused) {
       await myPlayer.resumePlayer();
       setState(() {
         audioPlaying = true;
         animateAudioPlaying = true;
       });
-      audioTimer.onExecute.add(StopWatchExecute.start);
+      audioTimer.onStartTimer(); // استخدام دالة مباشرة
     } else {
       play(voiceUrl);
     }
   }
-
+  
   Future<void> stopRecording() async {
     await myRecorder.stopRecorder();
-    stopWatchTimer.onExecute.add(StopWatchExecute.reset);
+    stopWatchTimer.onResetTimer(); // استخدام دالة مباشرة
   }
+  // END: تصحيح StopWatchTimer
+
 
   Future<void> saveVoiceMessage() async {
     stopRecording();
@@ -303,6 +311,7 @@ class _OfficialServicesScreenState extends State<OfficialServicesScreen> {
       liveQuery.client.unSubscribe(subscription!);
     }
 
+    // تم الإبقاء على dispose
     stopWatchTimer.dispose();
     audioTimer.dispose();
 
@@ -630,7 +639,9 @@ class _OfficialServicesScreenState extends State<OfficialServicesScreen> {
                           micButtonCaption =
                               "message_screen.press_to_talk".tr();
                           stopRecording();
-                          stopWatchTimer.onExecute.add(StopWatchExecute.reset);
+                          // BEGIN: تصحيح StopWatchTimer (زر الحذف)
+                          stopWatchTimer.onResetTimer(); 
+                          // END: تصحيح StopWatchTimer
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(5.0),
@@ -655,7 +666,9 @@ class _OfficialServicesScreenState extends State<OfficialServicesScreen> {
                           micButtonCaption =
                               "message_screen.press_to_talk".tr();
                           saveVoiceMessage();
-                          stopWatchTimer.onExecute.add(StopWatchExecute.reset);
+                          // BEGIN: تصحيح StopWatchTimer (زر الإرسال)
+                          stopWatchTimer.onResetTimer(); 
+                          // END: تصحيح StopWatchTimer
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(5.0),
