@@ -114,11 +114,11 @@ dependencies:
   transparent_image: ^2.0.1
 
   #Firebase
-  firebase_core: ^2.27.1
-  firebase_messaging: ^14.8.9
+  firebase_core: ^2.27.2
+  firebase_messaging: ^14.8.10
   firebase_analytics: ^10.9.1
-  firebase_performance: ^0.10.1+15
-  firebase_crashlytics: ^3.5.7
+  firebase_performance: ^0.10.2+1
+  firebase_crashlytics: ^3.5.8
   firebase_auth_platform_interface: ^7.1.5
 
   #push notifications
