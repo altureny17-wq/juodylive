@@ -1741,7 +1741,6 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
     Size(size.width - padding * 2, size.width * 9 / 16);
     return ZegoUIKitMediaPlayer(
       size: playerSize,
-      canControl: canControl,
       showSurface: true,
       initPosition: Offset(
         size.width - playerSize.width - padding,
