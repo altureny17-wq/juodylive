@@ -2,11 +2,11 @@ import 'dart:ui';
 
 
 class Config {
-
+  
   static const String packageNameAndroid = "";
   static const String packageNameiOS = "";
   static const String iosAppStoreId = "1048";
-  static final String appName = "Trace";
+  static final String appName = "juodylive";
   static final String appVersion = "1.0.0";
   static final String companyName = "Trace, inc";
   static final String appOrCompanyUrl = "https://trace.live";
