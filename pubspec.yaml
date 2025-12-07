@@ -118,8 +118,8 @@ dependencies:
   firebase_messaging: ^14.7.15
   firebase_analytics: ^10.8.9
   firebase_performance: ^0.11.1+2
-  firebase_crashlytics: ^3.4.18
-  firebase_auth_platform_interface: ^7.1.0
+  firebase_crashlytics: ^5.0.5
+  firebase_auth_platform_interface: ^8.1.4
 
   #push notifications
   another_flushbar: ^1.12.30
