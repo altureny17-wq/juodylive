@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:svgaplayer_flutter_rhr/parser.dart';
-import 'package:svgaplayer_flutter_rhr/player.dart';
-import 'package:svgaplayer_flutter_rhr/proto/svga.pb.dart';
-
-
+import 'package:flutter_svga/flutter_svga.dart';
 
 import '../../../../models/GiftsModel.dart';
 import '../gift_manager/gift_manager.dart';
@@ -22,10 +18,7 @@ class ZegoSvgaPlayerWidget extends StatefulWidget {
   final GiftsModel giftItem;
   final int count;
 
-  /// restrict the display area size for the gift animation
   final Size? size;
-
-  /// the gift count text style
   final TextStyle? textStyle;
 
   @override
@@ -34,17 +27,17 @@ class ZegoSvgaPlayerWidget extends StatefulWidget {
 
 class ZegoSvgaPlayerWidgetState extends State<ZegoSvgaPlayerWidget>
     with SingleTickerProviderStateMixin {
-  SVGAAnimationController? animationController;
 
+  SVGAAnimationController? animationController;
   final loadedNotifier = ValueNotifier<bool>(false);
+
   late Future<MovieEntity> movieEntity;
 
   double get fontSize => 15;
 
-  Size get displaySize => null != widget.size
+  Size get displaySize => widget.size != null
       ? Size(
-          (widget.size!.width) -
-              widget.count.toString().length * fontSize,
+          widget.size!.width - widget.count.toString().length * fontSize,
           widget.size!.height,
         )
       : MediaQuery.of(context).size;
@@ -58,15 +51,16 @@ class ZegoSvgaPlayerWidgetState extends State<ZegoSvgaPlayerWidget>
   void initState() {
     super.initState();
 
-    debugPrint('load ${widget.giftItem} begin:${DateTime.now().toString()}');
+    debugPrint('load ${widget.giftItem} begin:${DateTime.now()}');
+
     ZegoGiftManager()
         .cache
         .readFromURL(url: widget.giftItem.getFile!.url!)
         .then((byteData) {
-      movieEntity = SVGAParser.shared.decodeFromBuffer(byteData);
+      final parser = SVGAParser();
+      movieEntity = parser.decodeFromBuffer(byteData);
 
       loadedNotifier.value = true;
-      //setState(() {});
     });
   }
 
@@ -76,9 +70,7 @@ class ZegoSvgaPlayerWidgetState extends State<ZegoSvgaPlayerWidget>
       animationController?.stop();
       widget.onPlayEnd();
     }
-
     animationController?.dispose();
-
     super.dispose();
   }
 
@@ -89,24 +81,19 @@ class ZegoSvgaPlayerWidgetState extends State<ZegoSvgaPlayerWidget>
       builder: (context, isLoaded, _) {
         if (!isLoaded) {
           return const Center(
-            child: CircularProgressIndicator(
-              color: Colors.red,
-            ),
+            child: CircularProgressIndicator(color: Colors.red),
           );
         }
-
-        debugPrint(
-            'load ${widget.giftItem} done:${DateTime.now().toString()}');
 
         return FutureBuilder<MovieEntity>(
           future: movieEntity,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              animationController ??= (SVGAAnimationController(vsync: this)
-                ..videoItem = snapshot.data as MovieEntity
+              animationController ??= SVGAAnimationController(vsync: this)
+                ..videoItem = snapshot.data!
                 ..forward().whenComplete(() {
                   widget.onPlayEnd();
-                }));
+                });
 
               final countWidget = widget.count > 1
                   ? SizedBox.fromSize(
@@ -123,8 +110,8 @@ class ZegoSvgaPlayerWidgetState extends State<ZegoSvgaPlayerWidget>
                     )
                   : const SizedBox.shrink();
 
-              if (displaySize.width < MediaQuery.of(context).size.width) {
-                ///  width < 1/2
+              if (displaySize.width <
+                  MediaQuery.of(context).size.width) {
                 return Row(
                   children: [
                     SizedBox.fromSize(
@@ -139,13 +126,13 @@ class ZegoSvgaPlayerWidgetState extends State<ZegoSvgaPlayerWidget>
               return SizedBox.fromSize(
                 size: displaySize,
                 child: Stack(
-                  // mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Center(
-                        child: SizedBox.fromSize(
-                      size: displaySize,
-                      child: SVGAImage(animationController!),
-                    )),
+                      child: SizedBox.fromSize(
+                        size: displaySize,
+                        child: SVGAImage(animationController!),
+                      ),
+                    ),
                     Align(
                       alignment: Alignment.centerRight,
                       child: countWidget,
