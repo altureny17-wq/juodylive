@@ -43,7 +43,7 @@ dependencies:
   encrypt: ^5.0.3
 
   #Backend
-  parse_server_sdk_flutter: ^9.0.0
+  parse_server_sdk_flutter: ^10.6.2
 
   #State management
   get: ^4.6.6
