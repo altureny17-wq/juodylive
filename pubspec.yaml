@@ -72,7 +72,6 @@ dependencies:
   quickalert: ^1.0.2
   dropdown_button2: ^2.3.9
   linear_progress_bar: ^1.1.0
-  device_info_plus: ^11.5.0
   flutter_branch_sdk: ^8.2.0
   package_info_plus: ^5.0.1
 
