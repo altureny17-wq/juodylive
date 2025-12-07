@@ -175,17 +175,6 @@ flutter:
     - assets/icons/
     - assets/countries/
 
-dependency_overrides:
-  archive: ^4.0.7
-  package_info_plus: ^4.1.0
-  uuid: ^3.0.7
-  parse_server_sdk: ^6.2.0
-  dio: ^5.3.2
-  intl: ^0.18.1
-  http: ^1.0.0
-  win32: ^5.4.0
-  photo_manager: ^3.6.1
-
 flutter_native_splash:
   color: "#ffffff"
   image: assets/images/ic_logo_white.png
