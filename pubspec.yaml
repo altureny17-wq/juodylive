@@ -52,7 +52,7 @@ dependencies:
   url_launcher: ^6.1.11
   universal_platform: ^1.1.0
   devicelocale: ^0.8.2
-  permission_handler: ^11.4.0
+  permission_handler: ^12.0.1
   share_plus: ^12.0.0
   stop_watch_timer: ^3.2.2
   fade_shimmer: ^2.2.0
