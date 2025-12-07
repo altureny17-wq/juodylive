@@ -34,7 +34,6 @@ dependencies:
   video_player: ^2.9.1
   flutter_sound: ^9.9.5
   flutter_slider_drawer: ^3.0.2
-  # flutter_app_version_checker: REMOVED due to http version conflict
   image_picker: ^1.0.4
   custom_zoom_widget: ^0.0.3
   video_thumbnail: ^0.5.3
@@ -75,7 +74,7 @@ dependencies:
   linear_progress_bar: ^1.1.0
   device_info_plus: ^11.5.0
   flutter_branch_sdk: ^8.2.0
-  package_info_plus: ^4.1.0
+  package_info_plus: ^5.0.1
 
   sticky_grouped_list: ^3.1.0
 
