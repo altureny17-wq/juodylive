@@ -1,28 +1,29 @@
 name: trace
 description: Live streaming, video reels and feed
-publish_to: "none"
+publish_to: 'none'
 
 version: 3.0.0
 
 environment:
-  sdk: ">=3.2.6 <4.0.0"
+  sdk: '>=3.2.6 <4.0.0'
 
 dependencies:
 
   flutter:
     sdk: flutter
 
-  # Default
-  cupertino_icons: ^1.0.6
-  google_fonts: ^6.3.0
+  #Default
+  cupertino_icons: ^1.0.5
+  google_fonts: ^6.3.2
 
-  # Images
-  flutter_svg: ^2.0.10
-  cached_network_image: ^3.4.1
+  #Images
+  flutter_svg: ^2.0.9
+  cached_network_image: ^3.3.0
   image_cropper: ^11.0.0
   blur: ^4.0.2
   video_editor: ^2.3.0
-  photo_manager_image_provider: ^2.1.0
+  wechat_camera_picker: ^4.1.1
+  wechat_assets_picker: ^10.0.0
   flutter_image_compress: ^2.1.0
   mime: ^1.0.4
   preload_page_view: ^0.2.0
@@ -33,26 +34,28 @@ dependencies:
   video_player: ^2.9.1
   flutter_sound: ^9.9.5
   flutter_slider_drawer: ^3.0.2
+  flutter_app_version_checker: ^0.3.2
   image_picker: ^1.0.4
   custom_zoom_widget: ^0.0.3
   video_thumbnail: ^0.5.3
   video_compress: ^3.1.2
+  photo_manager_image_provider: ^2.1.0
   universal_io: ^2.2.2
   encrypt: ^5.0.3
 
-  # Backend
-  parse_server_sdk_flutter: ^10.5.0
+  #Backend
+  parse_server_sdk_flutter: ^9.0.0
 
-  # State management
+  #State management
   get: ^4.6.6
 
-  # Utilities
+  #Utilities
   easy_localization: ^3.0.7
   webview_flutter: ^4.2.1
   url_launcher: ^6.1.11
   universal_platform: ^1.1.0
   devicelocale: ^0.8.2
-  permission_handler: ^11.4.0
+  permission_handler: ^12.0.1
   share_plus: ^12.0.0
   stop_watch_timer: ^3.2.2
   fade_shimmer: ^2.2.0
@@ -70,96 +73,97 @@ dependencies:
   quickalert: ^1.0.2
   dropdown_button2: ^2.3.9
   linear_progress_bar: ^1.1.0
+  device_info_plus: ^11.5.0
   flutter_branch_sdk: ^8.2.0
-  package_info_plus: ^8.0.0
 
   sticky_grouped_list: ^3.1.0
+
   iban: ^1.0.1
   wakelock_plus: ^1.2.7
   whatsapp_unilink: ^2.1.0
   keyboard_attachable: ^2.1.0
   just_audio: ^0.10.4
 
-  # Story
+  #Story
   advstory: ^0.2.1
   story: ^1.1.0
 
-  # Color Picker
+  #Color Picker
   flex_color_picker: ^3.3.0
 
-  # Text for Stories
+  #Text for Stories text
   auto_size_text: ^3.0.0
   auto_size_text_field: ^2.2.1
 
-  # Live Streaming - تحديث Zego
-  zego_uikit: ^2.28.32
-  zego_uikit_prebuilt_live_streaming: ^3.16.8
+  #Live Streaming
+  zego_uikit: ^2.12.0
+  zego_uikit_prebuilt_live_streaming: ^3.7.0
   zego_uikit_signaling_plugin: ^2.6.2
-  zego_uikit_prebuilt_live_audio_room: ^3.16.8
+  zego_uikit_prebuilt_live_audio_room: ^3.7.0
   zego_uikit_prebuilt_call: ^4.1.0
 
-  # Geo data and phone helper
+  #Geo data and phone helper
   pin_code_fields: ^8.0.1
   geolocator: ^14.0.2
   geocoding: ^4.0.0
   location: ^8.0.1
 
-  # Animations and icons
+  #Animations and icons
   lottie: ^3.1.3
-  svgaplayer_flutter_rhr: ^2.3.0
+  svgaplayer_flutter_rhr: ^2.2.1
   transparent_image: ^2.0.1
 
-  # Firebase - تحديث كامل
+  #Firebase
   firebase_core: ^4.2.1
-  firebase_auth: ^6.1.2
-  firebase_analytics: ^12.0.4
-  firebase_messaging: ^15.1.2
+  firebase_messaging: ^14.7.15
+  firebase_analytics: ^10.8.9
   firebase_performance: ^0.11.1+2
-  firebase_crashlytics: ^5.0.4
+  firebase_crashlytics: ^5.0.5
   firebase_auth_platform_interface: ^8.1.4
 
-  # Push notifications
+  #push notifications
   another_flushbar: ^1.12.30
   onesignal_flutter: ^5.2.2
 
-  # Social login
+  #Social login
+  firebase_auth: ^6.1.2
   google_sign_in: ^6.2.1
   sign_in_with_apple: ^7.0.1
 
-  # Payments
+  #payments:
   purchases_flutter: ^9.9.9
 
-  # Fake name
+  # fake name
   faker: ^2.1.0
 
-  # Animation
+  #Animation
   flutter_animate: ^4.5.0
 
-  # Ads
+  #Ads
   google_mobile_ads: ^6.0.0
   app_tracking_transparency: ^2.0.4
 
-  # Video editing
+  #video editing
   uuid: ^4.4.0
 
-  # Libraries
+  #Libraries
   xml: ^6.3.0
   flutter_linkify: ^6.0.0
   marquee: ^2.2.3
 
-  # See more or less Text
+  #See more or less Text
   expandable_text: ^2.3.0
 
-  # Ads in Videos
+  #Ads in Videos
   interactive_media_ads: ^0.3.0+6
 
 dev_dependencies:
   flutter_native_splash: ^2.4.1
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
 
 flutter:
+
   uses-material-design: true
 
   assets:
@@ -170,6 +174,17 @@ flutter:
     - assets/video/
     - assets/icons/
     - assets/countries/
+
+dependency_overrides:
+  archive: ^4.0.7
+  package_info_plus: ^4.1.0
+  uuid: ^3.0.7
+  parse_server_sdk: ^6.2.0
+  dio: ^5.3.2
+  intl: ^0.18.1
+  http: ^1.0.0
+  win32: ^5.4.0
+  photo_manager: ^3.6.1
 
 flutter_native_splash:
   color: "#ffffff"
