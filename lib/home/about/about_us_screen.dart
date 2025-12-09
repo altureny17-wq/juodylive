@@ -3,7 +3,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_version_checker/flutter_app_version_checker.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:trace/app/config.dart';
 import 'package:trace/models/UserModel.dart';
 import 'package:trace/ui/container_with_corner.dart';
@@ -25,14 +25,12 @@ class AboutUsScreen extends StatefulWidget {
 
 class _AboutUsScreenState extends State<AboutUsScreen> {
   String appVersion = "...";
-  final _checker = AppVersionChecker();
 
-  void checkVersion() async {
-    _checker.checkUpdate().then((value) {
-      setState(() {
-        appVersion = value.currentVersion;
-      });
-    });
+Future<void> checkVersion() async {
+  final info = await PackageInfo.fromPlatform();
+  setState(() {
+    appVersion = info.version;
+  });
   }
 
   var titles = [
