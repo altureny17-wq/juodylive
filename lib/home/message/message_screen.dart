@@ -681,8 +681,7 @@ class _MessageScreenState extends State<MessageScreen> {
                               micButtonCaption =
                                   "message_screen.press_to_talk".tr();
                               stopRecording();
-                              stopWatchTimer.onExecute
-                                  .add(StopWatchExecute.reset);
+                              stopWatchTimer.onResetTimer();
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(5.0),
@@ -707,8 +706,7 @@ class _MessageScreenState extends State<MessageScreen> {
                               micButtonCaption =
                                   "message_screen.press_to_talk".tr();
                               saveVoiceMessage();
-                              stopWatchTimer.onExecute
-                                  .add(StopWatchExecute.reset);
+                              stopWatchTimer.onResetTimer();
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(5.0),
@@ -898,7 +896,7 @@ class _MessageScreenState extends State<MessageScreen> {
                               isVideoCall: isVideo,
                               resourceID: Setup.zegoPushResourceID,
                               invitees: [
-                                ZegoUIKitUser(
+                                ZegoCallUser(
                                   id: widget.mUser!.objectId!,
                                   name: widget.mUser!.getFullName!,
                                 ),
