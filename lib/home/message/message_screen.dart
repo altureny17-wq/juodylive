@@ -150,7 +150,7 @@ class _MessageScreenState extends State<MessageScreen> {
       micButtonCaption = "message_screen.release_to_send".tr();
     });
 
-    stopWatchTimer.onExecute.add(StopWatchExecute.start);
+    stopWatchTimer.onStartTimer();
   }
 
   checkMicPermission() async {
@@ -208,7 +208,7 @@ class _MessageScreenState extends State<MessageScreen> {
   }
 
   void play(String voiceUrl) async {
-    audioTimer.onExecute.add(StopWatchExecute.reset);
+    audioTimer.stopWatchTimer.onResetTimer();
     await myPlayer.startPlayer(
       fromURI: voiceUrl,
       codec: Codec.aacADTS,
@@ -216,11 +216,11 @@ class _MessageScreenState extends State<MessageScreen> {
         setState(() {
           audioPlaying = false;
           animateAudioPlaying = false;
-          audioTimer.onExecute.add(StopWatchExecute.reset);
+          audioTimer.stopWatchTimer.onResetTimer();
         });
       },
     );
-    audioTimer.onExecute.add(StopWatchExecute.start);
+    audioTimer.stopWatchTimer.onStartTimer();
     setState(() {
       audioPlaying = true;
       animateAudioPlaying = true;
@@ -235,14 +235,14 @@ class _MessageScreenState extends State<MessageScreen> {
         audioPlaying = false;
         animateAudioPlaying = false;
       });
-      audioTimer.onExecute.add(StopWatchExecute.stop);
+      audioTimer.stopWatchTimer.onStopTimer();
     } else if (myPlayer.isPaused) {
       await myPlayer.resumePlayer();
       setState(() {
         audioPlaying = true;
         animateAudioPlaying = true;
       });
-      audioTimer.onExecute.add(StopWatchExecute.start);
+      audioTimer.stopWatchTimer.onResetTimer();
     } else {
       play(voiceUrl);
     }
@@ -250,7 +250,7 @@ class _MessageScreenState extends State<MessageScreen> {
 
   Future<void> stopRecording() async {
     await myRecorder.stopRecorder();
-    stopWatchTimer.onExecute.add(StopWatchExecute.reset);
+    stopWatchTimer.onResetTimer();
   }
 
   Future<void> saveVoiceMessage() async {
