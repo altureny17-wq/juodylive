@@ -208,7 +208,7 @@ class _MessageScreenState extends State<MessageScreen> {
   }
 
   void play(String voiceUrl) async {
-    audioTimer.stopWatchTimer.onResetTimer();
+    audioTimer.onResetTimer();
     await myPlayer.startPlayer(
       fromURI: voiceUrl,
       codec: Codec.aacADTS,
@@ -216,11 +216,11 @@ class _MessageScreenState extends State<MessageScreen> {
         setState(() {
           audioPlaying = false;
           animateAudioPlaying = false;
-          audioTimer.stopWatchTimer.onResetTimer();
+          audioTimer.onResetTimer();
         });
       },
     );
-    audioTimer.stopWatchTimer.onStartTimer();
+    audioTimer.onStartTimer();
     setState(() {
       audioPlaying = true;
       animateAudioPlaying = true;
@@ -235,14 +235,14 @@ class _MessageScreenState extends State<MessageScreen> {
         audioPlaying = false;
         animateAudioPlaying = false;
       });
-      audioTimer.stopWatchTimer.onStopTimer();
+      audioTimer.onStopTimer();
     } else if (myPlayer.isPaused) {
       await myPlayer.resumePlayer();
       setState(() {
         audioPlaying = true;
         animateAudioPlaying = true;
       });
-      audioTimer.stopWatchTimer.onResetTimer();
+      audioTimer.onResetTimer();
     } else {
       play(voiceUrl);
     }
