@@ -2,7 +2,7 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_version_checker/flutter_app_version_checker.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:trace/models/UserModel.dart';
@@ -80,7 +80,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
-  final _checker = AppVersionChecker();
+  
+Future<void> checkVersion() async {
+  final info = await PackageInfo.fromPlatform();
+  print(info.version);
+}
 
   void checkVersion() async {
     _checker.checkUpdate().then((value) {
