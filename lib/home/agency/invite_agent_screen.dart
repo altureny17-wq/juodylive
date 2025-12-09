@@ -247,8 +247,14 @@ class _InviteAgentScreenState extends State<InviteAgentScreen> {
   }
 
   shareLink() async {
-    Share.share("settings_screen.share_app_url"
-        .tr(namedArgs: {"app_name": Config.appName, "url": linkToShare}));
+  Share.share(
+    "settings_screen.share_app_url".tr(
+      namedArgs: {
+        "app_name": Config.appName,
+        "url": linkToShare,
+      },
+    ),
+  );
   }
 
   createLink() async {
