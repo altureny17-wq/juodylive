@@ -122,15 +122,20 @@ class GiftMp4Player implements ZegoUIKitMediaEventInterface {
   // تم إضافتها لتتوافق مع تحديث ZegoUIKitMediaEventInterface
 
  
- @override
- void onMediaDataPublisherFileClose(ZegoMediaDataPublisher publisher) {
+// هذا الكود يحل مشكلة السطر 126
+@override
+void onMediaDataPublisherFileClose(ZegoMediaDataPublisher publisher) {
   // Implementation not needed for GiftMp4Player
- }
+}
 
- @override
- void onMediaDataPublisherFileDataBegin(ZegoMediaDataPublisher publisher) {
+// هذا الكود يحل مشكلة السطر 131
+@override
+void onMediaDataPublisherFileDataBegin(ZegoMediaDataPublisher publisher) {
   // Implementation not needed for GiftMp4Player
- }
+}
+
+
+
 
  @override
  void onMediaDataPublisherFileOpen(ZegoMediaDataPublisher publisher, String path) {
