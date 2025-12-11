@@ -839,7 +839,8 @@ class _MessageScreenState extends State<MessageScreen> {
   );
 }
         
- Widget showStartCallsSheet() {
+ 
+Widget showStartCallsSheet() {
   Size size = MediaQuery.sizeOf(context);
 
   return GestureDetector(
@@ -890,7 +891,7 @@ class _MessageScreenState extends State<MessageScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           
-                          // زر المكالمة الصوتية
+                          // زر مكالمة صوتية
                           ZegoSendCallInvitationButton(
                             isVideoCall: false,
                             resourceID: Setup.zegoPushResourceID,
@@ -905,7 +906,7 @@ class _MessageScreenState extends State<MessageScreen> {
 
                           const SizedBox(width: 40),
 
-                          // زر مكالمة الفيديو
+                          // زر مكالمة فيديو
                           ZegoSendCallInvitationButton(
                             isVideoCall: true,
                             resourceID: Setup.zegoPushResourceID,
@@ -916,35 +917,20 @@ class _MessageScreenState extends State<MessageScreen> {
                               ),
                             ],
                             buttonSize: const Size(65, 65),
-                   
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-              );
-            });
-          },
-        ),
+              ),
+            );
+          });
+        },
       ),
-    );
-  }
-
-  void openCallBottomSheet() {
-    showModalBottomSheet(
-        context: (context),
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        enableDrag: false,
-        isDismissible: true,
-        builder: (context) {
-          return showCallsSheet();
-        });
-  }
+    ),
+  );
+}
 
   Widget showCallsSheet() {
     bool isDarkMode = QuickHelp.isDarkMode(context);
