@@ -80,11 +80,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
-  
-Future<void> checkVersion() async {
-  final info = await PackageInfo.fromPlatform();
-  print(info.version);
-}
 
   void checkVersion() async {
     _checker.checkUpdate().then((value) {
