@@ -155,6 +155,9 @@ dependencies:
   # Ads in Videos
   interactive_media_ads: ^0.3.0+6
 
+dependency_overrides:
+  parse_server_sdk: 9.4.0
+
 dev_dependencies:
   flutter_native_splash: ^2.4.1
   flutter_test:
