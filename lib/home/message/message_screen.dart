@@ -826,79 +826,97 @@ class _MessageScreenState extends State<MessageScreen> {
     );
   }
 
-  void openStartCallSheet(bool isVideo) {
-    showModalBottomSheet(
-        context: (context),
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        enableDrag: false,
-        isDismissible: true,
-        builder: (context) {
-          return showStartCallsSheet(isVideo);
-        });
-  }
+  void openCallBottomSheet() {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    enableDrag: false,
+    isDismissible: true,
+    builder: (context) {
+      return showStartCallsSheet(true); // أو false حسب نوع المكالمة
+    },
+  );
+}
+        
+ Widget showStartCallsSheet() {
+  Size size = MediaQuery.sizeOf(context);
 
-  Widget showStartCallsSheet(bool isVideo) {
-    Size size = MediaQuery.sizeOf(context);
-    return GestureDetector(
-      onTap: () => Navigator.of(context).pop(),
-      child: ContainerCorner(
-        color: Colors.black.withOpacity(0.01),
-        child: DraggableScrollableSheet(
-          initialChildSize: 0.4,
-          minChildSize: 0.1,
-          maxChildSize: 1.0,
-          builder: (_, controller) {
-            return StatefulBuilder(builder: (context, setState) {
-              return ContainerCorner(
-                radiusTopLeft: 25,
-                radiusTopRight: 25,
-                borderWidth: 0,
-                imageDecoration: "assets/images/live_bg.png",
-                child: Scaffold(
-                  backgroundColor: kTransparentColor,
-                  body: SizedBox(
-                    width: size.width,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        QuickActions.avatarWidget(
-                          widget.mUser!,
-                          width: 100,
-                          height: 100,
-                        ),
-                        TextWithTap(
-                          widget.mUser!.getFullName!,
-                          fontSize: 20,
-                          marginBottom: 10,
-                          marginTop: 10,
-                          fontWeight: FontWeight.w900,
-                          alignment: Alignment.center,
-                          textAlign: TextAlign.center,
-                          color: Colors.white,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ContainerCorner(
-                              color: kRedColor1,
-                              height: 60,
-                              width: 60,
-                              borderRadius: 50,
-                              marginRight: 30,
-                              onTap: () => QuickHelp.hideLoadingDialog(context),
-                              child: Icon(
-                                Icons.call_end,
-                                color: Colors.white,
+  return GestureDetector(
+    onTap: () => Navigator.of(context).pop(),
+    child: ContainerCorner(
+      color: Colors.black.withOpacity(0.01),
+      child: DraggableScrollableSheet(
+        initialChildSize: 0.35,
+        minChildSize: 0.1,
+        maxChildSize: 1.0,
+        builder: (_, controller) {
+          return StatefulBuilder(builder: (context, setState) {
+            return ContainerCorner(
+              radiusTopLeft: 25,
+              radiusTopRight: 25,
+              imageDecoration: "assets/images/live_bg.png",
+              child: Scaffold(
+                backgroundColor: Colors.transparent,
+                body: SizedBox(
+                  width: size.width,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      
+                      // صورة المستخدم
+                      QuickActions.avatarWidget(
+                        widget.mUser!,
+                        width: 100,
+                        height: 100,
+                      ),
+
+                      // الاسم
+                      TextWithTap(
+                        widget.mUser!.getFullName!,
+                        fontSize: 20,
+                        marginBottom: 10,
+                        marginTop: 10,
+                        fontWeight: FontWeight.w900,
+                        alignment: Alignment.center,
+                        textAlign: TextAlign.center,
+                        color: Colors.white,
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // الأزرار
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          
+                          // زر المكالمة الصوتية
+                          ZegoSendCallInvitationButton(
+                            isVideoCall: false,
+                            resourceID: Setup.zegoPushResourceID,
+                            invitees: [
+                              ZegoUIKitUser(
+                                id: widget.mUser!.objectId!,
+                                name: widget.mUser!.getFullName!,
                               ),
-                            ),
-                            ZegoSendCallInvitationButton(
-                              isVideoCall: isVideo,
-                              resourceID: Setup.zegoPushResourceID,
-                              invitees: [
-                                ZegoCallUser(
-                                  id: widget.mUser!.objectId!,
-                                  name: widget.mUser!.getFullName!,
+                            ],
+                            buttonSize: const Size(65, 65),
+                          ),
+
+                          const SizedBox(width: 40),
+
+                          // زر مكالمة الفيديو
+                          ZegoSendCallInvitationButton(
+                            isVideoCall: true,
+                            resourceID: Setup.zegoPushResourceID,
+                            invitees: [
+                              ZegoUIKitUser(
+                                id: widget.mUser!.objectId!,
+                                name: widget.mUser!.getFullName!,
+                              ),
+                            ],
+                            buttonSize: const Size(65, 65),
+                   
                                 ),
                               ],
                             ),
