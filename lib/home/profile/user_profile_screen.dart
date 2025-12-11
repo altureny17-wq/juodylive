@@ -1196,27 +1196,44 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                           color: Colors.white,
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ContainerCorner(
-                              color: kRedColor1,
-                              height: 60,
-                              width: 60,
-                              borderRadius: 50,
-                              marginRight: 30,
-                              onTap: () => QuickHelp.hideLoadingDialog(context),
-                              child: Icon(
-                                Icons.call_end,
-                                color: Colors.white,
-                              ),
-                            ),
-                            ZegoSendCallInvitationButton(
-                              isVideoCall: true,
-                              resourceID: Setup.zegoPushResourceID,
-                              invitees: [
-                                ZegoUIKitUser(
-                                  id: widget.mUser!.objectId!,
-                                  name: widget.mUser!.getFullName!,
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    // زر إغلاق
+    ContainerCorner(
+      color: kRedColor1,
+      height: 60,
+      width: 60,
+      borderRadius: 50,
+      marginRight: 30,
+      onTap: () => QuickHelp.hideLoadingDialog(context),
+      child: const Icon(
+        Icons.call_end,
+        color: Colors.white,
+      ),
+    ),
+
+    // زر المكالمة الصوتية
+    ZegoSendCallInvitationButton(
+      isVideoCall: false,
+      resourceID: Setup.zegoPushResourceID,
+      invitees: [
+        ZegoUIKitUser(
+          id: widget.mUser!.objectId!,
+          name: widget.mUser!.getFullName!,
+        ),
+      ],
+    ),
+
+    const SizedBox(width: 25),
+
+    // زر مكالمة الفيديو
+    ZegoSendCallInvitationButton(
+      isVideoCall: true,
+      resourceID: Setup.zegoPushResourceID,
+      invitees: [
+        ZegoUIKitUser(
+          id: widget.mUser!.objectId!,
+          name: widget.mUser!.getFullName!,
                                 ),
                               ],
                             ),
