@@ -125,11 +125,14 @@ class GiftMp4Player implements ZegoUIKitMediaEventInterface {
 // هذا الكود يحل مشكلة السطر 126
 
  @override
- void onMediaDataPublisherFileDataBegin(String path)
+ void onMediaDataPublisherFileClose(ZegoMediaDataPublisher publisher, [String? path]) {
+  // يمكن أن يكون هناك معامل ثاني اختياري [String? path]
  }
 
+  // السطر 133 (الذي كان يسبب خطأ fewer positional arguments)
  @override
- void onMediaDataPublisherFileClose(String path) 
+ void onMediaDataPublisherFileDataBegin(ZegoMediaDataPublisher publisher, [String? path]) {
+  // يمكن أن يكون هناك معامل ثاني اختياري [String? path]
  }
 
 
