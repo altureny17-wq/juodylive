@@ -250,7 +250,7 @@ class _InviteAgentScreenState extends State<InviteAgentScreen> {
   Share.share(
     "settings_screen.share_app_url".tr(
       namedArgs: {
-        "app_name": juodylive,
+        "app_name": 'juodylive',
         "url": linkToShare,
       },
     ),
