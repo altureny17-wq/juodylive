@@ -1,3 +1,4 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
@@ -118,66 +119,54 @@ class GiftMp4Player implements ZegoUIKitMediaEventInterface {
     }
   }
 
-  // --- الدوال الجديدة المطلوبة لحل المشكلة ---
-  // تم إضافتها لتتوافق مع تحديث ZegoUIKitMediaEventInterface
-
- 
-// هذا الكود يحل مشكلة السطر 126
-
- @override
- void onMediaDataPublisherFileClose(ZegoMediaDataPublisher publisher, [String? path]) {
-  // يمكن أن يكون هناك معامل ثاني اختياري [String? path]
- }
-
-  // السطر 133 (الذي كان يسبب خطأ fewer positional arguments)
- @override
- void onMediaDataPublisherFileDataBegin(ZegoMediaDataPublisher publisher, [String? path]) {
-  // يمكن أن يكون هناك معامل ثاني اختياري [String? path]
- }
-
-
-
-
- @override
- void onMediaDataPublisherFileOpen(ZegoMediaDataPublisher publisher, String path) {
-  // Implementation not needed for GiftMp4Player
- }
-  
-
-  // --- بقية الدوال الموجودة سابقاً ---
+  // ============================================================
+  //   ❗️ التعديلات الجديدة الخاصة بـ ZegoUIKitMediaEventInterface
+  // ============================================================
 
   @override
-  void onMediaPlayerFrequencySpectrumUpdate(ZegoMediaPlayer mediaPlayer, List<double> spectrumList) {
-    // TODO: implement onMediaPlayerFrequencySpectrumUpdate
+  void onMediaDataPublisherFileClose(
+      ZegoMediaDataPublisher publisher, int reason) {
+    // no action needed
   }
 
   @override
-  void onMediaPlayerNetworkEvent(ZegoMediaPlayer mediaPlayer, ZegoMediaPlayerNetworkEvent networkEvent) {
-    // TODO: implement onMediaPlayerNetworkEvent
+  void onMediaDataPublisherFileDataBegin(
+      ZegoMediaDataPublisher publisher, int timestamp) {
+    // no action needed
   }
 
   @override
-  void onMediaPlayerPlayingProgress(ZegoMediaPlayer mediaPlayer, int millisecond) {
-    // TODO: implement onMediaPlayerPlayingProgress
+  void onMediaDataPublisherFileOpen(
+      ZegoMediaDataPublisher publisher, int duration) {
+    // no action needed
   }
 
-  @override
-  void onMediaPlayerRecvSEI(ZegoMediaPlayer mediaPlayer, Uint8List data) {
-    // TODO: implement onMediaPlayerRecvSEI
-  }
+  // ============================================================
 
   @override
-  void onMediaPlayerRenderingProgress(ZegoMediaPlayer mediaPlayer, int millisecond) {
-    // TODO: implement onMediaPlayerRenderingProgress
-  }
+  void onMediaPlayerFrequencySpectrumUpdate(
+      ZegoMediaPlayer mediaPlayer, List<double> spectrumList) {}
 
   @override
-  void onMediaPlayerSoundLevelUpdate(ZegoMediaPlayer mediaPlayer, double soundLevel) {
-    // TODO: implement onMediaPlayerSoundLevelUpdate
-  }
+  void onMediaPlayerNetworkEvent(
+      ZegoMediaPlayer mediaPlayer, ZegoMediaPlayerNetworkEvent networkEvent) {}
 
   @override
-  void onMediaPlayerVideoSizeChanged(ZegoMediaPlayer mediaPlayer, int width, int height) {
-    // TODO: implement onMediaPlayerVideoSizeChanged
-  }
+  void onMediaPlayerPlayingProgress(
+      ZegoMediaPlayer mediaPlayer, int millisecond) {}
+
+  @override
+  void onMediaPlayerRecvSEI(ZegoMediaPlayer mediaPlayer, Uint8List data) {}
+
+  @override
+  void onMediaPlayerRenderingProgress(
+      ZegoMediaPlayer mediaPlayer, int millisecond) {}
+
+  @override
+  void onMediaPlayerSoundLevelUpdate(
+      ZegoMediaPlayer mediaPlayer, double soundLevel) {}
+
+  @override
+  void onMediaPlayerVideoSizeChanged(
+      ZegoMediaPlayer mediaPlayer, int width, int height) {}
 }
