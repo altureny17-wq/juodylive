@@ -123,22 +123,25 @@ class GiftMp4Player implements ZegoUIKitMediaEventInterface {
   //   ❗️ التعديلات الجديدة الخاصة بـ ZegoUIKitMediaEventInterface
   // ============================================================
 
-  @override
+  // السطر 127: إضافة المعاملات المفقودة
   void onMediaDataPublisherFileClose(
-      ZegoMediaDataPublisher publisher, int reason) {
-    // no action needed
+    ZegoMediaDataPublisher publisher, 
+    String? channel) {  // تغيير التوقيع ليطابق الواجهة
+    // your code
   }
 
-  @override
+// السطر 134: تغيير نوع timestamp من int إلى String
   void onMediaDataPublisherFileDataBegin(
-      ZegoMediaDataPublisher publisher, int timestamp) {
-    // no action needed
+    ZegoMediaDataPublisher publisher, 
+    String timestamp) {  // تغيير int إلى String
+    
   }
 
-  @override
-  void onMediaDataPublisherFileOpen(
-      ZegoMediaDataPublisher publisher, int duration) {
-    // no action needed
+// السطر 140: تغيير نوع duration من int إلى String
+ void onMediaDataPublisherFileOpen(
+    ZegoMediaDataPublisher publisher, 
+    String duration) {  // تغيير int إلى String
+    
   }
 
   // ============================================================
