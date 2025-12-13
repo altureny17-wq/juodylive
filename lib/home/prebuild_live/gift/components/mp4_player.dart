@@ -126,7 +126,7 @@ class GiftMp4Player implements ZegoUIKitMediaEventInterface {
   // السطر 127: إضافة المعاملات المفقودة
   void onMediaDataPublisherFileClose(
     ZegoMediaDataPublisher publisher, 
-    String? channel) {  // تغيير التوقيع ليطابق الواجهة
+    int channel) {  // تغيير التوقيع ليطابق الواجهة
     // your code
   }
 
