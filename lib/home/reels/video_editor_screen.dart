@@ -138,7 +138,7 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
   void _exportCover() async {
     setState(() => _exported = false);
     // تم تصحيح الخطأ هنا: استبدال extractCover بـ exportCover
-    await _controller.exportCover(
+    await _controller.extractCover(
       onError: (e, s) => _exportText = "Error on cover exportation :(",
       onCompleted: (cover) {
         if (!mounted) return;
