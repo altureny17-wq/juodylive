@@ -82,7 +82,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
 
   void checkVersion() async {
-    _checker.checkUpdate().then((value) {
+    late final UpdateChecker _checker; {
       setState(() {
         appVersion = value.currentVersion;
       });
