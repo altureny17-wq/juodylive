@@ -1733,16 +1733,13 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
   }
 
   Widget advanceMediaPlayer({
-    required bool canControl,
-  }) {
-    Size size = MediaQuery.sizeOf(context);
-    const padding = 20;
-    final playerSize =
-    Size(size.width - padding * 2, size.width * 9 / 16);
-    ZegoUIKitMediaPlayer(
+  required Size playerSize,
+}) {
+  return ZegoUIKitMediaPlayer(
     config: ZegoUIKitMediaPlayerConfig(),
     size: playerSize,
-    )
+  );
+  }
      // showSurface: true,
       initPosition: Offset(
         size.width - playerSize.width - padding,
