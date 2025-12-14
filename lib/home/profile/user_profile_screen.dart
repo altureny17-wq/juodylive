@@ -1229,7 +1229,10 @@ class _UserProfileScreenState extends State<UserProfileScreen>
       isVideoCall: true,
       resourceID: Setup.zegoPushResourceID,
       invitees: [     
-         Text(userName),          
+        final ZegoUIKitUser user = ZegoUIKitUser(
+     id: userId,
+     name: userName,
+                               );           
                               ],
                             ),
                           ],
