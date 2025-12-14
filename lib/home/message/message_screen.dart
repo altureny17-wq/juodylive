@@ -896,9 +896,7 @@ Widget showStartCallsSheet() {
                             isVideoCall: false,
                             resourceID: Setup.zegoPushResourceID,
                             invitees: [
-                              ZegoUIKitUser(
-                                id: widget.mUser!.objectId!,
-                                name: widget.mUser!.getFullName!,
+                              Text(userName),
                               ),
                             ],
                             buttonSize: const Size(65, 65),
@@ -911,9 +909,7 @@ Widget showStartCallsSheet() {
                             isVideoCall: true,
                             resourceID: Setup.zegoPushResourceID,
                             invitees: [
-                              ZegoUIKitUser(
-                                id: widget.mUser!.objectId!,
-                                name: widget.mUser!.getFullName!,
+                              Text(userName),
                               ),
                             ],
                             buttonSize: const Size(65, 65),
