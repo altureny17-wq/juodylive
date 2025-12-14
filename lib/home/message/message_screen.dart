@@ -1191,7 +1191,7 @@ Widget showStartCallsSheet() {
             confirmButtonText: "continue".tr(),
             onPressed: () async {
               QuickHelp.hideLoadingDialog(context);
-              openStartCallSheet(true);
+              
 
               /*UserModel? userModel =
                   await QuickHelp.goToNavigatorScreenForResult(
@@ -1237,7 +1237,7 @@ Widget showStartCallsSheet() {
             confirmButtonText: "continue".tr(),
             onPressed: () {
               QuickHelp.hideLoadingDialog(context);
-              openStartCallSheet(false);
+              
 
               /*QuickHelp.goToNavigatorScreen(
                 context,
