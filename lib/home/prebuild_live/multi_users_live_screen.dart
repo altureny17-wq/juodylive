@@ -1732,9 +1732,7 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
     );
   }
 
-  Widget advanceMediaPlayer({
-  required Size playerSize,
-}) {
+  Widget advanceMediaPlayer({required Size playerSize}) {
   return ZegoUIKitMediaPlayer(
     config: ZegoUIKitMediaPlayerConfig(),
     size: playerSize,
