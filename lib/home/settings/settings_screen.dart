@@ -84,7 +84,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    checkVersion();
+    
 
     (<T>(T? o) => o!)(WidgetsBinding.instance).addPostFrameCallback((_) async {
       try {
