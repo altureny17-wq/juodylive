@@ -81,21 +81,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
 
-  void checkVersion() async {
-  // تعريف _checker وتهيئته
-  final UpdateChecker _checker = UpdateChecker();
-  
-  // استدعاء checkUpdate والانتظار للنتيجة
-  final updateResult = await _checker.checkUpdate();
-  
-  // استخدام setState لتحديث الواجهة
-  if (mounted) {
-    setState(() {
-      appVersion = updateResult.currentVersion;
-    });
-   }
-  }
-
   @override
   void initState() {
     super.initState();
