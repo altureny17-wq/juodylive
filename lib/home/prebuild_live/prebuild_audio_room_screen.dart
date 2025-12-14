@@ -897,17 +897,12 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
   }
 
 
-  Widget advanceMediaPlayer({
-    required bool canControl,
-  }) {
-    Size size = MediaQuery.sizeOf(context);
-    const padding = 20;
-    final playerSize =
-    Size(size.width - padding * 2, size.width * 9 / 16);
-    ZegoUIKitMediaPlayer(
+  Widget advanceMediaPlayer({required Size playerSize}) {
+  return ZegoUIKitMediaPlayer(
     config: ZegoUIKitMediaPlayerConfig(),
     size: playerSize,
-    )
+  );
+  }
       initPosition: Offset(
         size.width - playerSize.width - padding,
         size.height - playerSize.height - padding - 40,
