@@ -1065,18 +1065,31 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
     );
   }
 
-  toggleSharingMedia() async{
+   // تأكد أن تضع هذا الكود داخل الـ Class وليس خارجه
+  Future<void> toggleSharingMedia() async {
+    // التحقق من أن السياق (context) متاح
+    if (!mounted) return;
+
     QuickHelp.showLoadingDialog(context);
-    if(showGiftSendersController.shareMediaFiles.value) {
+
+    if (showGiftSendersController.shareMediaFiles.value) {
       widget.liveStreaming!.setSharingMedia = false;
-    }else{
+    } else {
       widget.liveStreaming!.setSharingMedia = true;
     }
+
     ParseResponse response = await widget.liveStreaming!.save();
-    if(response.success && response.results != null) {
-      QuickHelp.hideLoadingDialog(context);
-    }else{
-      QuickHelp.hideLoadingDialog(context);
+
+    // التحقق مرة أخرى من أن الشاشة لم تغلق أثناء التحميل
+    if (!mounted) return;
+    
+    QuickHelp.hideLoadingDialog(context);
+
+    if (response.success && response.results != null) {
+      // تم الحفظ بنجاح
+      // يمكنك إضافة تحديث للواجهة هنا إن لزم الأمر
+      setState(() {}); 
+    } else {
       QuickHelp.showAppNotificationAdvanced(
         title: "error".tr(),
         message: "not_connected".tr(),
