@@ -944,7 +944,6 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
                                 fontWeight: FontWeight.w900,
                                 marginRight: 5,
                                 marginLeft: 5,
-                                fontStyle: FontStyle.italic,
                               ),
                               Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -1024,7 +1023,6 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
                             fontWeight: FontWeight.w900,
                             fontSize: 25,
                             marginLeft: 10,
-                            fontStyle: FontStyle.italic,
                           ),
                         ],
                       )
