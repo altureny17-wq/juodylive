@@ -14,7 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:text_scroll/text_scroll.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:zego_uikit_prebuilt_live_audio_room/zego_uikit_prebuilt_live_audio_room.dart';
-
+import 'package:get/get.dart' hide Trans;
 import '../../app/constants.dart';
 import '../../app/setup.dart';
 import '../../helpers/quick_actions.dart';
@@ -253,7 +253,8 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
                     width: size.width,
                     fit: BoxFit.fill,
                   ),
-            onLeaveConfirmation: (context) async {
+              events: ZegoUIKitPrebuiltLiveAudioRoomEvents(
+                 onLeaveConfirmation: (context) async {
               if (widget.isHost!) {
                 return await showDialog(
                   context: context,
