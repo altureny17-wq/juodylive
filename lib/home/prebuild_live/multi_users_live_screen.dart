@@ -1733,24 +1733,28 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
   }
 
   Widget advanceMediaPlayer({required Size playerSize}) {
+  // تعريف المتغيرات المطلوبة للحساب (تأكد من تعريف size و padding لديك)
+  final size = MediaQuery.of(context).size;
+  final double padding = 10.0; 
+
   return ZegoUIKitMediaPlayer(
     config: ZegoUIKitMediaPlayerConfig(),
     size: playerSize,
+    // إذا كانت مكتبة Zego تدعم initPosition داخل الـ MediaPlayer أضفه هنا:
+    // initPosition: Offset(
+    //   size.width - playerSize.width - padding,
+    //   size.height - playerSize.height - padding - 40,
+    // ),
   );
-  }
-     // showSurface: true,
-      initPosition: Offset(
-        size.width - playerSize.width - padding,
-        size.height - playerSize.height - padding - 40,
-      ),
-    );
-  }
+}
 
-  Widget userLevelBuilder(
-    BuildContext context,
-    ZegoInRoomMessage message,
-    Map<String, dynamic> extraInfo,
-  ) {
+// تم حذف الأقواس الزائدة والكود التائه هنا
+
+Widget userLevelBuilder(
+  BuildContext context,
+  ZegoInRoomMessage message,
+  Map<String, dynamic> extraInfo,
+) {
     return Container(
       alignment: Alignment.center,
       height: 15,
