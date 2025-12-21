@@ -1198,8 +1198,8 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                           resourceID: Setup.zegoPushResourceID,
                           invitees: [
                             ZegoUIKitUser(
-                             id: widget.user!.id!, 
-                             name: widget.user!.username!,
+                             id: widget.user?.id??, 
+                             name: widget.user?.username??,
                             ),
                           ],
                         ),
@@ -1213,8 +1213,8 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                           invitees: [
                             ZegoUIKitUser(
                       
-                             id: widget.user!.id!, 
-                             name: widget.user!.username!,
+                             id: widget.user?.id??, 
+                             name: widget.user?.username??,
                             ),
                           ],
                         ),
