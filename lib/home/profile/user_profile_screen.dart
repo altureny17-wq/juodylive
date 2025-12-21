@@ -53,7 +53,7 @@ import '../report/report_screen.dart';
 class UserProfileScreen extends StatefulWidget {
   UserModel? currentUser, mUser;
   bool? isFollowing;
-
+  final User? user;
   UserProfileScreen({this.currentUser, this.mUser, this.isFollowing});
 
   static String route = '/user/profile';
@@ -1198,8 +1198,8 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                           resourceID: Setup.zegoPushResourceID,
                           invitees: [
                             ZegoUIKitUser(
-                             id: widget.user?.id??, 
-                             name: widget.user?.username??,
+                             id: widget.user!.id!, 
+                             name: widget.user!.username!,
                             ),
                           ],
                         ),
@@ -1213,8 +1213,8 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                           invitees: [
                             ZegoUIKitUser(
                       
-                             id: widget.user?.id??, 
-                             name: widget.user?.username??,
+                             id: widget.user!.id!, 
+                             name: widget.user!.username!,
                             ),
                           ],
                         ),
