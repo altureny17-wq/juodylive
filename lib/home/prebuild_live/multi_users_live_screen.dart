@@ -1721,11 +1721,13 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
             return svgaWidget(playData);
           },
         ),
-        Obx((){
-          return Visibility(
-            visible: showGiftSendersController.shareMediaFiles.value,
-            child: advanceMediaPlayer(
-              canControl: widget.isHost,
+        Obx(() {
+  return Visibility(
+    visible: showGiftSendersController.shareMediaFiles.value,
+    child: advanceMediaPlayer(
+      // بدلاً من canControl، نستخدم showControls أو نتحكم بها عبر الـ Config
+      showControls: widget.isHost, 
+        
             ),);
         }),
       ],
