@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:text_scroll/text_scroll.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:zego_uikit_prebuilt_live_audio_room/zego_uikit_prebuilt_live_audio_room.dart';
+import 'package:zego_uikit/zego_uikit.dart';
 import 'package:get/get.dart' hide Trans;
 import '../../app/constants.dart';
 import '../../app/setup.dart';
@@ -485,8 +486,8 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
     );
   }
 
-  ZegoLiveAudioRoomMenuBarExtendButton get privateLiveBtn =>
-      ZegoLiveAudioRoomMenuBarExtendButton(
+   ZegoMenuBarExtendButton get privateLiveBtn =>
+      ZegoMenuBarExtendButton(
         child: IconButton(
           style: IconButton.styleFrom(
             shape: const CircleBorder(),
@@ -715,8 +716,8 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
     }
   }
 
-  ZegoLiveAudioRoomMenuBarExtendButton get giftButton =>
-      ZegoLiveAudioRoomMenuBarExtendButton(
+  ZegoMenuBarExtendButton get giftButton =>
+      ZegoMenuBarExtendButton(
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             shape: const CircleBorder(),
