@@ -27,6 +27,7 @@ import 'package:trace/ui/container_with_corner.dart';
 import 'package:trace/ui/text_with_tap.dart';
 import 'package:trace/utils/colors.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit/zego_uikit.dart';
 
 import '../../app/constants.dart';
 import '../../app/setup.dart';
@@ -1197,8 +1198,8 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                           resourceID: Setup.zegoPushResourceID,
                           invitees: [
                             ZegoUIKitUser(
-                              id: userId,
-                              name: userName,
+                             id: widget.user!.id!, 
+                             name: widget.user!.username!,
                             ),
                           ],
                         ),
@@ -1211,8 +1212,9 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                           resourceID: Setup.zegoPushResourceID,
                           invitees: [
                             ZegoUIKitUser(
-                              id: userId,
-                              name: userName,
+                      
+                             id: widget.user!.id!, 
+                             name: widget.user!.username!,
                             ),
                           ],
                         ),
