@@ -1726,7 +1726,7 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
     visible: showGiftSendersController.shareMediaFiles.value,
     child: advanceMediaPlayer(
       // بدلاً من canControl، نستخدم showControls أو نتحكم بها عبر الـ Config
-      showControls: widget.isHost, 
+      enableControls: widget.isHost, 
         
             ),);
         }),
