@@ -1195,7 +1195,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                           textAlign: TextAlign.center,
                           color: Colors.white,
                         ),
-                        Row(
+                  Row(
   mainAxisAlignment: MainAxisAlignment.center,
   children: [
     // زر إغلاق
@@ -1217,7 +1217,9 @@ class _UserProfileScreenState extends State<UserProfileScreen>
       isVideoCall: false,
       resourceID: Setup.zegoPushResourceID,
       invitees: [
-        Text(userName),
+        ZegoUIKitUser(
+          id: userId, // تأكد أن userId معرف في الصفحة
+          name: userName, // تأكد أن userName معرف في الصفحة
         ),
       ],
     ),
@@ -1229,25 +1231,15 @@ class _UserProfileScreenState extends State<UserProfileScreen>
       isVideoCall: true,
       resourceID: Setup.zegoPushResourceID,
       invitees: [     
-        final ZegoUIKitUser user = ZegoUIKitUser(
-     id: userId,
-     name: userName,
-                               );           
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            });
-          },
+        ZegoUIKitUser(
+          id: userId,
+          name: userName,
         ),
-      ),
-    );
-  }
+      ],
+    ),
+  ],
+)
+      
 
   Widget userImages() {
     if (userPictures.length <= 1) {
