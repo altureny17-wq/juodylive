@@ -124,12 +124,14 @@ class GiftMp4Player implements ZegoUIKitMediaEventInterface {
   // ============================================================
 
   @override
-void onMediaDataPublisherFileClose(
-  int errorCode,     // أضف هذا المتغير
-  String path,      // وأضف هذا المتغير
-) {
-  // اترك الكود الداخلي كما هو
-}
+  void onMediaDataPublisherFileClose(
+  ZegoMediaDataPublisher publisher, // المتغير الأول
+  int errorCode,                   // المتغير الثاني
+  String path,                     // المتغير الثالث
+  ) {
+  // الكود الخاص بك هنا
+  }
+  
   
 
 // السطر 134: تغيير نوع timestamp من int إلى String
