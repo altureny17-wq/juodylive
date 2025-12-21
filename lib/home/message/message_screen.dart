@@ -31,6 +31,7 @@ import 'package:sticky_grouped_list/sticky_grouped_list.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit/zego_uikit.dart';
 
 import '../../app/setup.dart';
 import '../../helpers/send_notifications.dart';
