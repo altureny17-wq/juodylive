@@ -1157,88 +1157,78 @@ class _UserProfileScreenState extends State<UserProfileScreen>
   }
 
   Widget showStartCallsSheet() {
-    Size size = MediaQuery.sizeOf(context);
-    return GestureDetector(
-      onTap: () => Navigator.of(context).pop(),
-      child: ContainerCorner(
-        color: Colors.black.withOpacity(0.01),
-        child: DraggableScrollableSheet(
-          initialChildSize: 0.4,
-          minChildSize: 0.1,
-          maxChildSize: 1.0,
-          builder: (_, controller) {
-            return StatefulBuilder(builder: (context, setState) {
+  return GestureDetector(
+    onTap: () => Navigator.pop(context),
+    child: ContainerCorner(
+      color: Colors.transparent,
+      child: DraggableScrollableSheet(
+        initialChildSize: 0.4,
+        minChildSize: 0.2,
+        maxChildSize: 0.6,
+        builder: (_, controller) {
+          return StatefulBuilder(
+            builder: (context, setState) {
               return ContainerCorner(
-                radiusTopLeft: 25,
-                radiusTopRight: 25,
-                borderWidth: 0,
-                imageDecoration: "assets/images/live_bg.png",
-                child: Scaffold(
-                  backgroundColor: kTransparentColor,
-                  body: SizedBox(
-                    width: size.width,
-                    child: Column(
+                color: Colors.white, // يمكنك تغيير اللون حسب تصميمك
+                borderRadius: 20,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        QuickActions.avatarWidget(
-                          widget.mUser!,
-                          width: 100,
-                          height: 100,
+                        // زر إغلاق
+                        ContainerCorner(
+                          color: kRedColor1,
+                          height: 60,
+                          width: 60,
+                          borderRadius: 50,
+                          marginRight: 30,
+                          onTap: () => QuickHelp.hideLoadingDialog(context),
+                          child: const Icon(
+                            Icons.call_end,
+                            color: Colors.white,
+                          ),
                         ),
-                        TextWithTap(
-                          widget.mUser!.getFullName!,
-                          fontSize: 20,
-                          marginBottom: 10,
-                          marginTop: 10,
-                          fontWeight: FontWeight.w900,
-                          alignment: Alignment.center,
-                          textAlign: TextAlign.center,
-                          color: Colors.white,
+
+                        // زر المكالمة الصوتية
+                        ZegoSendCallInvitationButton(
+                          isVideoCall: false,
+                          resourceID: Setup.zegoPushResourceID,
+                          invitees: [
+                            ZegoUIKitUser(
+                              id: userId,
+                              name: userName,
+                            ),
+                          ],
                         ),
-                  Row(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-    // زر إغلاق
-    ContainerCorner(
-      color: kRedColor1,
-      height: 60,
-      width: 60,
-      borderRadius: 50,
-      marginRight: 30,
-      onTap: () => QuickHelp.hideLoadingDialog(context),
-      child: const Icon(
-        Icons.call_end,
-        color: Colors.white,
+
+                        const SizedBox(width: 25),
+
+                        // زر مكالمة الفيديو
+                        ZegoSendCallInvitationButton(
+                          isVideoCall: true,
+                          resourceID: Setup.zegoPushResourceID,
+                          invitees: [
+                            ZegoUIKitUser(
+                              id: userId,
+                              name: userName,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
       ),
     ),
+  );
+}
 
-    // زر المكالمة الصوتية
-    ZegoSendCallInvitationButton(
-      isVideoCall: false,
-      resourceID: Setup.zegoPushResourceID,
-      invitees: [
-        ZegoUIKitUser(
-          id: userId, // تأكد أن userId معرف في الصفحة
-          name: userName, // تأكد أن userName معرف في الصفحة
-        ),
-      ],
-    ),
-
-    const SizedBox(width: 25),
-
-    // زر مكالمة الفيديو
-    ZegoSendCallInvitationButton(
-      isVideoCall: true,
-      resourceID: Setup.zegoPushResourceID,
-      invitees: [     
-        ZegoUIKitUser(
-          id: userId,
-          name: userName,
-        ),
-      ],
-    ),
-  ],
-)
       
 
   Widget userImages() {
