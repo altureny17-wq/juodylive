@@ -1725,6 +1725,8 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
   return Visibility(
     visible: showGiftSendersController.shareMediaFiles.value,
     child: advanceMediaPlayer(
+     playerSize: const Size(200, 200),
+      
       // بدلاً من canControl، نستخدم showControls أو نتحكم بها عبر الـ Config
       
         
