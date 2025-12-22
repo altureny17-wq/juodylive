@@ -1,3 +1,4 @@
+
 // Flutter imports:
 // ignore_for_file: must_be_immutable
 
@@ -8,14 +9,16 @@ import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:get/instance_manager.dart';
 import 'package:lottie/lottie.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:text_scroll/text_scroll.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:zego_uikit_prebuilt_live_audio_room/zego_uikit_prebuilt_live_audio_room.dart';
-import 'package:zego_uikit/zego_uikit.dart';
-import 'package:get/get.dart' hide Trans;
+import 'package:zego_uikit_prebuilt_live_streaming/zego_uikit_prebuilt_live_streaming.dart';
+
 import '../../app/constants.dart';
 import '../../app/setup.dart';
 import '../../helpers/quick_actions.dart';
@@ -58,23 +61,21 @@ class PrebuildAudioRoomScreen extends StatefulWidget {
       _PrebuildAudioRoomScreenState();
 }
 
-class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
-    with TickerProviderStateMixin {
+class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with TickerProviderStateMixin {
   int numberOfSeats = 0;
   AnimationController? _animationController;
 
   Subscription? subscription;
-  Subscription? giftsSubscription;
   LiveQuery liveQuery = LiveQuery();
   var coHostsList = [];
   bool following = false;
 
-  Controller showGiftSendersController = Get.find<Controller>();
+  Controller showGiftSendersController = Get.put(Controller());
   final selectedGiftItemNotifier = ValueNotifier<GiftsModel?>(null);
   Timer? removeGiftTimer;
 
   void startRemovingGifts() {
-    removeGiftTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+    removeGiftTimer = Timer.periodic(Duration(seconds: 10), (timer) {
       if (showGiftSendersController.receivedGiftList.isNotEmpty) {
         showGiftSendersController.giftReceiverList.removeAt(0);
         showGiftSendersController.giftSenderList.removeAt(0);
@@ -93,32 +94,31 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
     Constants.queryParseConfig(preference!);
   }
 
+  sendMessage(String msg) {
+    ZegoUIKitPrebuiltLiveStreamingController().message.send(msg);
+  }
+
   @override
   void initState() {
     super.initState();
     WakelockPlus.enable();
     initSharedPref();
-    showGiftSendersController.isPrivateLive.value =
-        widget.liveStreaming!.getPrivate!;
-    Future.delayed(const Duration(minutes: 2)).then((value) {
+    showGiftSendersController.isPrivateLive.value = widget.liveStreaming!.getPrivate!;
+    Future.delayed(Duration(minutes: 2)).then((value){
       widget.currentUser!.addUserPoints = widget.isHost! ? 350 : 200;
       widget.currentUser!.save();
     });
     following = widget.currentUser!.getFollowing!
         .contains(widget.liveStreaming!.getAuthorId!);
-    showGiftSendersController.diamondsCounter.value =
-        widget.liveStreaming!.getDiamonds!.toString();
-    showGiftSendersController.shareMediaFiles.value =
-        widget.liveStreaming!.getSharingMedia!;
-
-    if (widget.liveStreaming!.getNumberOfChairs == 20) {
+    showGiftSendersController.diamondsCounter.value = widget.liveStreaming!.getDiamonds!.toString();
+    showGiftSendersController.shareMediaFiles.value = widget.liveStreaming!.getSharingMedia!;
+    if(widget.liveStreaming!.getNumberOfChairs == 20) {
       numberOfSeats = (widget.liveStreaming!.getNumberOfChairs! ~/ 5) + 1;
-    } else if (widget.liveStreaming!.getNumberOfChairs == 24) {
+    }else if(widget.liveStreaming!.getNumberOfChairs == 24) {
       numberOfSeats = (widget.liveStreaming!.getNumberOfChairs! ~/ 6) + 1;
-    } else {
+    }else{
       numberOfSeats = (widget.liveStreaming!.getNumberOfChairs! ~/ 4) + 1;
     }
-
     if (widget.isHost!) {
       addOrUpdateLiveViewers();
     }
@@ -126,6 +126,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
     setupStreamingLiveQuery();
     _animationController = AnimationController.unbounded(vsync: this);
   }
+
 
   @override
   void dispose() {
@@ -135,24 +136,18 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
     if (subscription != null) {
       liveQuery.client.unSubscribe(subscription!);
     }
-    if (giftsSubscription != null) {
-      liveQuery.client.unSubscribe(giftsSubscription!);
-    }
     subscription = null;
-    giftsSubscription = null;
-    removeGiftTimer?.cancel();
-    _animationController?.dispose();
   }
+
+  var userAvatar;
 
   final isSeatClosedNotifier = ValueNotifier<bool>(false);
   final isRequestingNotifier = ValueNotifier<bool>(false);
 
-   
   @override
   Widget build(BuildContext context) {
     final AvatarService avatarService = AvatarService();
-    final size = MediaQuery.of(context).size;
-
+    var size = MediaQuery.of(context).size;
     return Scaffold(
       body: Stack(
         children: [
@@ -162,119 +157,8 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
             userID: widget.currentUser!.objectId!,
             userName: widget.currentUser!.getFullName!,
             roomID: widget.liveStreaming!.getStreamingChannel!,
-            config: (widget.isHost!
-                    ? ZegoUIKitPrebuiltLiveAudioRoomConfig.host()
-                    : ZegoUIKitPrebuiltLiveAudioRoomConfig.audience())
-              ..bottomMenuBar.audienceExtendButtons = [giftButton]
-              ..bottomMenuBar.speakerExtendButtons = [giftButton]
-
-            // rowConfigs داخل config (صحيح)
-              ..seat.layout.rowConfigs = [
-                ZegoLiveAudioRoomLayoutRowConfig(
-                  count: 4,
-                  alignment: ZegoLiveAudioRoomLayoutAlignment.spaceAround,
-                ),
-              ]
-
-            // avatarBuilder صحيح
-              ..seat.avatarBuilder = (context, seatSize, user, extraInfo) {
-                if (user == null) return const SizedBox();
-
-                return FutureBuilder<String?>(
-                  future: avatarService.fetchUserAvatar(user.id),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return FadeShimmer(
-                        width: seatSize.width,
-                        height: seatSize.width,
-                        radius: 200,
-                        fadeTheme: QuickHelp.isDarkModeNoContext()
-                            ? FadeTheme.dark
-                            : FadeTheme.light,
-                      );
-                    }
-
-                    final avatarUrl = snapshot.data;
-                    return avatarUrl != null
-                        ? QuickActions.photosWidget(
-                            avatarUrl,
-                            width: seatSize.width,
-                            height: seatSize.width,
-                            borderRadius: 200,
-                          )
-                        : Icon(
-                            Icons.account_circle,
-                            size: seatSize.width,
-                            color: Colors.white,
-                          );
-                     },
-                  );
-               },
-            ),
-          ],
-        ),
-      );
-    }
-
-                  ..seat.layout.rowConfigs =
-                      List.generate(numberOfSeats, (index) {
-                    if (index == 0) {
-                      return ZegoLiveAudioRoomLayoutRowConfig(
-                          count: 1,
-                          alignment: ZegoLiveAudioRoomLayoutAlignment.center);
-                    }
-
-                    if (widget.liveStreaming!.getNumberOfChairs == 20) {
-                      return ZegoLiveAudioRoomLayoutRowConfig(
-                          count: 5,
-                          alignment: ZegoLiveAudioRoomLayoutAlignment.start);
-                    }
-
-                    if (widget.liveStreaming!.getNumberOfChairs == 24) {
-                      return ZegoLiveAudioRoomLayoutRowConfig(
-                          count: 6,
-                          alignment: ZegoLiveAudioRoomLayoutAlignment.start);
-                    }
-
-                    return ZegoLiveAudioRoomLayoutRowConfig(
-                        count: 4,
-                        alignment:
-                            ZegoLiveAudioRoomLayoutAlignment.spaceEvenly);
-                  })
-                  ..foreground = customUiComponents()
-                  ..inRoomMessage.visible = true
-                  ..inRoomMessage.showAvatar = true
-                  ..bottomMenuBar.hostExtendButtons = [
-                    Obx(() {
-                      return ContainerCorner(
-                        color: Colors.white,
-                        borderRadius: 50,
-                        height: 38,
-                        width: 38,
-                        onTap: () {
-                          toggleSharingMedia();
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: SvgPicture.asset(
-                            showGiftSendersController.shareMediaFiles.value
-                                ? "assets/svg/stop_sharing_media.svg"
-                                : "assets/svg/start_sharing_media.svg",
-                          ),
-                        ),
-                      );
-                    }),
-                    privateLiveBtn
-                  ]
-                  ..background = Image.asset(
-                    "assets/images/audio_bg_start.png",
-                    height: size.height,
-                    width: size.width,
-                    fit: BoxFit.fill,
-                  ),
-              events: ZegoUIKitPrebuiltLiveAudioRoomEvents(
-                 onLeaveConfirmation: (context) async {
+            events: ZegoUIKitPrebuiltLiveAudioRoomEvents(
+                onLeaveConfirmation: (event, defaultAction,) async {
               if (widget.isHost!) {
                 return await showDialog(
                   context: context,
@@ -319,6 +203,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
                                     live: widget.liveStreaming,
                                   ),
                                 );
+                                //onViewerLeave();
                               } else {
                                 QuickHelp.hideLoadingDialog(context);
                                 QuickHelp.showAppNotificationAdvanced(
@@ -338,9 +223,111 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
                   },
                 );
               } else {
-                return true;
+                return defaultAction.call();
               }
             },
+              user: ZegoLiveAudioRoomUserEvents(
+                onEnter: (user){
+                  if(user.id != widget.liveStreaming!.getAuthorId) {
+                    addOrUpdateLiveViewers();
+                    sendMessage("has_entered_the_room".tr());
+                  }
+                },
+                onLeave: (user) {
+                  sendMessage("has_left_the_room".tr());
+                  onViewerLeave();
+                }
+              ),
+              /*onEnded: (event, defaultAction,) {
+              QuickHelp.goToNavigatorScreen(
+                  context,
+                  LiveEndScreen(
+                    currentUser: widget.currentUser,
+                    preferences: widget.preferences,
+                    liveAuthor: widget.liveStreaming!.getAuthor,
+                  ),
+              );
+            }*/),
+            config: widget.isHost!
+                ? (ZegoUIKitPrebuiltLiveAudioRoomConfig.host()
+                  ..confirmDialogInfo = ZegoLiveAudioRoomDialogInfo(
+                    title: "account_settings.logout_user_sure".tr(),
+                    message: 'live_streaming.finish_live_ask'.tr(),
+                    cancelButtonName: "cancel".tr(),
+                    confirmButtonName: "confirm_".tr(),
+                  ))
+                : ZegoUIKitPrebuiltLiveAudioRoomConfig.audience()
+              ..bottomMenuBar.audienceExtendButtons = [giftButton]
+              ..bottomMenuBar.speakerExtendButtons = [giftButton]
+              ..seat.avatarBuilder = (BuildContext context, Size size, ZegoUIKitUser? user, Map extraInfo) {
+                if (user == null) return const SizedBox();
+                userAvatar = avatarService.fetchUserAvatar(user.id);
+                return FutureBuilder<String?>(
+                  future: avatarService.fetchUserAvatar(user.id),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return FadeShimmer(
+                        width: size.width,
+                        height: size.width,
+                        radius: 200,
+                        fadeTheme: QuickHelp.isDarkModeNoContext() ? FadeTheme.dark : FadeTheme.light,
+                      );
+                    } else if (snapshot.hasError || !snapshot.hasData) {
+                      return Icon(Icons.account_circle, size: size.width);
+                    }
+                    final avatarUrl = snapshot.data;
+                    return avatarUrl != null
+                        ? QuickActions.photosWidget(
+                      avatarUrl,
+                      width: size.width,
+                      height: size.height,
+                      borderRadius: 200,
+                    ) : const Icon(Icons.account_circle, size: 40);
+                  },
+                );
+              }
+            ..seat.layout.rowConfigs = List.generate(numberOfSeats, (index){
+              if(index == 0){
+                return ZegoLiveAudioRoomLayoutRowConfig(count: 1, alignment: ZegoLiveAudioRoomLayoutAlignment.center);
+              }
+
+              if(widget.liveStreaming!.getNumberOfChairs == 20){
+                return ZegoLiveAudioRoomLayoutRowConfig(count: 5, alignment: ZegoLiveAudioRoomLayoutAlignment.start);
+              }
+
+              if(widget.liveStreaming!.getNumberOfChairs == 24){
+                return ZegoLiveAudioRoomLayoutRowConfig(count: 6, alignment: ZegoLiveAudioRoomLayoutAlignment.start);
+              }
+
+              return ZegoLiveAudioRoomLayoutRowConfig(count: 4, alignment: ZegoLiveAudioRoomLayoutAlignment.spaceEvenly);
+            })
+              ..foreground = customUiComponents()
+              ..inRoomMessage.visible = true
+              ..inRoomMessage.showAvatar = true
+              ..bottomMenuBar.hostExtendButtons = [Obx((){
+                return ContainerCorner(
+                  color: Colors.white,
+                  borderRadius: 50,
+                  height: 38,
+                  width: 38,
+                  onTap: () {
+                    toggleSharingMedia();
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: SvgPicture.asset(
+                      showGiftSendersController.shareMediaFiles.value ? "assets/svg/stop_sharing_media.svg":
+                      "assets/svg/start_sharing_media.svg",
+                    ),
+                  ),
+                );
+              }), privateLiveBtn]
+              ..background = Image.asset(
+                "assets/images/audio_bg_start.png",
+                height: size.height,
+                width: size.width,
+                fit: BoxFit.fill,
+              ),
           ),
           Positioned(
             top: 30,
@@ -357,8 +344,8 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
                       ContainerCorner(
                         height: 37,
                         borderRadius: 50,
-                        onTap: () {
-                          if (!widget.isHost!) {
+                        onTap: (){
+                          if(!widget.isHost!) {
                             showUserProfileBottomSheet(
                               currentUser: widget.currentUser!,
                               userId: widget.liveStreaming!.getAuthorId!,
@@ -366,7 +353,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
                             );
                           }
                         },
-                        colors: const [kVioletColor, kPrimaryColor],
+                        colors: [kVioletColor, earnCashColor],
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -387,23 +374,23 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
                                   borderWidth: 0,
                                 ),
                                 Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     ContainerCorner(
                                       width: 65,
                                       child: TextScroll(
-                                        widget
-                                            .liveStreaming!.getAuthor!.getFullName!,
+                                        widget.liveStreaming!.getAuthor!
+                                            .getFullName!,
                                         mode: TextScrollMode.endless,
-                                        velocity: const Velocity(
+                                        velocity: Velocity(
                                             pixelsPerSecond: Offset(30, 0)),
-                                        delayBefore:
-                                            const Duration(seconds: 1),
+                                        delayBefore: Duration(seconds: 1),
                                         pauseBetween:
-                                            const Duration(milliseconds: 150),
-                                        style: const TextStyle(
+                                        Duration(milliseconds: 150),
+                                        style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 10,
                                         ),
@@ -418,20 +405,18 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Padding(
-                                            padding: EdgeInsets.only(left: 5),
-                                            child: Image(
-                                              image: AssetImage(
-                                                  "assets/images/grade_welfare.png"),
+                                          Padding(
+                                            padding: const EdgeInsets.only(left: 5),
+                                            child: Image.asset(
+                                              "assets/images/grade_welfare.png",
                                               height: 12,
                                               width: 12,
                                             ),
                                           ),
-                                          Obx(() {
+                                          Obx((){
                                             return TextWithTap(
                                               QuickHelp.checkFundsWithString(
-                                                amount: showGiftSendersController
-                                                    .diamondsCounter.value,
+                                                amount: showGiftSendersController.diamondsCounter.value,
                                               ),
                                               marginLeft: 5,
                                               marginRight: 5,
@@ -440,6 +425,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
                                               color: Colors.white,
                                             );
                                           }),
+
                                         ],
                                       ),
                                     ),
@@ -464,11 +450,11 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
                         ),
                       ),
                       if (!widget.isHost!)
-                        ContainerCorner(
+                      ContainerCorner(
                           marginLeft: 5,
                           height: 30,
                           width: 30,
-                          marginTop: 15,
+                        marginTop: 15,
                           color: following ? Colors.blueAccent : kVioletColor,
                           child: ContainerCorner(
                             color: kTransparentColor,
@@ -485,6 +471,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
                           onTap: () {
                             if (!following) {
                               followOrUnfollow();
+                              //ZegoInRoomMessage.fromBroadcastMessage(ZegoBroadcastMessageInfo())
                             }
                           },
                         ),
@@ -505,38 +492,42 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
     );
   }
 
-   Widget get giftButton => IconButton(
-      backgroundColor: Colors.black26,
-      onPressed: () {
-        if (showGiftSendersController.isPrivateLive.value) {
-          unPrivatiseLive();
-        } else {
-          // الحل الصحيح: استدعاء الكلاس مباشرة بدون showModalBottomSheet
-          // لأن الكلاس نفسه يحتوي على دالة showModalBottomSheet داخله
-          PrivateLivePriceWidget(
-            context: context,
-            onCancel: () => QuickHelp.hideLoadingDialog(context),
-            onGiftSelected: (gift) {
-              QuickHelp.hideLoadingDialog(context);
-              privatiseLive(gift);
-            },
-          );
-        }
-      },
-      icon: Obx(() => SvgPicture.asset(
-            showGiftSendersController.isPrivateLive.value
-                ? "assets/svg/ic_unlocked_live.svg"
-                : "assets/svg/ic_locked_live.svg",
-          )),
-    );
+  ZegoLiveStreamingMenuBarExtendButton get privateLiveBtn =>
+      ZegoLiveStreamingMenuBarExtendButton(
+        child: IconButton(
+          style: IconButton.styleFrom(
+            shape: const CircleBorder(),
+            backgroundColor: Colors.black26,
+          ),
+          onPressed: () {
+            if(showGiftSendersController.isPrivateLive.value) {
+              unPrivatiseLive();
+            }else{
+              PrivateLivePriceWidget(
+                  context: context,
+                  onCancel: () => QuickHelp.hideLoadingDialog(context),
+                  onGiftSelected: (gift){
+                    QuickHelp.hideLoadingDialog(context);
+                    privatiseLive(gift);
+                  }
+              );
+            }
+          },
+          icon: Obx(()=> SvgPicture.asset(
+            showGiftSendersController.isPrivateLive.value ?
+            "assets/svg/ic_unlocked_live.svg":
+            "assets/svg/ic_locked_live.svg",
+          ),
+          ),
+        ),
+      );
 
-
-  privatiseLive(GiftsModel gift) async {
+  privatiseLive(GiftsModel gift) async{
     QuickHelp.showLoadingDialog(context);
     widget.liveStreaming!.setPrivate = true;
     widget.liveStreaming!.setPrivateLivePrice = gift;
     ParseResponse response = await widget.liveStreaming!.save();
-    if (response.success && response.results != null) {
+    if(response.success && response.results != null) {
       QuickHelp.hideLoadingDialog(context);
       QuickHelp.showAppNotificationAdvanced(
         title: "privatise_live_title".tr(),
@@ -545,7 +536,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
         isError: false,
       );
       showGiftSendersController.isPrivateLive.value = true;
-    } else {
+    }else {
       QuickHelp.hideLoadingDialog(context);
       QuickHelp.showAppNotificationAdvanced(
         title: "connection_failed".tr(),
@@ -554,13 +545,11 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
       );
     }
   }
-    
-
-  unPrivatiseLive() async {
+  unPrivatiseLive() async{
     QuickHelp.showLoadingDialog(context);
     widget.liveStreaming!.setPrivate = false;
     ParseResponse response = await widget.liveStreaming!.save();
-    if (response.success && response.results != null) {
+    if(response.success && response.results != null) {
       QuickHelp.hideLoadingDialog(context);
       QuickHelp.showAppNotificationAdvanced(
         title: "public_live_title".tr(),
@@ -569,7 +558,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
         context: context,
       );
       showGiftSendersController.isPrivateLive.value = false;
-    } else {
+    }else {
       QuickHelp.hideLoadingDialog(context);
       QuickHelp.showAppNotificationAdvanced(
         title: "connection_failed".tr(),
@@ -581,12 +570,12 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
 
   onViewerLeave() async {
     QueryBuilder<LiveViewersModel> queryLiveViewers =
-        QueryBuilder<LiveViewersModel>(LiveViewersModel());
+    QueryBuilder<LiveViewersModel>(LiveViewersModel());
 
     queryLiveViewers.whereEqualTo(
         LiveViewersModel.keyAuthorId, widget.currentUser!.objectId);
-    queryLiveViewers.whereEqualTo(LiveViewersModel.keyLiveAuthorId,
-        widget.liveStreaming!.getAuthorId!);
+    queryLiveViewers.whereEqualTo(
+        LiveViewersModel.keyLiveAuthorId, widget.liveStreaming!.getAuthorId!);
     queryLiveViewers.whereEqualTo(
         LiveViewersModel.keyLiveId, widget.liveStreaming!.objectId!);
 
@@ -594,7 +583,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
     if (parseResponse.success) {
       if (parseResponse.result != null) {
         LiveViewersModel liveViewers =
-            parseResponse.results!.first! as LiveViewersModel;
+        parseResponse.results!.first! as LiveViewersModel;
 
         liveViewers.setWatching = false;
         await liveViewers.save();
@@ -604,20 +593,20 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
 
   addOrUpdateLiveViewers() async {
     QueryBuilder<LiveViewersModel> queryLiveViewers =
-        QueryBuilder<LiveViewersModel>(LiveViewersModel());
+    QueryBuilder<LiveViewersModel>(LiveViewersModel());
 
     queryLiveViewers.whereEqualTo(
         LiveViewersModel.keyAuthorId, widget.currentUser!.objectId);
     queryLiveViewers.whereEqualTo(
         LiveViewersModel.keyLiveId, widget.liveStreaming!.objectId!);
-    queryLiveViewers.whereEqualTo(LiveViewersModel.keyLiveAuthorId,
-        widget.liveStreaming!.getAuthorId!);
+    queryLiveViewers.whereEqualTo(
+        LiveViewersModel.keyLiveAuthorId, widget.liveStreaming!.getAuthorId!);
 
     ParseResponse parseResponse = await queryLiveViewers.query();
     if (parseResponse.success) {
       if (parseResponse.results != null) {
         LiveViewersModel liveViewers =
-            parseResponse.results!.first! as LiveViewersModel;
+        parseResponse.results!.first! as LiveViewersModel;
 
         liveViewers.setWatching = true;
 
@@ -640,14 +629,16 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
 
   Widget getTopGifters() {
     QueryBuilder<LiveViewersModel> query =
-        QueryBuilder<LiveViewersModel>(LiveViewersModel());
+    QueryBuilder<LiveViewersModel>(LiveViewersModel());
 
+    //query.whereNotEqualTo(LiveViewersModel.keyAuthorId, widget.liveStreaming!.getAuthorId);
     query.whereEqualTo(LiveViewersModel.keyLiveId, widget.liveStreaming!.objectId);
     query.whereEqualTo(LiveViewersModel.keyWatching, true);
     query.orderByDescending(LiveViewersModel.keyUpdatedAt);
     query.includeObject([
       LiveViewersModel.keyAuthor,
     ]);
+    //query.setLimit(3);
 
     return ParseLiveListWidget<LiveViewersModel>(
       query: query,
@@ -721,7 +712,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
         receiver: widget.liveStreaming!.getAuthor!);
 
     if (parseResponse.success) {
-      sendMessage("${widget.currentUser!.getFullName!} has started following");
+      sendMessage("start_following".tr());
       QuickActions.createOrDeleteNotification(
         widget.currentUser!,
         widget.liveStreaming!.getAuthor!,
@@ -730,11 +721,60 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
     }
   }
 
- 
+  ZegoLiveStreamingMenuBarExtendButton get giftButton =>
+      ZegoLiveStreamingMenuBarExtendButton(
+        index: 0,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            shape: const CircleBorder(),
+            backgroundColor: Colors.black26,
+          ),
+          onPressed: () {
+            if(coHostsList.isNotEmpty) {
+              openUserToReceiveCoins();
+              return ;
+            }
+            CoinsFlowPayment(
+              context: context,
+              currentUser: widget.currentUser!,
+              onCoinsPurchased: (coins) {
+                print(
+                    "onCoinsPurchased: $coins new: ${widget.currentUser!.getCredits}");
+              },
+              onGiftSelected: (gift) {
+                print("onGiftSelected called ${gift.getCoins}");
+                sendGift(gift, widget.liveStreaming!.getAuthor!);
+
+                //QuickHelp.goBackToPreviousPage(context);
+                QuickHelp.showAppNotificationAdvanced(
+                  context: context,
+                  user: widget.currentUser,
+                  title: "live_streaming.gift_sent_title".tr(),
+                  message:
+                  "live_streaming.gift_sent_explain".tr(
+                    namedArgs: {
+                      "name": widget.liveStreaming!.getAuthor!.getFirstName!
+                    },
+                  ),
+                  isError: false,
+                );
+              },
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(3.0),
+            child: Lottie.asset(
+              "assets/lotties/ic_gift.json",
+              height: 29,
+            ),
+          ),
+        ),
+      );
+
 
   setupStreamingLiveQuery() async {
     QueryBuilder<LiveStreamingModel> query =
-        QueryBuilder<LiveStreamingModel>(LiveStreamingModel());
+    QueryBuilder<LiveStreamingModel>(LiveStreamingModel());
 
     query.whereEqualTo(
         LiveStreamingModel.keyObjectId, widget.liveStreaming!.objectId);
@@ -749,48 +789,44 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
 
     subscription = await liveQuery.client.subscribe(query);
 
-    subscription!.on(LiveQueryEvent.update,
-        (LiveStreamingModel newUpdatedLive) async {
+    subscription!.on(LiveQueryEvent.update, (LiveStreamingModel newUpdatedLive) async {
       print('*** UPDATE ***');
       await newUpdatedLive.getAuthor!.fetch();
+      widget.liveStreaming = newUpdatedLive;
       widget.liveStreaming = newUpdatedLive;
 
       if (!mounted) return;
 
-      showGiftSendersController.diamondsCounter.value =
-          newUpdatedLive.getDiamonds.toString();
+      showGiftSendersController.diamondsCounter.value = newUpdatedLive.getDiamonds.toString();
 
-      if (newUpdatedLive.getSharingMedia !=
-          showGiftSendersController.shareMediaFiles.value) {
-        showGiftSendersController.shareMediaFiles.value =
-            newUpdatedLive.getSharingMedia!;
+      if(newUpdatedLive.getSharingMedia != showGiftSendersController.shareMediaFiles.value) {
+        showGiftSendersController.shareMediaFiles.value = newUpdatedLive.getSharingMedia!;
       }
 
-      if (!newUpdatedLive.getStreaming! && !widget.isHost!) {
+      if(!newUpdatedLive.getStreaming! && !widget.isHost!) {
         QuickHelp.goToNavigatorScreen(
-          context,
-          LiveEndScreen(
-            currentUser: widget.currentUser,
-            liveAuthor: widget.liveStreaming!.getAuthor,
-          ),
-        );
+            context,
+            LiveEndScreen(
+              currentUser: widget.currentUser,
+              liveAuthor: widget.liveStreaming!.getAuthor,
+            ));
+        //onViewerLeave();
       }
     });
 
-    subscription!.on(
-        LiveQueryEvent.enter, (LiveStreamingModel updatedLive) async {
+    subscription!.on(LiveQueryEvent.enter, (LiveStreamingModel updatedLive) async{
       print('*** ENTER ***');
       await updatedLive.getAuthor!.fetch();
       widget.liveStreaming = updatedLive;
+      widget.liveStreaming = updatedLive;
 
       if (!mounted) return;
-      showGiftSendersController.diamondsCounter.value =
-          widget.liveStreaming!.getDiamonds.toString();
+      showGiftSendersController.diamondsCounter.value = widget.liveStreaming!.getDiamonds.toString();
     });
   }
-
   sendGift(GiftsModel giftsModel, UserModel mUser) async {
-    GiftsSentModel giftsSentModel = GiftsSentModel();
+
+    GiftsSentModel giftsSentModel = new GiftsSentModel();
     giftsSentModel.setAuthor = widget.currentUser!;
     giftsSentModel.setAuthorId = widget.currentUser!.objectId!;
 
@@ -812,7 +848,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
     );
 
     QueryBuilder<LeadersModel> queryBuilder =
-        QueryBuilder<LeadersModel>(LeadersModel());
+    QueryBuilder<LeadersModel>(LeadersModel());
     queryBuilder.whereEqualTo(
         LeadersModel.keyAuthorId, widget.currentUser!.objectId!);
     ParseResponse parseResponse = await queryBuilder.query();
@@ -821,9 +857,10 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
       updateCurrentUser(giftsSentModel.getDiamondsQuantity!);
 
       if (parseResponse.results != null) {
-        LeadersModel leadersModel = parseResponse.results!.first as LeadersModel;
+        LeadersModel leadersModel =
+        parseResponse.results!.first as LeadersModel;
         leadersModel.incrementDiamondsQuantity =
-            giftsSentModel.getDiamondsQuantity!;
+        giftsSentModel.getDiamondsQuantity!;
         leadersModel.setGiftsSent = giftsSentModel;
         await leadersModel.save();
       } else {
@@ -831,7 +868,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
         leadersModel.setAuthor = widget.currentUser!;
         leadersModel.setAuthorId = widget.currentUser!.objectId!;
         leadersModel.incrementDiamondsQuantity =
-            giftsSentModel.getDiamondsQuantity!;
+        giftsSentModel.getDiamondsQuantity!;
         leadersModel.setGiftsSent = giftsSentModel;
         await leadersModel.save();
       }
@@ -841,168 +878,172 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
         credits: giftsModel.getCoins!,
       );
 
-      if (mUser.objectId == widget.liveStreaming!.getAuthorId) {
-        widget.liveStreaming!.addDiamonds = QuickHelp.getDiamondsForReceiver(
-          giftsModel.getCoins!,
-        );
+      if(mUser.objectId == widget.liveStreaming!.getAuthorId) {
+        widget.liveStreaming!.addDiamonds =
+            QuickHelp.getDiamondsForReceiver(
+              giftsModel.getCoins!,
+            );
         await widget.liveStreaming!.save();
-        sendMessage(
-            "${widget.currentUser!.getFullName!} sent a gift to host");
-      } else {
-        sendMessage(
-            "${widget.currentUser!.getFullName!} sent a gift to ${mUser.getFullName!}");
+        sendMessage("sent_gift".tr(namedArgs: {"name": "host_".tr()}));
+      }else{
+        sendMessage("sent_gift".tr(namedArgs: {"name": mUser.getFullName!}));
       }
+
+      /*sendMessage(LiveMessagesModel.messageTypeGift, "", widget.currentUser,
+          giftsSent: giftsSentModel);*/
     } else {
+      //QuickHelp.goBackToPreviousPage(context);
       debugPrint("gift Navigator pop up");
     }
+  }
+
+
+  Widget advanceMediaPlayer({required Size playerSize}) {
+  return ZegoUIKitMediaPlayer(
+    config: ZegoUIKitMediaPlayerConfig(),
+    size: playerSize,
+  );
+  }
+      initPosition: Offset(
+        size.width - playerSize.width - padding,
+        size.height - playerSize.height - padding - 40,
+      ),
+    );
   }
 
   Widget customUiComponents() {
     return Stack(
       children: [
-        Obx(() {
+        Obx((){
           return Positioned(
-            bottom: 100,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
-                showGiftSendersController.receivedGiftList.length,
-                (index) {
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ContainerCorner(
-                        colors: const [Colors.black26, Colors.transparent],
-                        borderRadius: 50,
-                        marginLeft: 5,
-                        marginRight: 10,
-                        marginBottom: 15,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  QuickActions.avatarWidget(
-                                    showGiftSendersController
-                                        .giftSenderList[index],
-                                    width: 35,
-                                    height: 35,
+                showGiftSendersController.receivedGiftList.length, (index) {
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ContainerCorner(
+                      colors: [Colors.black26, Colors.transparent],
+                      borderRadius: 50,
+                      marginLeft: 5,
+                      marginRight: 10,
+                      marginBottom: 15,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                QuickActions.avatarWidget(
+                                  showGiftSendersController.giftSenderList[index],
+                                  width: 35,
+                                  height: 35,
+                                ),
+                                SizedBox(
+                                  width: 45,
+                                  child: TextWithTap(
+                                    showGiftSendersController.giftSenderList[index].getFullName!,
+                                    fontSize: 8,
+                                    color: Colors.white,
+                                    marginTop: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    alignment: Alignment.center,
                                   ),
-                                  SizedBox(
-                                    width: 45,
-                                    child: TextWithTap(
-                                      showGiftSendersController
-                                          .giftSenderList[index].getFullName!,
-                                      fontSize: 8,
-                                      color: Colors.white,
-                                      marginTop: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      alignment: Alignment.center,
-                                    ),
+                                ),
+                              ],
+                            ),
+                            TextWithTap(
+                              "sent_gift_to".tr(),
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                              marginRight: 5,
+                              marginLeft: 5,
+                              textItalic: true,
+                            ),
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                QuickActions.avatarWidget(
+                                  showGiftSendersController.giftReceiverList[index],
+                                  width: 35,
+                                  height: 35,
+                                ),
+                                SizedBox(
+                                  width: 45,
+                                  child: TextWithTap(
+                                    showGiftSendersController.giftReceiverList[index].getFullName!,
+                                    fontSize: 8,
+                                    color: Colors.white,
+                                    marginTop: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    alignment: Alignment.center,
                                   ),
-                                ],
-                              ),
-                              TextWithTap(
-                                "sent_gift_to".tr(),
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900,
-                                marginRight: 5,
-                                marginLeft: 5,
-                              ),
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  QuickActions.avatarWidget(
-                                    showGiftSendersController
-                                        .giftReceiverList[index],
-                                    width: 35,
-                                    height: 35,
-                                  ),
-                                  SizedBox(
-                                    width: 45,
-                                    child: TextWithTap(
-                                      showGiftSendersController
-                                          .giftReceiverList[index].getFullName!,
-                                      fontSize: 8,
-                                      color: Colors.white,
-                                      marginTop: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      alignment: Alignment.center,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                      Row(
-                        children: [
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 35,
-                                height: 35,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(3),
-                                  image: DecorationImage(
-                                    image: NetworkImage(showGiftSendersController
-                                        .receivedGiftList[index]
-                                        .getPreview!
-                                        .url!),
-                                    fit: BoxFit.cover,
+                    ),
+                    Row(
+                      children: [
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 35,
+                              height: 35,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(3),
+                                child: QuickActions.photosWidget(
+                                    showGiftSendersController.receivedGiftList[index].getPreview!.url),
+                              ),
+                            ),
+                            ContainerCorner(
+                              color: kTransparentColor,
+                              marginTop: 1,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SvgPicture.asset(
+                                    "assets/svg/ic_coin_with_star.svg",
+                                    width: 10,
+                                    height: 10,
                                   ),
-                                ),
+                                  TextWithTap(
+                                    showGiftSendersController.receivedGiftList[index].getCoins.toString(),
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    marginLeft: 5,
+                                    fontWeight: FontWeight.w900,
+                                  )
+                                ],
                               ),
-                              ContainerCorner(
-                                color: kTransparentColor,
-                                marginTop: 1,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SvgPicture.asset(
-                                      "assets/svg/ic_coin_with_star.svg",
-                                      width: 10,
-                                      height: 10,
-                                    ),
-                                    TextWithTap(
-                                      showGiftSendersController
-                                          .receivedGiftList[index]
-                                          .getCoins
-                                          .toString(),
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                      marginLeft: 5,
-                                      fontWeight: FontWeight.w900,
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          TextWithTap(
-                            "x1",
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 25,
-                            marginLeft: 10,
-                          ),
-                        ],
-                      )
-                    ],
-                  ).animate().slideX(
-                    duration: const Duration(seconds: 2),
-                    delay: Duration.zero,
-                    begin: -5,
-                    end: 0,
-                  );
-                },
-              ),
-            ),
+                            ),
+                          ],
+                        ),
+                        TextWithTap(
+                          "x1",
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 25,
+                          marginLeft: 10,
+                          textItalic: true,
+                        ),
+                      ],
+                    )
+                  ],
+                ).animate().slideX(
+                  duration: Duration(seconds: 2),
+                  delay: Duration(seconds: 0),
+                  begin: -5,
+                  end: 0,
+                );
+              },
+              ),),
           );
         }),
         ValueListenableBuilder<GiftsModel?>(
@@ -1014,31 +1055,29 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
             return svgaWidget(playData);
           },
         ),
+        Obx((){
+          return Visibility(
+            visible: showGiftSendersController.shareMediaFiles.value,
+              child: advanceMediaPlayer(
+                canControl: widget.isHost!,
+              ),);
+        }),
       ],
     );
   }
 
-  Future<void> toggleSharingMedia() async {
-    if (!mounted) return;
-
+  toggleSharingMedia() async{
     QuickHelp.showLoadingDialog(context);
-
-    if (showGiftSendersController.shareMediaFiles.value) {
+    if(showGiftSendersController.shareMediaFiles.value) {
       widget.liveStreaming!.setSharingMedia = false;
-    } else {
+    }else{
       widget.liveStreaming!.setSharingMedia = true;
     }
-
     ParseResponse response = await widget.liveStreaming!.save();
-
-    if (!mounted) return;
-
-    QuickHelp.hideLoadingDialog(context);
-
-    if (response.success && response.results != null) {
-      showGiftSendersController.shareMediaFiles.value =
-          !showGiftSendersController.shareMediaFiles.value;
-    } else {
+    if(response.success && response.results != null) {
+      QuickHelp.hideLoadingDialog(context);
+    }else{
+      QuickHelp.hideLoadingDialog(context);
       QuickHelp.showAppNotificationAdvanced(
         title: "error".tr(),
         message: "not_connected".tr(),
@@ -1057,6 +1096,9 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
   }
 
   Widget svgaWidget(GiftsModel giftItem) {
+
+    /// you can define the area and size for displaying your own
+    /// animations here
     int level = 1;
     if (giftItem.getCoins! < 10) {
       level = 1;
@@ -1077,8 +1119,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
             giftItem: giftItem,
             onPlayEnd: () {
               ZegoGiftManager().playList.next();
-            },
-            count: 1,
+            }, count: 1,
           ),
         );
       case 3:
@@ -1087,10 +1128,10 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
           giftItem: giftItem,
           onPlayEnd: () {
             ZegoGiftManager().playList.next();
-          },
-          count: 1,
+          }, count: 1,
         );
     }
+    // level 1
     return Positioned(
       bottom: 200,
       child: ZegoSvgaPlayerWidget(
@@ -1098,47 +1139,60 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
         size: const Size(100, 100),
         giftItem: giftItem,
         onPlayEnd: () {
+          /// if there is another gift animation, then play
           ZegoGiftManager().playList.next();
-        },
-        count: 1,
+        }, count: 1,
       ),
     );
   }
 
   setupLiveGifts() async {
     QueryBuilder<GiftsSentModel> queryBuilder =
-        QueryBuilder<GiftsSentModel>(GiftsSentModel());
+    QueryBuilder<GiftsSentModel>(GiftsSentModel());
     queryBuilder.whereEqualTo(
         GiftsSentModel.keyLiveId, widget.liveStreaming!.objectId);
-    queryBuilder.includeObject([GiftsSentModel.keyGift]);
-    giftsSubscription = await liveQuery.client.subscribe(queryBuilder);
+    queryBuilder.includeObject(
+        [GiftsSentModel.keyGift]);
+    subscription = await liveQuery.client.subscribe(queryBuilder);
 
-    giftsSubscription!.on(LiveQueryEvent.create, (GiftsSentModel giftSent) async {
-      await giftSent.getGift!.fetch();
-      await giftSent.getReceiver!.fetch();
-      await giftSent.getAuthor!.fetch();
+    subscription!.on(LiveQueryEvent.create,
+          (GiftsSentModel giftSent) async {
+        await giftSent.getGift!.fetch();
+        await giftSent.getReceiver!.fetch();
+        await giftSent.getAuthor!.fetch();
 
-      GiftsModel receivedGift = giftSent.getGift!;
-      UserModel receiver = giftSent.getReceiver!;
-      UserModel sender = giftSent.getAuthor!;
+        GiftsModel receivedGift = giftSent.getGift!;
+        UserModel receiver = giftSent.getReceiver!;
+        UserModel sender = giftSent.getAuthor!;
 
-      showGiftSendersController.giftSenderList.add(sender);
-      showGiftSendersController.giftReceiverList.add(receiver);
-      showGiftSendersController.receivedGiftList.add(receivedGift);
+        showGiftSendersController.giftSenderList.add(sender);
+        showGiftSendersController.giftReceiverList.add(receiver);
+        showGiftSendersController.receivedGiftList.add(receivedGift);
 
-      if (removeGiftTimer == null) {
-        startRemovingGifts();
-      }
+        if (removeGiftTimer == null) {
+          startRemovingGifts();
+        }
 
-      selectedGiftItemNotifier.value = receivedGift;
+        selectedGiftItemNotifier.value = receivedGift;
 
-      ZegoGiftManager().playList.add(receivedGift);
-    });
+        /// local play
+        ZegoGiftManager().playList.add(receivedGift);
+
+        ValueListenableBuilder<GiftsModel?>(
+          valueListenable: ZegoGiftManager().playList.playingDataNotifier,
+          builder: (context, playData, _) {
+            if (null == playData) {
+              return const SizedBox.shrink();
+            }
+            return svgaWidget(playData);
+          },
+        );
+      },
+    );
   }
-
   void openUserToReceiveCoins() async {
     showModalBottomSheet(
-      context: context,
+      context: (context),
       backgroundColor: Colors.transparent,
       enableDrag: true,
       isDismissible: true,
@@ -1149,19 +1203,14 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
   }
 
   Widget _showUserToReceiveCoins() {
-    if (!coHostsList.contains(widget.liveStreaming!.getAuthorId)) {
-      coHostsList.add(widget.liveStreaming!.getAuthorId);
-    }
-
+    coHostsList.add(widget.liveStreaming!.getAuthorId);
     Size size = MediaQuery.sizeOf(context);
-    QueryBuilder<UserModel> coHostQuery =
-        QueryBuilder<UserModel>(UserModel.forQuery());
-    coHostQuery.whereNotEqualTo(
-        UserModel.keyObjectId, widget.currentUser!.objectId);
+    QueryBuilder<UserModel> coHostQuery = QueryBuilder<UserModel>(UserModel.forQuery());
+    coHostQuery.whereNotEqualTo(UserModel.keyObjectId, widget.currentUser!.objectId);
     coHostQuery.whereContainedIn(UserModel.keyObjectId, coHostsList);
 
     return ContainerCorner(
-      color: kPrimaryColor.withOpacity(.9),
+      color: kIamonDarkBarColor.withOpacity(.9),
       width: size.width,
       borderColor: Colors.white,
       radiusTopLeft: 10,
@@ -1169,7 +1218,6 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
       marginRight: 15,
       marginLeft: 15,
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
           TextWithTap(
             "choose_gift_receiver".tr(),
@@ -1179,115 +1227,78 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
             marginTop: 15,
             marginBottom: 30,
           ),
-          Flexible(
-            child: ParseLiveGridWidget<UserModel>(
-              query: coHostQuery,
-              crossAxisCount: 4,
-              reverse: false,
-              crossAxisSpacing: 5,
-              mainAxisSpacing: 10,
-              lazyLoading: false,
-              padding: const EdgeInsets.only(left: 15, right: 15),
-              childAspectRatio: 0.7,
-              shrinkWrap: true,
-              listenOnAllSubItems: true,
-              duration: Duration.zero,
-              animationController: _animationController,
-              childBuilder: (BuildContext context,
-                  ParseLiveListElementSnapshot<UserModel> snapshot) {
-                if (snapshot.hasData) {
-                  UserModel user = snapshot.loadedData!;
-                  return GestureDetector(
-  onTap: () {
-    Navigator.pop(context);
-    CoinsFlowPayment(
-      context: context,
-      currentUser: widget.currentUser!,
-      onCoinsPurchased: (coins) {
-        print("onCoinsPurchased: $coins new: ${widget.currentUser!.getCredits}");
-      },
-      onGiftSelected: (gift) {
-        print("onGiftSelected called ${gift.getCoins}");
-        sendGift(gift, user);
+          Flexible(child: ParseLiveGridWidget<UserModel>(
+            query: coHostQuery,
+            crossAxisCount: 4,
+            reverse: false,
+            crossAxisSpacing: 5,
+            mainAxisSpacing: 10,
+            lazyLoading: false,
+            padding: EdgeInsets.only(left: 15, right: 15),
+            childAspectRatio: 0.7,
+            shrinkWrap: true,
+            listenOnAllSubItems: true,
+            duration: Duration(seconds: 0),
+            animationController: _animationController,
+            childBuilder: (BuildContext context,
+                ParseLiveListElementSnapshot<UserModel> snapshot) {
+              UserModel user = snapshot.loadedData!;
+              return GestureDetector(
+                onTap: () {
+                  CoinsFlowPayment(
+                    context: context,
+                    currentUser: widget.currentUser!,
+                    onCoinsPurchased: (coins) {
+                      print(
+                          "onCoinsPurchased: $coins new: ${widget.currentUser!.getCredits}");
+                    },
+                    onGiftSelected: (gift) {
+                      print("onGiftSelected called ${gift.getCoins}");
+                      sendGift(gift, user);
 
-        QuickHelp.showAppNotificationAdvanced(
-          context: context,
-          user: widget.currentUser,
-          title: "live_streaming.gift_sent_title".tr(),
-          message: "live_streaming.gift_sent_explain".tr(
-            namedArgs: {"name": user.getFirstName!},
-          ),
-          isError: false,
-        );
-      },
-    );
-  },
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: [
-      QuickActions.avatarWidget(
-        user,
-        width: size.width / 5.5,
-        height: size.width / 5.5,
-      ),
-      TextWithTap(
-        user.getFullName!,
-        color: Colors.white,
-        marginTop: 5,
-        overflow: TextOverflow.ellipsis,
-        fontSize: 10,
-      ),
-    ],
-  ),
-);
-
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        QuickActions.avatarWidget(
-                          user,
-                          width: size.width / 5.5,
-                          height: size.width / 5.5,
+                      //QuickHelp.goBackToPreviousPage(context);
+                      QuickHelp.showAppNotificationAdvanced(
+                        context: context,
+                        user: widget.currentUser,
+                        title: "live_streaming.gift_sent_title".tr(),
+                        message:
+                        "live_streaming.gift_sent_explain".tr(
+                          namedArgs: {
+                            "name": user.getFirstName!
+                          },
                         ),
-                        TextWithTap(
-                          user.getFullName!,
-                          color: Colors.white,
-                          marginTop: 5,
-                          overflow: TextOverflow.ellipsis,
-                          fontSize: 10,
-                        ),
-                      ],
-                    ),
+                        isError: false,
+                      );
+                    },
                   );
-                } else {
-                  return const SizedBox();
-                }
-              },
-              queryEmptyElement: QuickActions.noContentFound(context),
-              gridLoadingElement: Container(
-                margin: const EdgeInsets.only(top: 50),
-                alignment: Alignment.topCenter,
-                child: const CircularProgressIndicator(),
-              ),
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    QuickActions.avatarWidget(
+                      user,
+                      width: size.width / 5.5,
+                      height: size.width / 5.5,
+                    ),
+                    TextWithTap(
+                      user.getFullName!,
+                      color: Colors.white,
+                      marginTop: 5,
+                      overflow: TextOverflow.ellipsis,
+                      fontSize: 10,
+                    ),
+                  ],),
+              );
+            },
+            queryEmptyElement: QuickActions.noContentFound(context),
+            gridLoadingElement: Container(
+              margin: EdgeInsets.only(top: 50),
+              alignment: Alignment.topCenter,
+              child: CircularProgressIndicator(),
             ),
-          ),
+          ),)
         ],
       ),
     );
-  }
-
-  void sendMessage(String message) {
-    // Implement message sending logic here
-    // This depends on how your app handles chat messages
-    print("Message to send: $message");
-  }
-
-  void showUserProfileBottomSheet({
-    required UserModel currentUser,
-    required String userId,
-    required BuildContext context,
-  }) {
-    // Implement user profile bottom sheet
-    print("Show user profile for: $userId");
   }
 }
