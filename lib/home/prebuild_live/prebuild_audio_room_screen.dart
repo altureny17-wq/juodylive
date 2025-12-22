@@ -486,8 +486,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
     );
   }
 
-       Widget get giftButton => ZegoUIKitMenuBarButton(
-          icon: Icons.card_giftcard,
+       Widget get giftButton => ZegoUIKitIconButton(
           backgroundColor: Colors.black26,
           onPressed: () {
             if (showGiftSendersController.isPrivateLive.value) {
@@ -495,7 +494,8 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
             } else {
               showModalBottomSheet(
                 context: context,
-                builder: (context) => PrivateLivePriceWidget(
+                builder: (context) => SizedBox(
+                child: PrivateLivePriceWidget(),
                   context: context,
                   onCancel: () => QuickHelp.hideLoadingDialog(context),
                   onGiftSelected: (gift) {
