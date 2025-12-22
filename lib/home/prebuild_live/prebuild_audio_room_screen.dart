@@ -148,61 +148,63 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
   final isRequestingNotifier = ValueNotifier<bool>(false);
 
       @override
-  Widget build(BuildContext context) {
-    final AvatarService avatarService = AvatarService();
-    var size = MediaQuery.of(context).size;
-    return Scaffold(
-      body: Stack(
-        children: [
-          ZegoUIKitPrebuiltLiveAudioRoom(
-            appID: Setup.zegoLiveStreamAppID,
-            appSign: Setup.zegoLiveStreamAppSign,
-            userID: widget.currentUser!.objectId!,
-            userName: widget.currentUser!.getFullName!,
-            roomID: widget.liveStreaming!.getStreamingChannel!,
-            // أضفنا قوسين حول الشرط لضمان عمل الـ Cascade Operator (..) بشكل صحيح
-            config: (widget.isHost!
-                ? ZegoUIKitPrebuiltLiveAudioRoomConfig.host()
-                : ZegoUIKitPrebuiltLiveAudioRoomConfig.audience())
-              ..bottomMenuBar.audienceExtendButtons = [giftButton]
-              ..bottomMenuBar.speakerExtendButtons = [giftButton]
-              ..seat.avatarBuilder = (BuildContext context, Size size,
-                  ZegoUIKitUser? user, Map extraInfo) {
-                if (user == null) return const SizedBox();
-                return FutureBuilder<String?>(
-                  future: avatarService.fetchUserAvatar(user.id),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return FadeShimmer(
-                        width: size.width,
-                        height: size.width,
-                        radius: 200,
-                        fadeTheme: QuickHelp.isDarkModeNoContext()
-                            ? FadeTheme.dark
-                            : FadeTheme.light,
-                      );
-                    } else if (snapshot.hasError || !snapshot.hasData) {
-                      return Icon(Icons.account_circle,
+Widget build(BuildContext context) {
+  final AvatarService avatarService = AvatarService();
+  var size = MediaQuery.of(context).size;
+
+  return Scaffold(
+    body: Stack(
+      children: [
+        ZegoUIKitPrebuiltLiveAudioRoom(
+          appID: Setup.zegoLiveStreamAppID,
+          appSign: Setup.zegoLiveStreamAppSign,
+          userID: widget.currentUser!.objectId!,
+          userName: widget.currentUser!.getFullName!,
+          roomID: widget.liveStreaming!.getStreamingChannel!,
+          config: (widget.isHost!
+              ? ZegoUIKitPrebuiltLiveAudioRoomConfig.host()
+              : ZegoUIKitPrebuiltLiveAudioRoomConfig.audience())
+            ..bottomMenuBar.audienceExtendButtons = [giftButton]
+            ..bottomMenuBar.speakerExtendButtons = [giftButton]
+            // نقلنا rowConfigs إلى هنا لتكون داخل الـ config
+            ..seat.layout.rowConfigs = [
+              ZegoLiveAudioRoomLayoutRowConfig(
+                count: 4,
+                alignment: ZegoLiveAudioRoomLayoutAlignment.spaceAround,
+              ),
+            ]
+            ..seat.avatarBuilder = (context, size, user, extraInfo) {
+              if (user == null) return const SizedBox();
+              return FutureBuilder<String?>(
+                future: avatarService.fetchUserAvatar(user.id),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return FadeShimmer(
+                      width: size.width,
+                      height: size.width,
+                      radius: 200,
+                      fadeTheme: QuickHelp.isDarkModeNoContext()
+                          ? FadeTheme.dark
+                          : FadeTheme.light,
+                    );
+                  }
+                  final avatarUrl = snapshot.data;
+                  return avatarUrl != null
+                      ? QuickActions.photosWidget(avatarUrl,
+                          width: size.width,
+                          height: size.height,
+                          borderRadius: 200)
+                      : Icon(Icons.account_circle,
                           size: size.width, color: Colors.white);
-                    }
-                    final avatarUrl = snapshot.data;
-                    return avatarUrl != null
-                        ? QuickActions.photosWidget(
-                            avatarUrl,
-                            width: size.width,
-                            height: size.height,
-                            borderRadius: 200,
-                          )
-                        : Icon(Icons.account_circle,
-                            size: size.width, color: Colors.white);
-                  }, // إغلاق الـ builder الخاص بـ FutureBuilder
-                ); // إغلاق الـ FutureBuilder
-              }, // إغلاق الـ avatarBuilder
-          ), // إغلاق الـ ZegoUIKitPrebuiltLiveAudioRoom (هذا هو القوس الذي كان ناقصاً ويسبب الخطأ 157)
-        ],
-      ),
-    );
-  }
+                },
+              );
+            },
+        ), // إغلاق الـ Widget الرئيسي هنا ينهي مشكلة 157 تماماً
+      ],
+    ),
+  );
+}
+
 
 
                   ..seat.layout.rowConfigs =
