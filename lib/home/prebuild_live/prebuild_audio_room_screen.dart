@@ -511,8 +511,8 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
                     ? "assets/svg/ic_unlocked_live.svg"
                     : "assets/svg/ic_locked_live.svg",
               )),
-      
-      
+             ),
+            );
 
   privatiseLive(GiftsModel gift) async {
     QuickHelp.showLoadingDialog(context);
