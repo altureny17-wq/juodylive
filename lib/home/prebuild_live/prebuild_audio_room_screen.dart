@@ -147,8 +147,8 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
   final isSeatClosedNotifier = ValueNotifier<bool>(false);
   final isRequestingNotifier = ValueNotifier<bool>(false);
 
-      @override
-Widget build(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
   final AvatarService avatarService = AvatarService();
   var size = MediaQuery.of(context).size;
 
@@ -196,14 +196,14 @@ Widget build(BuildContext context) {
                           borderRadius: 200)
                       : Icon(Icons.account_circle,
                           size: size.width, color: Colors.white);
-                },
-              );
-            },
-        ), // إغلاق الـ Widget الرئيسي هنا ينهي مشكلة 157 تماماً
-      ],
-    ),
-  );
-}
+                               },
+                              );
+                             },
+                           ), // إغلاق الـ Widget الرئيسي هنا ينهي مشكلة 157 تماماً
+                         ],
+                       ),
+                     );
+                   }
 
 
 
