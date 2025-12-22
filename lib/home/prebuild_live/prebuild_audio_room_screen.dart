@@ -1186,35 +1186,49 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
                 if (snapshot.hasData) {
                   UserModel user = snapshot.loadedData!;
                   return GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                       // استدعاء مباشر للكلاس لأنه هو من يفتح الـ BottomSheet داخلياً
-                      CoinsFlowPayment(
-                      context: context,
-                      currentUser: widget.currentUser!,
-                      onCoinsPurchased: (coins) {
-                            print(
-                                "onCoinsPurchased: $coins new: ${widget.currentUser!.getCredits}");
-                          },
-                          onGiftSelected: (gift) {
-                            print("onGiftSelected called ${gift.getCoins}");
-                            sendGift(gift, user);
+  onTap: () {
+    Navigator.pop(context);
+    CoinsFlowPayment(
+      context: context,
+      currentUser: widget.currentUser!,
+      onCoinsPurchased: (coins) {
+        print("onCoinsPurchased: $coins new: ${widget.currentUser!.getCredits}");
+      },
+      onGiftSelected: (gift) {
+        print("onGiftSelected called ${gift.getCoins}");
+        sendGift(gift, user);
 
-                            QuickHelp.showAppNotificationAdvanced(
-                              context: context,
-                              user: widget.currentUser,
-                              title: "live_streaming.gift_sent_title".tr(),
-                              message: "live_streaming.gift_sent_explain".tr(
-                                namedArgs: {
-                                  "name": user.getFirstName!,
-                                },
-                              ),
-                              isError: false,
-                            );
-                          },
-                        ),
-                      );
-                    },
+        QuickHelp.showAppNotificationAdvanced(
+          context: context,
+          user: widget.currentUser,
+          title: "live_streaming.gift_sent_title".tr(),
+          message: "live_streaming.gift_sent_explain".tr(
+            namedArgs: {"name": user.getFirstName!},
+          ),
+          isError: false,
+        );
+      },
+    );
+  },
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      QuickActions.avatarWidget(
+        user,
+        width: size.width / 5.5,
+        height: size.width / 5.5,
+      ),
+      TextWithTap(
+        user.getFullName!,
+        color: Colors.white,
+        marginTop: 5,
+        overflow: TextOverflow.ellipsis,
+        fontSize: 10,
+      ),
+    ],
+  ),
+);
+
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
