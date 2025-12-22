@@ -486,13 +486,9 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
     );
   }
 
-   ZegoUIKitMenuBarButton get privateLiveBtn =>
-      ZegoMenuBarExtendButton(
-        child: IconButton(
-          style: IconButton.styleFrom(
-            shape: const CircleBorder(),
-            backgroundColor: Colors.black26,
-          ),
+       Widget get giftButton => ZegoUIKitMenuBarButton(
+          icon: Icons.card_giftcard,
+          backgroundColor: Colors.black26,
           onPressed: () {
             if (showGiftSendersController.isPrivateLive.value) {
               unPrivatiseLive();
