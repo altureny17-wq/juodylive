@@ -54,6 +54,8 @@ class UserProfileScreen extends StatefulWidget {
   UserModel? currentUser, mUser;
   bool? isFollowing;
   final User? user;
+  const UserProfileScreen({Key? key, this.user}) : super(key: key);
+
   UserProfileScreen({this.currentUser, this.mUser, this.isFollowing});
 
   static String route = '/user/profile';
