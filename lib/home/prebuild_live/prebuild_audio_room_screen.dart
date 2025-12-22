@@ -486,33 +486,30 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
     );
   }
 
-       Widget get giftButton => ZegoUIKitIconButton(
-          backgroundColor: Colors.black26,
-          onPressed: () {
-            if (showGiftSendersController.isPrivateLive.value) {
-              unPrivatiseLive();
-            } else {
-              showModalBottomSheet(
-                context: context,
-                builder: (context) => SizedBox(
-                child: PrivateLivePriceWidget(),
-                  context: context,
-                  onCancel: () => QuickHelp.hideLoadingDialog(context),
-                  onGiftSelected: (gift) {
-                    QuickHelp.hideLoadingDialog(context);
-                    privatiseLive(gift);
-                  },
-                ),
-              );
-            }
-          },
-          icon: Obx(() => SvgPicture.asset(
-                showGiftSendersController.isPrivateLive.value
-                    ? "assets/svg/ic_unlocked_live.svg"
-                    : "assets/svg/ic_locked_live.svg",
-              )),
-             ),
-            );
+   Widget get giftButton => ZegoUIKitIconButton(
+      backgroundColor: Colors.black26,
+      onPressed: () {
+        if (showGiftSendersController.isPrivateLive.value) {
+          unPrivatiseLive();
+        } else {
+          showModalBottomSheet(
+            context: context,
+            builder: (context) => PrivateLivePriceWidget(
+              onCancel: () => QuickHelp.hideLoadingDialog(context),
+              onGiftSelected: (gift) {
+                QuickHelp.hideLoadingDialog(context);
+                privatiseLive(gift);
+              },
+            ),
+          );
+        }
+      },
+      icon: Obx(() => SvgPicture.asset(
+            showGiftSendersController.isPrivateLive.value
+                ? "assets/svg/ic_unlocked_live.svg"
+                : "assets/svg/ic_locked_live.svg",
+          )),
+    ); // تم إغلاق الزر هنا بشكل صحيح (قوس واحد وفاصلة منقوطة)
 
   privatiseLive(GiftsModel gift) async {
     QuickHelp.showLoadingDialog(context);
@@ -537,6 +534,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
       );
     }
   }
+    
 
   unPrivatiseLive() async {
     QuickHelp.showLoadingDialog(context);
