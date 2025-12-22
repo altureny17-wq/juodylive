@@ -492,15 +492,15 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
         if (showGiftSendersController.isPrivateLive.value) {
           unPrivatiseLive();
         } else {
-          showModalBottomSheet(
+          // الحل الصحيح: استدعاء الكلاس مباشرة بدون showModalBottomSheet
+          // لأن الكلاس نفسه يحتوي على دالة showModalBottomSheet داخله
+          PrivateLivePriceWidget(
             context: context,
-            builder: (context) => PrivateLivePriceWidget(
-              onCancel: () => QuickHelp.hideLoadingDialog(context),
-              onGiftSelected: (gift) {
-                QuickHelp.hideLoadingDialog(context);
-                privatiseLive(gift);
-              },
-            ),
+            onCancel: () => QuickHelp.hideLoadingDialog(context),
+            onGiftSelected: (gift) {
+              QuickHelp.hideLoadingDialog(context);
+              privatiseLive(gift);
+            },
           );
         }
       },
@@ -509,7 +509,8 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
                 ? "assets/svg/ic_unlocked_live.svg"
                 : "assets/svg/ic_locked_live.svg",
           )),
-    ); // تم إغلاق الزر هنا بشكل صحيح (قوس واحد وفاصلة منقوطة)
+    );
+
 
   privatiseLive(GiftsModel gift) async {
     QuickHelp.showLoadingDialog(context);
