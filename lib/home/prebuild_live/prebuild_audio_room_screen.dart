@@ -147,7 +147,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
   final isSeatClosedNotifier = ValueNotifier<bool>(false);
   final isRequestingNotifier = ValueNotifier<bool>(false);
 
-  @override
+      @override
   Widget build(BuildContext context) {
     final AvatarService avatarService = AvatarService();
     var size = MediaQuery.of(context).size;
@@ -160,44 +160,51 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
             userID: widget.currentUser!.objectId!,
             userName: widget.currentUser!.getFullName!,
             roomID: widget.liveStreaming!.getStreamingChannel!,
-            config: widget.isHost!
+            // أضفنا قوسين حول الشرط لضمان عمل الـ Cascade Operator (..) بشكل صحيح
+            config: (widget.isHost!
                 ? ZegoUIKitPrebuiltLiveAudioRoomConfig.host()
-                : ZegoUIKitPrebuiltLiveAudioRoomConfig.audience()
-                  ..bottomMenuBar.audienceExtendButtons = [giftButton]
-                  ..bottomMenuBar.speakerExtendButtons = [giftButton]
-                  ..seat.avatarBuilder = (BuildContext context, Size size,
-                      ZegoUIKitUser? user, Map extraInfo) {
-                    if (user == null) return const SizedBox();
-                    return FutureBuilder<String?>(
-                      future: avatarService.fetchUserAvatar(user.id),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return FadeShimmer(
+                : ZegoUIKitPrebuiltLiveAudioRoomConfig.audience())
+              ..bottomMenuBar.audienceExtendButtons = [giftButton]
+              ..bottomMenuBar.speakerExtendButtons = [giftButton]
+              ..seat.avatarBuilder = (BuildContext context, Size size,
+                  ZegoUIKitUser? user, Map extraInfo) {
+                if (user == null) return const SizedBox();
+                return FutureBuilder<String?>(
+                  future: avatarService.fetchUserAvatar(user.id),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return FadeShimmer(
+                        width: size.width,
+                        height: size.width,
+                        radius: 200,
+                        fadeTheme: QuickHelp.isDarkModeNoContext()
+                            ? FadeTheme.dark
+                            : FadeTheme.light,
+                      );
+                    } else if (snapshot.hasError || !snapshot.hasData) {
+                      return Icon(Icons.account_circle,
+                          size: size.width, color: Colors.white);
+                    }
+                    final avatarUrl = snapshot.data;
+                    return avatarUrl != null
+                        ? QuickActions.photosWidget(
+                            avatarUrl,
                             width: size.width,
-                            height: size.width,
-                            radius: 200,
-                            fadeTheme: QuickHelp.isDarkModeNoContext()
-                                ? FadeTheme.dark
-                                : FadeTheme.light,
-                          );
-                        } else if (snapshot.hasError || !snapshot.hasData) {
-                          return Icon(Icons.account_circle,
-                              size: size.width, color: Colors.white);
-                        }
-                        final avatarUrl = snapshot.data;
-                        return avatarUrl != null
-                            ? QuickActions.photosWidget(
-                                avatarUrl,
-                                width: size.width,
-                                height: size.height,
-                                borderRadius: 200,
-                              )
-                            : Icon(Icons.account_circle,
-                                size: size.width, color: Colors.white);
-                      },
-                    );
-                  }
+                            height: size.height,
+                            borderRadius: 200,
+                          )
+                        : Icon(Icons.account_circle,
+                            size: size.width, color: Colors.white);
+                  }, // إغلاق الـ builder الخاص بـ FutureBuilder
+                ); // إغلاق الـ FutureBuilder
+              }, // إغلاق الـ avatarBuilder
+          ), // إغلاق الـ ZegoUIKitPrebuiltLiveAudioRoom (هذا هو القوس الذي كان ناقصاً ويسبب الخطأ 157)
+        ],
+      ),
+    );
+  }
+
+
                   ..seat.layout.rowConfigs =
                       List.generate(numberOfSeats, (index) {
                     if (index == 0) {
@@ -1181,12 +1188,11 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
                   return GestureDetector(
                     onTap: () {
                       Navigator.pop(context);
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (context) => CoinsFlowPayment(
-                          context: context,
-                          currentUser: widget.currentUser!,
-                          onCoinsPurchased: (coins) {
+                       // استدعاء مباشر للكلاس لأنه هو من يفتح الـ BottomSheet داخلياً
+                      CoinsFlowPayment(
+                      context: context,
+                      currentUser: widget.currentUser!,
+                      onCoinsPurchased: (coins) {
                             print(
                                 "onCoinsPurchased: $coins new: ${widget.currentUser!.getCredits}");
                           },
