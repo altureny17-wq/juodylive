@@ -147,65 +147,75 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
   final isSeatClosedNotifier = ValueNotifier<bool>(false);
   final isRequestingNotifier = ValueNotifier<bool>(false);
 
+   
   @override
   Widget build(BuildContext context) {
-  final AvatarService avatarService = AvatarService();
-  var size = MediaQuery.of(context).size;
+    final AvatarService avatarService = AvatarService();
+    final size = MediaQuery.of(context).size;
 
-  return Scaffold(
-    body: Stack(
-      children: [
-        ZegoUIKitPrebuiltLiveAudioRoom(
-          appID: Setup.zegoLiveStreamAppID,
-          appSign: Setup.zegoLiveStreamAppSign,
-          userID: widget.currentUser!.objectId!,
-          userName: widget.currentUser!.getFullName!,
-          roomID: widget.liveStreaming!.getStreamingChannel!,
-          config: (widget.isHost!
-              ? ZegoUIKitPrebuiltLiveAudioRoomConfig.host()
-              : ZegoUIKitPrebuiltLiveAudioRoomConfig.audience())
-            ..bottomMenuBar.audienceExtendButtons = [giftButton]
-            ..bottomMenuBar.speakerExtendButtons = [giftButton]
-            // نقلنا rowConfigs إلى هنا لتكون داخل الـ config
-            ..seat.layout.rowConfigs = [
-              ZegoLiveAudioRoomLayoutRowConfig(
-                count: 4,
-                alignment: ZegoLiveAudioRoomLayoutAlignment.spaceAround,
-              ),
-            ]
-            ..seat.avatarBuilder = (context, size, user, extraInfo) {
-              if (user == null) return const SizedBox();
-              return FutureBuilder<String?>(
-                future: avatarService.fetchUserAvatar(user.id),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return FadeShimmer(
-                      width: size.width,
-                      height: size.width,
-                      radius: 200,
-                      fadeTheme: QuickHelp.isDarkModeNoContext()
-                          ? FadeTheme.dark
-                          : FadeTheme.light,
-                    );
-                  }
-                  final avatarUrl = snapshot.data;
-                  return avatarUrl != null
-                      ? QuickActions.photosWidget(avatarUrl,
-                          width: size.width,
-                          height: size.height,
-                          borderRadius: 200)
-                      : Icon(Icons.account_circle,
-                          size: size.width, color: Colors.white);
-                               },
-                              );
-                             },
-                           ), // إغلاق الـ Widget الرئيسي هنا ينهي مشكلة 157 تماماً
-                         ],
-                       ),
-                     );
-                   }
+    return Scaffold(
+      body: Stack(
+        children: [
+          ZegoUIKitPrebuiltLiveAudioRoom(
+            appID: Setup.zegoLiveStreamAppID,
+            appSign: Setup.zegoLiveStreamAppSign,
+            userID: widget.currentUser!.objectId!,
+            userName: widget.currentUser!.getFullName!,
+            roomID: widget.liveStreaming!.getStreamingChannel!,
+            config: (widget.isHost!
+                    ? ZegoUIKitPrebuiltLiveAudioRoomConfig.host()
+                    : ZegoUIKitPrebuiltLiveAudioRoomConfig.audience())
+              ..bottomMenuBar.audienceExtendButtons = [giftButton]
+              ..bottomMenuBar.speakerExtendButtons = [giftButton]
 
+            // rowConfigs داخل config (صحيح)
+              ..seat.layout.rowConfigs = [
+                ZegoLiveAudioRoomLayoutRowConfig(
+                  count: 4,
+                  alignment: ZegoLiveAudioRoomLayoutAlignment.spaceAround,
+                ),
+              ]
 
+            // avatarBuilder صحيح
+              ..seat.avatarBuilder = (context, seatSize, user, extraInfo) {
+                if (user == null) return const SizedBox();
+
+                return FutureBuilder<String?>(
+                  future: avatarService.fetchUserAvatar(user.id),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return FadeShimmer(
+                        width: seatSize.width,
+                        height: seatSize.width,
+                        radius: 200,
+                        fadeTheme: QuickHelp.isDarkModeNoContext()
+                            ? FadeTheme.dark
+                            : FadeTheme.light,
+                      );
+                    }
+
+                    final avatarUrl = snapshot.data;
+                    return avatarUrl != null
+                        ? QuickActions.photosWidget(
+                            avatarUrl,
+                            width: seatSize.width,
+                            height: seatSize.width,
+                            borderRadius: 200,
+                          )
+                        : Icon(
+                            Icons.account_circle,
+                            size: seatSize.width,
+                            color: Colors.white,
+                          );
+                     },
+                  );
+               },
+            ),
+          ],
+        ),
+      );
+    }
 
                   ..seat.layout.rowConfigs =
                       List.generate(numberOfSeats, (index) {
