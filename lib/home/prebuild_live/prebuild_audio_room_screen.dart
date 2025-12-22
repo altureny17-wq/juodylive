@@ -486,7 +486,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
     );
   }
 
-   Widget get giftButton => ZegoUIKitIconButton(
+   Widget get giftButton => IconButton(
       backgroundColor: Colors.black26,
       onPressed: () {
         if (showGiftSendersController.isPrivateLive.value) {
@@ -711,55 +711,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
     }
   }
 
- ZegoUIKitMenuBarButton get giftButton =>
-      ZegoUIKitMenuBarButton(
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            shape: const CircleBorder(),
-            backgroundColor: Colors.black26,
-          ),
-          onPressed: () {
-            if (coHostsList.isNotEmpty) {
-              openUserToReceiveCoins();
-              return;
-            }
-            showModalBottomSheet(
-              context: context,
-              builder: (context) => CoinsFlowPayment(
-                context: context,
-                currentUser: widget.currentUser!,
-                onCoinsPurchased: (coins) {
-                  print(
-                      "onCoinsPurchased: $coins new: ${widget.currentUser!.getCredits}");
-                },
-                onGiftSelected: (gift) {
-                  print("onGiftSelected called ${gift.getCoins}");
-                  sendGift(gift, widget.liveStreaming!.getAuthor!);
-
-                  QuickHelp.showAppNotificationAdvanced(
-                    context: context,
-                    user: widget.currentUser,
-                    title: "live_streaming.gift_sent_title".tr(),
-                    message: "live_streaming.gift_sent_explain".tr(
-                      namedArgs: {
-                        "name": widget.liveStreaming!.getAuthor!.getFirstName!
-                      },
-                    ),
-                    isError: false,
-                  );
-                },
-              ),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(3.0),
-            child: Lottie.asset(
-              "assets/lotties/ic_gift.json",
-              height: 29,
-            ),
-          ),
-        ),
-      );
+ 
 
   setupStreamingLiveQuery() async {
     QueryBuilder<LiveStreamingModel> query =
