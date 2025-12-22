@@ -486,7 +486,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
     );
   }
 
-   ZegoMenuBarExtendButton get privateLiveBtn =>
+   ZegoUIKitMenuBarButton get privateLiveBtn =>
       ZegoMenuBarExtendButton(
         child: IconButton(
           style: IconButton.styleFrom(
@@ -716,8 +716,8 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen>
     }
   }
 
-  ZegoMenuBarExtendButton get giftButton =>
-      ZegoMenuBarExtendButton(
+ ZegoUIKitMenuBarButton get giftButton =>
+      ZegoUIKitMenuBarButton(
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             shape: const CircleBorder(),
