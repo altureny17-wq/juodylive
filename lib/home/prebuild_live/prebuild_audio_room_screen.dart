@@ -904,12 +904,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
     size: playerSize,
   );
   }
-      initPosition: Offset(
-        size.width - playerSize.width - padding,
-        size.height - playerSize.height - padding - 40,
-      ),
-    );
-  }
+
 
   Widget customUiComponents() {
     return Stack(
