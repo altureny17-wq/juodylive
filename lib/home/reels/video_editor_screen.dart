@@ -82,10 +82,9 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
 
     _exportText = "";
 
-    try {
     final file = await _controller.buildVideo(
      onProgress: (stats, value) => _exportingProgress.value = value,
-     );
+     
 
      _isExporting.value = false;
 
@@ -98,7 +97,7 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
     _isExporting.value = false;
     _exportText = "Error during export: $e";
      debugPrintStack(stackTrace: s);
-      }
+      
 
             //_exportText = "Cover exported! ${cover.path}";
 
