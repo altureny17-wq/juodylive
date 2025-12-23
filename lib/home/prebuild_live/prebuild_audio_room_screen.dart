@@ -1054,7 +1054,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
           return Visibility(
             visible: showGiftSendersController.shareMediaFiles.value,
               child: advanceMediaPlayer(
-                canControl: widget.isHost!,
+                playerSize: playerSize,
               ),);
         }),
       ],
