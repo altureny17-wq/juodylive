@@ -78,26 +78,19 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
     _exportingProgress.value = 0;
     _isExporting.value = true;
     // NOTE: To use `-crf 1` and [VideoExportPreset] you need `ffmpeg_kit_flutter_min_gpl` package (with `ffmpeg_kit` only it won't work)
-    // بدء تصدير الفيديو
+    await _controller.buildVideo(
+      //preset: VideoExportPreset.medium,
+      // customInstruction: "-crf 17",
+      onProgress: (stats, value) => _exportingProgress.value = value,
+      onError: (e, s) => _exportText = "Error on export video :(",
+      onCompleted: (file) async {
+        _isExporting.value = false;
 
-    _exportText = "";
-
-    final file = await _controller.buildVideo(
-     onProgress: (stats, value) => _exportingProgress.value = value,
-     
-
-     _isExporting.value = false;
-
-  // تصدير صورة الغلاف (cover) 
-    final cover = await _controller.exportCover();
-    if (!mounted) return;
-
-  // هنا يمكنك استخدام الملف والفيديو المصدَّر
-    } catch (e, s) {
-    _isExporting.value = false;
-    _exportText = "Error during export: $e";
-     debugPrintStack(stackTrace: s);
-      
+        // تم تصحيح الخطأ هنا: استبدال extractCover بـ exportCover
+        await _controller.exportCover(
+          onError: (e, s) => _exportText = "Error on cover exportation :(",
+          onCompleted: (cover) {
+            if (!mounted) return;
 
             //_exportText = "Cover exported! ${cover.path}";
 
@@ -145,7 +138,7 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
   void _exportCover() async {
     setState(() => _exported = false);
     // تم تصحيح الخطأ هنا: استبدال extractCover بـ exportCover
-    await _controller.extractCover(
+    await _controller.exportCover(
       onError: (e, s) => _exportText = "Error on cover exportation :(",
       onCompleted: (cover) {
         if (!mounted) return;
