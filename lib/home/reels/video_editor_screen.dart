@@ -61,22 +61,25 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
   }
 
   @override
-  void dispose() {
-    _exportingProgress.dispose();
-    _isExporting.dispose();
-    _controller.dispose();
-    super.dispose();
-  }
+void dispose() {
+  _exportingProgress.dispose();
+  _isExporting.dispose();
+  _controller.dispose();
+  super.dispose();
+}
 
-  void _openCropScreen() => Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-          builder: (BuildContext context) =>
-              CropScreen(controller: _controller)));
+void _openCropScreen() => Navigator.push(
+  context,
+  MaterialPageRoute<void>(
+    builder: (BuildContext context) =>
+        CropScreen(controller: _controller),
+  ),
+);
 
-  Future<void> _exportVideo() async {
+Future<void> _exportVideo() async {
   _exportingProgress.value = 0;
   _isExporting.value = true;
+  _exportText = "";
 
   await _controller.exportVideo(
     onProgress: (stats, progress) {
@@ -90,19 +93,22 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
       _isExporting.value = false;
 
       try {
-        // استخراج صورة الغلاف (منتصف الفيديو)
+        // استخراج صورة الغلاف من منتصف الفيديو
         final cover = await _controller.extractCover(
           time: _controller.videoDuration.inMilliseconds ~/ 2,
         );
 
         if (!mounted) return;
 
-        print("Exported cover ${cover.path}");
         print("Exported Video ${file.path}");
+        print("Exported Cover ${cover.path}");
 
         VideoEditorModel videoEditorModel = VideoEditorModel();
-        videoEditorModel.setCoverPath(cover.path);
         videoEditorModel.setVideoFile(file);
+        videoEditorModel.setCoverPath(cover.path);
+
+        _exportText = "Video success export!";
+        setState(() => _exported = true);
 
         QuickHelp.goBackToPreviousPage(
           context,
@@ -110,60 +116,7 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
         );
       } catch (e) {
         _exportText = "Error on cover exportation :(";
-      },
-    );
-  
-
-        /*final VideoPlayerController videoController = VideoPlayerController.file(file);
-
-        videoController.initialize().then((value) async {
-          setState(() {});
-          videoController.play();
-          videoController.setLooping(true);
-          await showDialog(
-            context: context,
-            builder: (_) => Padding(
-              padding: const EdgeInsets.all(30),
-              child: Center(
-                child: AspectRatio(
-                  aspectRatio: videoController.value.aspectRatio,
-                  child: VideoPlayer(videoController),
-                ),
-              ),
-            ),
-          );
-          await videoController.pause();
-          videoController.dispose();
-        });*/
-
-        _exportText = "Video success export!";
-        setState(() => _exported = true);
-        /*Future.delayed(const Duration(seconds: 2),
-            () => setState(() => _exported = false));*/
-      },
-    );
-  }
-
-  void _exportCover() async {
-    setState(() => _exported = false);
-    // تم تصحيح الخطأ هنا: استبدال extractCover بـ exportCover
-    await _controller.exportCover(
-      onError: (e, s) => _exportText = "Error on cover exportation :(",
-      onCompleted: (cover) {
-        if (!mounted) return;
-
-        _exportText = "Cover exported! ${cover.path}";
-        showDialog(
-          context: context,
-          builder: (_) => Padding(
-            padding: const EdgeInsets.all(30),
-            child: Center(child: Image.memory(cover.readAsBytesSync())),
-          ),
-        );
-
-        setState(() => _exported = true);
-        Future.delayed(const Duration(seconds: 2),
-            () => setState(() => _exported = false));
+        }
       },
     );
   }
