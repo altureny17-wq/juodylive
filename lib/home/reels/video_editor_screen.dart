@@ -60,7 +60,6 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
     super.initState();
   }
 
-
   @override
   void dispose() {
     _exportingProgress.dispose();
@@ -69,32 +68,36 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
     super.dispose();
   }
 
-  // دالة تصدير الفيديو - النسخة النهائية المتوافقة مع 3.0.0
+  // تعديل: تأكد أن الدالة معرفة بهذا الشكل لاستخدامها في الأزرار
+  void _openCropScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => CropScreen(controller: _controller),
+      ),
+    );
+  }
+
   Future<void> _exportVideo() async {
     _exportingProgress.value = 0;
     _isExporting.value = true;
 
-    // 1. توليد إعدادات التصدير (Config) من مكتبة video_editor
     final config = VideoFFmpegVideoEditorConfig(_controller);
     final execute = await config.getExecuteConfig();
 
-    // 2. تنفيذ الأمر باستخدام FFmpegKit المتاحة في مشروعك
     await FFmpegKit.executeAsync(
       execute.command,
       (session) async {
-        // التحقق من حالة الانتهاء باستخدام الـ session مباشرة
         final returnCode = await session.getReturnCode();
 
-        // في نسخة min_gpl، نتحقق مما إذا كان الكود يساوي 0 (نجاح)
         if (returnCode != null && returnCode.getValue() == 0) {
           _isExporting.value = false;
           final File file = File(execute.outputPath);
 
           try {
-            // استخراج صورة الغلاف عند منتصف الفيديو
-            final File? cover = await _controller.extractCover(
-              at: Duration(milliseconds: _controller.videoDuration.inMilliseconds ~/ 2),
-            );
+            // تصحيح: استخراج الغلاف في 3.0.0 يستخدم CoverExportService
+            final coverConfig = CoverExportConfig(_controller);
+            final File? cover = await coverConfig.execute();
 
             if (!mounted) return;
 
@@ -102,49 +105,37 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
             videoEditorModel.setCoverPath(cover?.path ?? "");
             videoEditorModel.setVideoFile(file);
 
-            // العودة بالنتيجة
             Navigator.of(context).pop(videoEditorModel);
           } catch (e) {
-            debugPrint("Error extracting cover: $e");
+            debugPrint("Error: $e");
           }
-
-          if (mounted) {
-            setState(() {
-              _exportText = "Video success export!";
-              _exported = true;
-            });
-          }
+          
+          if (mounted) setState(() => _exported = true);
         } else {
-          // حالة الفشل
           _isExporting.value = false;
-          if (mounted) {
-            setState(() => _exportText = "Error on export video :(");
-          }
+          if (mounted) setState(() => _exportText = "Error on export video :(");
         }
       },
       (log) => debugPrint(log.getMessage()),
       (statistics) {
-        // تحديث التقدم (Progress)
-        if (execute.duration != null) {
-          final double progress = statistics.getTime() / execute.duration!.inMilliseconds;
+        // تصحيح: استخدام videoDuration من الـ controller مباشرة
+        final duration = _controller.videoDuration.inMilliseconds;
+        if (duration > 0) {
+          final double progress = statistics.getTime() / duration;
           _exportingProgress.value = progress.clamp(0.0, 1.0);
         }
       },
     );
   }
 
-  // دالة تصدير الغلاف - النسخة المتوافقة مع 3.0.0
   void _exportCover() async {
     setState(() => _exported = false);
-    
     try {
-      // استدعاء ميثود استخراج الغلاف مباشرة من الكنترولر (تغيرت في 3.0.0 لتصبح Future)
-      final File? cover = await _controller.extractCover();
+      // تصحيح: استخراج الغلاف في 3.0.0
+      final coverConfig = CoverExportConfig(_controller);
+      final File? cover = await coverConfig.execute();
 
-      if (!mounted) return;
-
-      if (cover != null) {
-        _exportText = "Cover exported! ${cover.path}";
+      if (cover != null && mounted) {
         showDialog(
           context: context,
           builder: (_) => Padding(
@@ -152,19 +143,13 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
             child: Center(child: Image.file(cover)),
           ),
         );
-
         setState(() => _exported = true);
-        Future.delayed(const Duration(seconds: 2),
-            () => setState(() => _exported = false));
+        Future.delayed(const Duration(seconds: 2), () => setState(() => _exported = false));
       }
     } catch (e) {
-      if (mounted) {
-        setState(() => _exportText = "Error on cover exportation :(");
-      }
+      if (mounted) setState(() => _exportText = "Error on cover exportation :(");
     }
   }
-
-  
   
 
   @override
