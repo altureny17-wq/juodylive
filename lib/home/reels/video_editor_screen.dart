@@ -59,8 +59,8 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
 
     super.initState();
   }
-
-   @override
+ 
+  @override
   void dispose() {
     _exportingProgress.dispose();
     _isExporting.dispose();
@@ -78,10 +78,10 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
     _exportingProgress.value = 0;
     _isExporting.value = true;
 
-    // في إصدار 3.0.0، هيكلية التصدير تعتمد على VideoExportConfig أو البارامترات المباشرة
-    await _controller.exportVideo(
-      onProgress: (progress) {
-        // في الإصدار الجديد progress عادة ما يكون double مباشرة
+    // ملاحظة: في الإصدار 3.0.0 نستخدم ExportService بدلاً من _controller.exportVideo
+    await ExportService.exportVideo(
+      controller: _controller,
+      onProgress: (stats, progress) {
         _exportingProgress.value = progress;
       },
       onError: (Object error, StackTrace? stackTrace) {
@@ -92,24 +92,24 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
         _isExporting.value = false;
 
         try {
-          // استخراج صورة الغلاف (Cover) في الإصدار 3.0.0
-          // ملاحظة: تأكد من استخدام extractCover أو الـ Controller المناسب
-          final File? cover = await _controller.extractCover(
+          // استخراج الغلاف باستخدام ExportService
+          final File? cover = await ExportService.extractCover(
+            controller: _controller,
             at: Duration(milliseconds: _controller.videoDuration.inMilliseconds ~/ 2),
           );
 
           if (!mounted) return;
 
           if (cover != null) {
-            print("Exported cover ${cover.path}");
-            print("Exported Video ${file.path}");
-
             VideoEditorModel videoEditorModel = VideoEditorModel();
             videoEditorModel.setCoverPath(cover.path);
             videoEditorModel.setVideoFile(file);
 
-            // العودة للصفحة السابقة مع البيانات
-            Navigator.of(context).pop(videoEditorModel);
+            // العودة للصفحة السابقة
+            QuickHelp.goBackToPreviousPage(
+              context,
+              result: videoEditorModel,
+            );
           }
         } catch (e) {
           setState(() => _exportText = "Error on cover exportation :(");
@@ -126,8 +126,9 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
   void _exportCover() async {
     setState(() => _exported = false);
     
-    // التعديل هنا ليتناسب مع 3.0.0 حيث تستخدم المعاملات المحدثة
-    await _controller.extractCover(
+    // استخراج الغلاف بشكل مستقل
+    await ExportService.extractCover(
+      controller: _controller,
       onError: (Object error, StackTrace? stackTrace) {
         setState(() => _exportText = "Error on cover exportation :(");
       },
@@ -143,7 +144,7 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
           context: context,
           builder: (_) => Padding(
             padding: const EdgeInsets.all(30),
-            child: Center(child: Image.file(cover)), // استخدام Image.file مباشرة أفضل
+            child: Center(child: Image.file(cover)),
           ),
         );
 
@@ -152,6 +153,7 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
       },
     );
   }
+  
 
 
   @override
