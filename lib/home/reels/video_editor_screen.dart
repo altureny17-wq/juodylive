@@ -68,7 +68,7 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
     super.dispose();
   }
 
-  // تعديل: تأكد أن الدالة معرفة بهذا الشكل لاستخدامها في الأزرار
+    // 1. دالة فتح شاشة القص
   void _openCropScreen() {
     Navigator.push(
       context,
@@ -78,47 +78,78 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
     );
   }
 
+  // 2. دالة تصدير الفيديو (مع تصحيح استخراج الغلاف)
   Future<void> _exportVideo() async {
     _exportingProgress.value = 0;
     _isExporting.value = true;
 
-    final config = VideoFFmpegVideoEditorConfig(_controller);
-    final execute = await config.getExecuteConfig();
+    // إعدادات الفيديو
+    final videoConfig = VideoFFmpegVideoEditorConfig(_controller);
+    final videoExecute = await videoConfig.getExecuteConfig();
 
+    // تنفيذ أمر تصدير الفيديو
     await FFmpegKit.executeAsync(
-      execute.command,
+      videoExecute.command,
       (session) async {
         final returnCode = await session.getReturnCode();
 
         if (returnCode != null && returnCode.getValue() == 0) {
           _isExporting.value = false;
-          final File file = File(execute.outputPath);
+          final File videoFile = File(videoExecute.outputPath);
 
+          // --- بداية عملية استخراج الغلاف يدوياً ---
           try {
-            // تصحيح: استخراج الغلاف في 3.0.0 يستخدم CoverExportService
-            final coverConfig = CoverExportConfig(_controller);
-            final File? cover = await coverConfig.execute();
+            // استخدام الاسم الصحيح: CoverFFmpegVideoEditorConfig
+            final coverConfig = CoverFFmpegVideoEditorConfig(_controller);
+            final coverExecute = await coverConfig.getExecuteConfig();
 
-            if (!mounted) return;
+            // تنفيذ أمر استخراج الغلاف باستخدام FFmpegKit
+            await FFmpegKit.executeAsync(
+              coverExecute.command,
+              (coverSession) async {
+                final coverReturnCode = await coverSession.getReturnCode();
 
-            VideoEditorModel videoEditorModel = VideoEditorModel();
-            videoEditorModel.setCoverPath(cover?.path ?? "");
-            videoEditorModel.setVideoFile(file);
+                if (coverReturnCode != null && coverReturnCode.getValue() == 0) {
+                  final File coverFile = File(coverExecute.outputPath);
 
-            Navigator.of(context).pop(videoEditorModel);
+                  if (!mounted) return;
+
+                  VideoEditorModel videoEditorModel = VideoEditorModel();
+                  videoEditorModel.setCoverPath(coverFile.path);
+                  videoEditorModel.setVideoFile(videoFile);
+
+                  Navigator.of(context).pop(videoEditorModel);
+                } else {
+                   debugPrint("Cover generation failed");
+                   // حتى لو فشل الغلاف، نعيد الفيديو فقط لتجنب تعليق التطبيق
+                   if (mounted) {
+                     VideoEditorModel videoEditorModel = VideoEditorModel();
+                     videoEditorModel.setVideoFile(videoFile);
+                     Navigator.of(context).pop(videoEditorModel);
+                   }
+                }
+              }
+            );
           } catch (e) {
-            debugPrint("Error: $e");
+            debugPrint("Error extracting cover: $e");
           }
-          
-          if (mounted) setState(() => _exported = true);
+          // ---------------------------------------
+
+          if (mounted) {
+            setState(() {
+              _exportText = "Video success export!";
+              _exported = true;
+            });
+          }
         } else {
           _isExporting.value = false;
-          if (mounted) setState(() => _exportText = "Error on export video :(");
+          if (mounted) {
+            setState(() => _exportText = "Error on export video :(");
+          }
         }
       },
       (log) => debugPrint(log.getMessage()),
       (statistics) {
-        // تصحيح: استخدام videoDuration من الـ controller مباشرة
         final duration = _controller.videoDuration.inMilliseconds;
         if (duration > 0) {
           final double progress = statistics.getTime() / duration;
@@ -128,30 +159,54 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
     );
   }
 
+  // 3. دالة تصدير الغلاف بشكل مستقل
   void _exportCover() async {
     setState(() => _exported = false);
+    
     try {
-      // تصحيح: استخراج الغلاف في 3.0.0
-      final coverConfig = CoverExportConfig(_controller);
-      final File? cover = await coverConfig.execute();
+      // استخدام الاسم الصحيح: CoverFFmpegVideoEditorConfig
+      final coverConfig = CoverFFmpegVideoEditorConfig(_controller);
+      final coverExecute = await coverConfig.getExecuteConfig();
 
-      if (cover != null && mounted) {
-        showDialog(
-          context: context,
-          builder: (_) => Padding(
-            padding: const EdgeInsets.all(30),
-            child: Center(child: Image.file(cover)),
-          ),
-        );
-        setState(() => _exported = true);
-        Future.delayed(const Duration(seconds: 2), () => setState(() => _exported = false));
-      }
+      // تنفيذ الأمر يدوياً
+      await FFmpegKit.executeAsync(
+        coverExecute.command,
+        (session) async {
+          final returnCode = await session.getReturnCode();
+
+          if (returnCode != null && returnCode.getValue() == 0) {
+            final File coverFile = File(coverExecute.outputPath);
+
+            if (!mounted) return;
+
+            setState(() {
+              _exportText = "Cover exported! ${coverFile.path}";
+              _exported = true;
+            });
+
+            showDialog(
+              context: context,
+              builder: (_) => Padding(
+                padding: const EdgeInsets.all(30),
+                child: Center(child: Image.file(coverFile)),
+              ),
+            );
+
+            Future.delayed(const Duration(seconds: 2),
+                () => setState(() => _exported = false));
+          } else {
+            if (mounted) setState(() => _exportText = "Error on cover exportation :(");
+          }
+        }
+      );
     } catch (e) {
-      if (mounted) setState(() => _exportText = "Error on cover exportation :(");
+      if (mounted) {
+        setState(() => _exportText = "Error on cover exportation :(");
+      }
     }
   }
   
-
+  
   @override
   Widget build(BuildContext context) {
 
