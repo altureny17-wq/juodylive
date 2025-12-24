@@ -60,66 +60,99 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
     super.initState();
   }
 
-  @override
-void dispose() {
-  _exportingProgress.dispose();
-  _isExporting.dispose();
-  _controller.dispose();
-  super.dispose();
-}
+   @override
+  void dispose() {
+    _exportingProgress.dispose();
+    _isExporting.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
 
-void _openCropScreen() => Navigator.push(
-  context,
-  MaterialPageRoute<void>(
-    builder: (BuildContext context) =>
-        CropScreen(controller: _controller),
-  ),
-);
+  void _openCropScreen() => Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+          builder: (BuildContext context) =>
+              CropScreen(controller: _controller)));
 
-Future<void> _exportVideo() async {
-  _exportingProgress.value = 0;
-  _isExporting.value = true;
-  _exportText = "";
+  Future<void> _exportVideo() async {
+    _exportingProgress.value = 0;
+    _isExporting.value = true;
 
-  await _controller.exportVideo(
-    onProgress: (stats, progress) {
-      _exportingProgress.value = progress;
-    },
-    onError: (error, stackTrace) {
-      _isExporting.value = false;
-      _exportText = "Error on export video :(";
-    },
-    onCompleted: (file) async {
-      _isExporting.value = false;
+    // في إصدار 3.0.0، هيكلية التصدير تعتمد على VideoExportConfig أو البارامترات المباشرة
+    await _controller.exportVideo(
+      onProgress: (progress) {
+        // في الإصدار الجديد progress عادة ما يكون double مباشرة
+        _exportingProgress.value = progress;
+      },
+      onError: (Object error, StackTrace? stackTrace) {
+        _isExporting.value = false;
+        setState(() => _exportText = "Error on export video :(");
+      },
+      onCompleted: (File file) async {
+        _isExporting.value = false;
 
-      try {
-        // استخراج صورة الغلاف من منتصف الفيديو
-        final cover = await _controller.extractCover(
-          time: _controller.videoDuration.inMilliseconds ~/ 2,
-        );
+        try {
+          // استخراج صورة الغلاف (Cover) في الإصدار 3.0.0
+          // ملاحظة: تأكد من استخدام extractCover أو الـ Controller المناسب
+          final File? cover = await _controller.extractCover(
+            at: Duration(milliseconds: _controller.videoDuration.inMilliseconds ~/ 2),
+          );
 
-        if (!mounted) return;
+          if (!mounted) return;
 
-        print("Exported Video ${file.path}");
-        print("Exported Cover ${cover.path}");
+          if (cover != null) {
+            print("Exported cover ${cover.path}");
+            print("Exported Video ${file.path}");
 
-        VideoEditorModel videoEditorModel = VideoEditorModel();
-        videoEditorModel.setVideoFile(file);
-        videoEditorModel.setCoverPath(cover.path);
+            VideoEditorModel videoEditorModel = VideoEditorModel();
+            videoEditorModel.setCoverPath(cover.path);
+            videoEditorModel.setVideoFile(file);
 
-        _exportText = "Video success export!";
-        setState(() => _exported = true);
-
-        QuickHelp.goBackToPreviousPage(
-          context,
-          result: videoEditorModel,
-        );
-      } catch (e) {
-        _exportText = "Error on cover exportation :(";
+            // العودة للصفحة السابقة مع البيانات
+            Navigator.of(context).pop(videoEditorModel);
+          }
+        } catch (e) {
+          setState(() => _exportText = "Error on cover exportation :(");
         }
+
+        setState(() {
+          _exportText = "Video success export!";
+          _exported = true;
+        });
       },
     );
   }
+
+  void _exportCover() async {
+    setState(() => _exported = false);
+    
+    // التعديل هنا ليتناسب مع 3.0.0 حيث تستخدم المعاملات المحدثة
+    await _controller.extractCover(
+      onError: (Object error, StackTrace? stackTrace) {
+        setState(() => _exportText = "Error on cover exportation :(");
+      },
+      onCompleted: (File cover) {
+        if (!mounted) return;
+
+        setState(() {
+          _exportText = "Cover exported! ${cover.path}";
+          _exported = true;
+        });
+
+        showDialog(
+          context: context,
+          builder: (_) => Padding(
+            padding: const EdgeInsets.all(30),
+            child: Center(child: Image.file(cover)), // استخدام Image.file مباشرة أفضل
+          ),
+        );
+
+        Future.delayed(const Duration(seconds: 2),
+            () => setState(() => _exported = false));
+      },
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
