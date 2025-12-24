@@ -110,8 +110,8 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
         );
       } catch (e) {
         _exportText = "Error on cover exportation :(";
-    },
-  );
+      },
+    );
   
 
         /*final VideoPlayerController videoController = VideoPlayerController.file(file);
