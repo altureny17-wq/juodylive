@@ -74,36 +74,45 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
           builder: (BuildContext context) =>
               CropScreen(controller: _controller)));
 
-  void _exportVideo() async {
-    _exportingProgress.value = 0;
-    _isExporting.value = true;
-    // NOTE: To use `-crf 1` and [VideoExportPreset] you need `ffmpeg_kit_flutter_min_gpl` package (with `ffmpeg_kit` only it won't work)
-    await _controller.buildVideo(
-      //preset: VideoExportPreset.medium,
-      // customInstruction: "-crf 17",
-      onProgress: (stats, value) => _exportingProgress.value = value,
-      onError: (e, s) => _exportText = "Error on export video :(",
-      onCompleted: (file) async {
-        _isExporting.value = false;
+  Future<void> _exportVideo() async {
+  _exportingProgress.value = 0;
+  _isExporting.value = true;
 
-        // تم تصحيح الخطأ هنا: استبدال extractCover بـ exportCover
-        await _controller.exportCover(
-          onError: (e, s) => _exportText = "Error on cover exportation :(",
-          onCompleted: (cover) {
-            if (!mounted) return;
+  await _controller.exportVideo(
+    onProgress: (stats, progress) {
+      _exportingProgress.value = progress;
+    },
+    onError: (error, stackTrace) {
+      _isExporting.value = false;
+      _exportText = "Error on export video :(";
+    },
+    onCompleted: (file) async {
+      _isExporting.value = false;
 
-            //_exportText = "Cover exported! ${cover.path}";
-
-            print("Exported cover ${cover.path}");
-            print("Exported Video ${file.path}");
-
-            VideoEditorModel videoEditorModel = VideoEditorModel();
-            videoEditorModel.setCoverPath(cover.path);
-            videoEditorModel.setVideoFile(file);
-
-            QuickHelp.goBackToPreviousPage(context, result: videoEditorModel);
-          },
+      try {
+        // استخراج صورة الغلاف (منتصف الفيديو)
+        final cover = await _controller.extractCover(
+          time: _controller.videoDuration.inMilliseconds ~/ 2,
         );
+
+        if (!mounted) return;
+
+        print("Exported cover ${cover.path}");
+        print("Exported Video ${file.path}");
+
+        VideoEditorModel videoEditorModel = VideoEditorModel();
+        videoEditorModel.setCoverPath(cover.path);
+        videoEditorModel.setVideoFile(file);
+
+        QuickHelp.goBackToPreviousPage(
+          context,
+          result: videoEditorModel,
+        );
+      } catch (e) {
+        _exportText = "Error on cover exportation :(";
+    },
+  );
+  
 
         /*final VideoPlayerController videoController = VideoPlayerController.file(file);
 
