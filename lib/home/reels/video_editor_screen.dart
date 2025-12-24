@@ -60,28 +60,24 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
     super.initState();
   }
 
-  @override
+    @override
   void dispose() {
     _exportingProgress.dispose();
+    _isExporting.value = false; // تأكد من ضبط القيمة قبل الـ dispose
     _isExporting.dispose();
     _controller.dispose();
     super.dispose();
   }
 
-  void _openCropScreen() => Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-          builder: (BuildContext context) =>
-              CropScreen(controller: _controller)));
-
+  // دالة تصدير الفيديو
   Future<void> _exportVideo() async {
     _exportingProgress.value = 0;
     _isExporting.value = true;
 
-    // ملاحظة: تم تغيير الاسم إلى VideoExportService ليتناسب مع الإصدار 3.0.0
-    await VideoExportService.exportVideo(
-      controller: _controller,
-      onProgress: (progress) {
+    // في الإصدار 3.0.0 الميثود موجودة داخل الـ controller مباشرة 
+    // ولكن تأكد من الـ Import: import 'package:video_editor/video_editor.dart';
+    await _controller.exportVideo(
+      onProgress: (stats, progress) {
         _exportingProgress.value = progress;
       },
       onError: (Object error, StackTrace? stackTrace) {
@@ -90,11 +86,9 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
       },
       onCompleted: (File file) async {
         _isExporting.value = false;
-
         try {
-          // استخراج الغلاف باستخدام VideoExportService
-          final File? cover = await VideoExportService.extractCover(
-            controller: _controller,
+          // استخراج الغلاف
+          final File? cover = await _controller.extractCover(
             at: Duration(milliseconds: _controller.videoDuration.inMilliseconds ~/ 2),
           );
 
@@ -105,26 +99,21 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
             videoEditorModel.setCoverPath(cover.path);
             videoEditorModel.setVideoFile(file);
 
-            // استخدام Navigator القياسي لضمان عدم وجود أخطاء في مكتبات خارجية
             Navigator.of(context).pop(videoEditorModel);
           }
         } catch (e) {
           setState(() => _exportText = "Error on cover exportation :(");
         }
-
-        setState(() {
-          _exportText = "Video success export!";
-          _exported = true;
-        });
+        setState(() => _exported = true);
       },
     );
   }
 
+  // دالة تصدير صورة الغلاف
   void _exportCover() async {
     setState(() => _exported = false);
     
-    await VideoExportService.extractCover(
-      controller: _controller,
+    await _controller.extractCover(
       onError: (Object error, StackTrace? stackTrace) {
         setState(() => _exportText = "Error on cover exportation :(");
       },
@@ -149,6 +138,7 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
       },
     );
   }
+  
   
 
   @override
