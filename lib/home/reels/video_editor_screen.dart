@@ -68,26 +68,22 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
     super.dispose();
   }
 
-    // 1. دالة فتح شاشة القص
-  void _openCropScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) => CropScreen(controller: _controller),
-      ),
-    );
-  }
-
-  // 2. دالة تصدير الفيديو (مع تصحيح استخراج الغلاف)
+      // دالة تصدير الفيديو (مع إصلاح مشاكل الـ Null)
   Future<void> _exportVideo() async {
     _exportingProgress.value = 0;
     _isExporting.value = true;
 
-    // إعدادات الفيديو
+    // 1. توليد إعدادات الفيديو
     final videoConfig = VideoFFmpegVideoEditorConfig(_controller);
     final videoExecute = await videoConfig.getExecuteConfig();
 
-    // تنفيذ أمر تصدير الفيديو
+    // --- إصلاح 1: التحقق من أن إعدادات الفيديو ليست فارغة ---
+    if (videoExecute == null) {
+      _isExporting.value = false;
+      if (mounted) setState(() => _exportText = "Error: Video config is null");
+      return;
+    }
+
     await FFmpegKit.executeAsync(
       videoExecute.command,
       (session) async {
@@ -97,13 +93,23 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
           _isExporting.value = false;
           final File videoFile = File(videoExecute.outputPath);
 
-          // --- بداية عملية استخراج الغلاف يدوياً ---
           try {
-            // استخدام الاسم الصحيح: CoverFFmpegVideoEditorConfig
+            // 2. توليد إعدادات الغلاف
             final coverConfig = CoverFFmpegVideoEditorConfig(_controller);
             final coverExecute = await coverConfig.getExecuteConfig();
 
-            // تنفيذ أمر استخراج الغلاف باستخدام FFmpegKit
+            // --- إصلاح 2: التحقق من أن إعدادات الغلاف ليست فارغة ---
+            if (coverExecute == null) {
+              // إذا فشل الغلاف، نعيد الفيديو فقط
+              if (mounted) {
+                VideoEditorModel videoEditorModel = VideoEditorModel();
+                videoEditorModel.setVideoFile(videoFile);
+                Navigator.of(context).pop(videoEditorModel);
+              }
+              return;
+            }
+
+            // تنفيذ أمر الغلاف
             await FFmpegKit.executeAsync(
               coverExecute.command,
               (coverSession) async {
@@ -120,20 +126,23 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
 
                   Navigator.of(context).pop(videoEditorModel);
                 } else {
-                   debugPrint("Cover generation failed");
-                   // حتى لو فشل الغلاف، نعيد الفيديو فقط لتجنب تعليق التطبيق
-                   if (mounted) {
-                     VideoEditorModel videoEditorModel = VideoEditorModel();
-                     videoEditorModel.setVideoFile(videoFile);
-                     Navigator.of(context).pop(videoEditorModel);
-                   }
+                  // في حال فشل تنفيذ الغلاف، نعيد الفيديو فقط
+                  if (mounted) {
+                    VideoEditorModel videoEditorModel = VideoEditorModel();
+                    videoEditorModel.setVideoFile(videoFile);
+                    Navigator.of(context).pop(videoEditorModel);
+                  }
                 }
-              }
+              },
             );
           } catch (e) {
-            debugPrint("Error extracting cover: $e");
+            debugPrint("Error processing cover: $e");
+            if (mounted) {
+               VideoEditorModel videoEditorModel = VideoEditorModel();
+               videoEditorModel.setVideoFile(videoFile);
+               Navigator.of(context).pop(videoEditorModel);
+            }
           }
-          // ---------------------------------------
 
           if (mounted) {
             setState(() {
@@ -159,16 +168,20 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
     );
   }
 
-  // 3. دالة تصدير الغلاف بشكل مستقل
+  // دالة تصدير الغلاف (مع إصلاح مشاكل الـ Null)
   void _exportCover() async {
     setState(() => _exported = false);
     
     try {
-      // استخدام الاسم الصحيح: CoverFFmpegVideoEditorConfig
       final coverConfig = CoverFFmpegVideoEditorConfig(_controller);
       final coverExecute = await coverConfig.getExecuteConfig();
 
-      // تنفيذ الأمر يدوياً
+      // --- إصلاح 3: التحقق من أن إعدادات الغلاف ليست فارغة ---
+      if (coverExecute == null) {
+        if (mounted) setState(() => _exportText = "Error: Cover config is null");
+        return;
+      }
+
       await FFmpegKit.executeAsync(
         coverExecute.command,
         (session) async {
@@ -205,6 +218,7 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
       }
     }
   }
+
   
   
   @override
