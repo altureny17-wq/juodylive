@@ -60,7 +60,7 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
     super.initState();
   }
 
-  @override
+    @override
   void dispose() {
     _exportingProgress.dispose();
     _isExporting.dispose();
@@ -68,16 +68,26 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
     super.dispose();
   }
 
-      // دالة تصدير الفيديو (مع إصلاح مشاكل الـ Null)
+  // --- هذا هو الجزء الذي كان مفقوداً ويسبب الخطأ الحالي ---
+  void _openCropScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => CropScreen(controller: _controller),
+      ),
+    );
+  }
+  // -------------------------------------------------------
+
   Future<void> _exportVideo() async {
     _exportingProgress.value = 0;
     _isExporting.value = true;
 
-    // 1. توليد إعدادات الفيديو
+    // إعدادات الفيديو
     final videoConfig = VideoFFmpegVideoEditorConfig(_controller);
     final videoExecute = await videoConfig.getExecuteConfig();
 
-    // --- إصلاح 1: التحقق من أن إعدادات الفيديو ليست فارغة ---
+    // التحقق من أن إعدادات الفيديو ليست فارغة (Null Safety)
     if (videoExecute == null) {
       _isExporting.value = false;
       if (mounted) setState(() => _exportText = "Error: Video config is null");
@@ -94,19 +104,18 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
           final File videoFile = File(videoExecute.outputPath);
 
           try {
-            // 2. توليد إعدادات الغلاف
+            // إعدادات الغلاف
             final coverConfig = CoverFFmpegVideoEditorConfig(_controller);
             final coverExecute = await coverConfig.getExecuteConfig();
 
-            // --- إصلاح 2: التحقق من أن إعدادات الغلاف ليست فارغة ---
+            // التحقق من أن إعدادات الغلاف ليست فارغة
             if (coverExecute == null) {
-              // إذا فشل الغلاف، نعيد الفيديو فقط
-              if (mounted) {
-                VideoEditorModel videoEditorModel = VideoEditorModel();
-                videoEditorModel.setVideoFile(videoFile);
-                Navigator.of(context).pop(videoEditorModel);
-              }
-              return;
+               if (mounted) {
+                 VideoEditorModel videoEditorModel = VideoEditorModel();
+                 videoEditorModel.setVideoFile(videoFile);
+                 Navigator.of(context).pop(videoEditorModel);
+               }
+               return;
             }
 
             // تنفيذ أمر الغلاف
@@ -126,7 +135,7 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
 
                   Navigator.of(context).pop(videoEditorModel);
                 } else {
-                  // في حال فشل تنفيذ الغلاف، نعيد الفيديو فقط
+                  // فشل الغلاف، نعيد الفيديو فقط
                   if (mounted) {
                     VideoEditorModel videoEditorModel = VideoEditorModel();
                     videoEditorModel.setVideoFile(videoFile);
@@ -168,7 +177,6 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
     );
   }
 
-  // دالة تصدير الغلاف (مع إصلاح مشاكل الـ Null)
   void _exportCover() async {
     setState(() => _exported = false);
     
@@ -176,7 +184,6 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
       final coverConfig = CoverFFmpegVideoEditorConfig(_controller);
       final coverExecute = await coverConfig.getExecuteConfig();
 
-      // --- إصلاح 3: التحقق من أن إعدادات الغلاف ليست فارغة ---
       if (coverExecute == null) {
         if (mounted) setState(() => _exportText = "Error: Cover config is null");
         return;
@@ -218,7 +225,6 @@ class _VideoEditorScreenState extends State<VideoEditorScreen> {
       }
     }
   }
-
   
   
   @override
