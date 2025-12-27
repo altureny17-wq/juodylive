@@ -15,19 +15,18 @@ allprojects {
         google()
         mavenCentral()
         maven { url 'https://jitpack.io' }
+        // إضافة مستودع Arthenica الرسمي لضمان العثور على FFmpeg
+        maven { url "https://maven.google.com" }
     }
     
     configurations.all {
         resolutionStrategy {
-            // حل مشكلة إصدار خدمات جوجل للموقع
             force "com.google.android.gms:play-services-location:21.0.1"
             
-            // الحل النهائي لتعارض FFmpeg:
-            // بدلاً من إجبار اسم واحد، نستخدم eachDependency لمعالجة أي طلب 
-            // يخص مجموعة com.arthenica وتوجيهه للإصدار 6.0 المتوفر فعلياً.
             eachDependency { DependencyResolveDetails details ->
                 if (details.requested.group == 'com.arthenica' && details.requested.name.contains('ffmpeg-kit')) {
-                    details.useVersion '6.0'
+                    // الإصدار 6.0-LTS هو الأكثر استقراراً وتوافراً في المستودعات
+                    details.useVersion '6.0-LTS'
                 }
             }
         }
