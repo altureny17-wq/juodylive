@@ -24,7 +24,7 @@ allprojects {
             
             // الحل الحاسم لمشكلة FFmpeg: إجبار Gradle على استخدام الإصدار 6.0 المتاح في السيرفرات
             // بدلاً من الإصدار 6.0-2 الذي يطلبه الـ Plugin ولا يجده
-            force "com.arthenica:ffmpeg-kit-min-gpl:6.0-3"
+            force "com.arthenica:ffmpeg-kit-flutter-min-gpl:6.0-3"
         }
     }
 }
