@@ -14,24 +14,25 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        // JitPack هو الأمل الوحيد حالياً للعثور على النسخة المحذوفة
         maven { url 'https://jitpack.io' }
-        maven { url "https://maven.google.com" }
+        // هذا المستودع يحتوي على النسخ البديلة التي لم تُحذف
+        maven { url "https://s01.oss.sonatype.org/content/repositories/releases/" }
     }
     
     configurations.all {
         resolutionStrategy {
             force "com.google.android.gms:play-services-location:21.0.1"
             
+            // إلغاء أي إجبار قديم للإصدارات المحذوفة
             eachDependency { DependencyResolveDetails details ->
                 if (details.requested.group == 'com.arthenica' && details.requested.name.contains('ffmpeg-kit')) {
-                    // إجبار الإصدار على 6.0.3 ليتطابق تماماً مع ما تطلبه الحزمة في pubspec
-                    details.useVersion '6.0.3'
+                    details.useVersion '6.0.3-LTS' 
                 }
             }
         }
     }
 }
+
 
 rootProject.buildDir = '../build'
 subprojects {
