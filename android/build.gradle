@@ -15,24 +15,18 @@ allprojects {
         google()
         mavenCentral()
         maven { url 'https://jitpack.io' }
-        // هذا المستودع يحتوي على النسخ البديلة التي لم تُحذف
-        maven { url "https://s01.oss.sonatype.org/content/repositories/releases/" }
     }
     
     configurations.all {
         resolutionStrategy {
+            // ضروري جداً لـ ZEGO
             force "com.google.android.gms:play-services-location:21.0.1"
             
-            // إلغاء أي إجبار قديم للإصدارات المحذوفة
-            eachDependency { DependencyResolveDetails details ->
-                if (details.requested.group == 'com.arthenica' && details.requested.name.contains('ffmpeg-kit')) {
-                    details.useVersion '6.0.3-LTS' 
-                }
-            }
+            // ملاحظة: لا تضع أي قيود (force) لـ FFmpeg هنا.
+            // دع المكتبة الجديدة (2.1.1) تجلب ملفاتها الأصلية من مستودع المطور.
         }
     }
 }
-
 
 rootProject.buildDir = '../build'
 subprojects {
@@ -49,10 +43,6 @@ subprojects {
             }
         }
     }
-}
-
-subprojects {
-    project.evaluationDependsOn(':app')
 }
 
 tasks.register("clean", Delete) {
