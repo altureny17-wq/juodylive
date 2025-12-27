@@ -14,8 +14,8 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        // JitPack هو الأمل الوحيد حالياً للعثور على النسخة المحذوفة
         maven { url 'https://jitpack.io' }
-        // إضافة مستودع Arthenica الرسمي لضمان العثور على FFmpeg
         maven { url "https://maven.google.com" }
     }
     
@@ -25,8 +25,8 @@ allprojects {
             
             eachDependency { DependencyResolveDetails details ->
                 if (details.requested.group == 'com.arthenica' && details.requested.name.contains('ffmpeg-kit')) {
-                    // الإصدار 6.0-LTS هو الأكثر استقراراً وتوافراً في المستودعات
-                    details.useVersion '6.0-LTS'
+                    // إجبار الإصدار على 6.0.3 ليتطابق تماماً مع ما تطلبه الحزمة في pubspec
+                    details.useVersion '6.0.3'
                 }
             }
         }
