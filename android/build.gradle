@@ -19,12 +19,17 @@ allprojects {
     
     configurations.all {
         resolutionStrategy {
-            // حل مشكلة الموقع
+            // حل مشكلة إصدار خدمات جوجل للموقع
             force "com.google.android.gms:play-services-location:21.0.1"
             
-            // الحل الحاسم لمشكلة FFmpeg: إجبار Gradle على استخدام الإصدار 6.0 المتاح في السيرفرات
-            // بدلاً من الإصدار 6.0-2 الذي يطلبه الـ Plugin ولا يجده
-            force "com.arthenica:ffmpeg-kit-flutter-min-gpl:6.0-3"
+            // الحل النهائي لتعارض FFmpeg:
+            // بدلاً من إجبار اسم واحد، نستخدم eachDependency لمعالجة أي طلب 
+            // يخص مجموعة com.arthenica وتوجيهه للإصدار 6.0 المتوفر فعلياً.
+            eachDependency { DependencyResolveDetails details ->
+                if (details.requested.group == 'com.arthenica' && details.requested.name.contains('ffmpeg-kit')) {
+                    details.useVersion '6.0'
+                }
+            }
         }
     }
 }
