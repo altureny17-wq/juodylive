@@ -22,7 +22,6 @@ jobs:
       - name: Install and Fix Dependencies
         run: |
           flutter clean
-          flutter pub upgrade --major-versions
           flutter pub get
 
       - name: Build APK
