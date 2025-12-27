@@ -29,34 +29,29 @@ def keystorePropertiesFile = rootProject.file('key.properties')
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
+
 android {
-    packagingOptions {
-        jniLibs {
-            pickFirsts += ['lib/x86/libc++_shared.so', 'lib/x86_64/libc++_shared.so', 'lib/armeabi-v7a/libc++_shared.so', 'lib/arm64-v8a/libc++_shared.so', '**/libyuv.so', '**/libbanuba-ve-yuv.so']
-        }
-    }
-
-    compileSdkVersion 36
-
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
-    }
-
-    subprojects { afterEvaluate { android { compileSdkVersion 34 } } }
-
+    namespace 'com.trace.appsdabanda'
+    compileSdk 36
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        // TODO: Specify your own unique Application ID
         applicationId "com.trace.appsdabanda"
         minSdkVersion 24
         targetSdkVersion 36
-        compileSdk 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
     
         ndk {
             abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
+        }
+    }
+
+    // تم تصحيح الكتابة هنا (packagingOptions بدلاً من PackagingOptions)
+    packagingOptions {
+        jniLibs {
+            pickFirsts += ['lib/x86/libc++_shared.so', 'lib/x86_64/libc++_shared.so', 'lib/armeabi-v7a/libc++_shared.so', 'lib/arm64-v8a/libc++_shared.so', '**/libyuv.so', '**/libbanuba-ve-yuv.so']
         }
     }
 
@@ -68,30 +63,51 @@ android {
             storePassword keystoreProperties['storePassword']
         }
     }
+
     buildTypes {
         release {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
     }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        // ضروري جداً: تفعيل Desugaring لحل خطأ interactivemedia
+        coreLibraryDesugaringEnabled true
+        
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
+
     kotlinOptions {
         jvmTarget = "17"
     }
+
     java {
         toolchain {
             languageVersion = JavaLanguageVersion.of(17)
         }
     }
+
     lint {
         checkReleaseBuilds false
         disable 'InvalidPackage'
     }
-    namespace 'com.trace.appsdabanda'
+    
+    // توحيد الإصدار الفرعي ليكون متوافقاً مع الإصدار الرئيسي
+    subprojects { 
+        afterEvaluate { 
+            android { 
+                compileSdkVersion 36 
+            } 
+        } 
+    }
+}
 
+// قسم الاعتمادات يجب أن يكون خارج بلوك android
+dependencies {
+    // المكتبة الضرورية لإصلاح خطأ الـ Desugaring
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.2.0'
 }
 
 flutter {
