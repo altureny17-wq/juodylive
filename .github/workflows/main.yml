@@ -14,12 +14,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Free Disk Space
+        run: |
+          # تنظيف عميق للمساحة دون المساس بملفات أندرويد الأساسية
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf /usr/lib/jvm
+          sudo docker image prune -a -f
+          echo "المساحة المتاحة الآن:"
+          df -h
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
 
-      - name: Install and Fix Dependencies
+      - name: Install Dependencies
         run: |
           flutter clean
           flutter pub get
@@ -32,4 +44,3 @@ jobs:
         with:
           name: app-release
           path: build/app/outputs/flutter-apk/app-release.apk
-          
