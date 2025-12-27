@@ -1,9 +1,10 @@
-Name: Build Flutter APK
+name: Build Flutter APK
 
 on:
   workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   build:
@@ -18,17 +19,17 @@ jobs:
         with:
           channel: stable
 
-      - name: Clean and Upgrade Dependencies
+      - name: Install and Fix Dependencies
         run: |
           flutter clean
-          flutter pub upgrade  # هذا السطر سيقوم بحل تعارض إصدارات ZEGO وتوليد إعدادات جديدة
+          flutter pub upgrade --major-versions
           flutter pub get
 
       - name: Build APK
-        
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-release
           path: build/app/outputs/flutter-apk/app-release.apk
+          
