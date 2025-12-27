@@ -10,7 +10,8 @@ import 'package:trace/models/others/video_editor_model.dart';
 import 'package:trace/ui/container_with_corner.dart';
 import 'package:trace/utils/colors.dart';
 import 'package:video_editor/video_editor.dart';
-import 'package:ffmpeg_kit_flutter_min_gpl/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter_new_min_gpl/ffmpeg_kit.dart';
+
 import '../../ui/app_bar.dart';
 import '../../ui/text_with_tap.dart';
 import '../../utils/helpers/transition.dart';
