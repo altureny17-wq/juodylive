@@ -41,7 +41,7 @@ dependencies:
   video_compress: ^3.1.2
   universal_io: ^2.2.2
   encrypt: ^5.0.3
-  ffmpeg_kit_flutter_min_gpl: 6.0.3
+  ffmpeg_kit_flutter_min_gpl: 6.0.3-LTS.1
   # Backend
   parse_server_sdk_flutter: ^10.5.0
 
@@ -157,7 +157,6 @@ dependencies:
 
 dependency_overrides:
   parse_server_sdk: 9.4.0
-  ffmpeg_kit_flutter_min_gpl: 6.0.3
   zego_express_engine: 3.22.0
   
 dev_dependencies:
