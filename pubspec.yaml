@@ -158,6 +158,8 @@ dependencies:
 dependency_overrides:
   parse_server_sdk: 9.4.0
   ffmpeg_kit_flutter_min_gpl: 6.0.3
+  zego_express_engine: 3.22.0
+  
 dev_dependencies:
   flutter_native_splash: ^2.4.1
   flutter_test:
