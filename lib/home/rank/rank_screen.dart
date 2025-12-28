@@ -3,10 +3,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:trace/helpers/quick_actions.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/models/LeadersModel.dart';
-import 'package:trace/ui/text_with_tap.dart';
+import 'package:juodylive/helpers/quick_actions.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/models/LeadersModel.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
 import '../../models/UserModel.dart';
