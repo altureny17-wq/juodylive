@@ -1,7 +1,7 @@
-import 'package:trace/auth/forgot_screen.dart';
-import 'package:trace/auth/welcome_screen.dart';
-import 'package:trace/home/web/web_url_screen.dart';
-import 'package:trace/helpers/quick_help.dart';
+import 'package:juodylive/auth/forgot_screen.dart';
+import 'package:juodylive/auth/welcome_screen.dart';
+import 'package:juodylive/home/web/web_url_screen.dart';
+import 'package:juodylive/helpers/quick_help.dart';
 import 'package:flutter/material.dart';
 
 class AppRouter {
