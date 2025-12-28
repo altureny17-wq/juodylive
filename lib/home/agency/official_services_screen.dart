@@ -16,17 +16,17 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sticky_grouped_list/sticky_grouped_list.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart'; // تم الإبقاء على استيراد الحزمة
-import 'package:trace/helpers/quick_actions.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/models/CallsModel.dart';
-import 'package:trace/models/GroupMessageModel.dart';
-import 'package:trace/models/MessageListModel.dart';
-import 'package:trace/models/MessageModel.dart';
-import 'package:trace/models/UserModel.dart';
-import 'package:trace/ui/container_with_corner.dart';
-import 'package:trace/ui/text_with_tap.dart';
-import 'package:trace/utils/colors.dart';
-import 'package:trace/utils/utilsConstants.dart';
+import 'package:juodylive/helpers/quick_actions.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/models/CallsModel.dart';
+import 'package:juodylive/models/GroupMessageModel.dart';
+import 'package:juodylive/models/MessageListModel.dart';
+import 'package:juodylive/models/MessageModel.dart';
+import 'package:juodylive/models/UserModel.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
+import 'package:juodylive/utils/colors.dart';
+import 'package:juodylive/utils/utilsConstants.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 import 'package:flutter/foundation.dart' as foundation;
