@@ -4,7 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:trace/models/CoinsTransactionsModel.dart';
+import 'package:juodylive/models/CoinsTransactionsModel.dart';
 
 import '../../helpers/quick_help.dart';
 import '../../models/TradingCoinsModel.dart';
