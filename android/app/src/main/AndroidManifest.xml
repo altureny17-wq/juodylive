@@ -49,7 +49,7 @@
     <!--Account and Notifications-->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    <uses-permission android:name="com.trace.trace.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.juodylive.app.permission.C2D_MESSAGE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
 
     <application
@@ -116,7 +116,7 @@
             <intent-filter>
                 <!-- If utilizing $deeplink_path please explicitly declare your hosts, or utilize a wildcard(*) -->
                 <!-- REPLACE `android:scheme` with your Android URI scheme -->
-                <data android:scheme="trace" android:host="open" />
+                <data android:scheme="juodylive" android:host="open" />
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
