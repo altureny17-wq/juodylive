@@ -6,14 +6,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
-import 'package:trace/helpers/quick_actions.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/models/GiftsModel.dart';
-import 'package:trace/models/UserModel.dart';
-import 'package:trace/models/others/in_app_model.dart';
-import 'package:trace/ui/container_with_corner.dart';
-import 'package:trace/ui/text_with_tap.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/helpers/quick_actions.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/models/GiftsModel.dart';
+import 'package:juodylive/models/UserModel.dart';
+import 'package:juodylive/models/others/in_app_model.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
+import 'package:juodylive/utils/colors.dart';
 
 import '../../app/config.dart';
 
