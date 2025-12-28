@@ -1,4 +1,4 @@
-import 'package:trace/app/config.dart';
+import 'package:juodylive/app/config.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:easy_localization/easy_localization.dart';
 
