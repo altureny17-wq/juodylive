@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
-import 'package:trace/models/GiftsModel.dart';
-import 'package:trace/models/UserModel.dart';
+import 'package:juodylive/models/GiftsModel.dart';
+import 'package:juodylive/models/UserModel.dart';
 
 import '../../app/config.dart';
 
