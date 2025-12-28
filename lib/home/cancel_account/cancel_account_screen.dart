@@ -4,7 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:trace/ui/button_widget.dart';
+import 'package:juodylive/ui/button_widget.dart';
 
 import '../../auth/welcome_screen.dart';
 import '../../helpers/quick_help.dart';
