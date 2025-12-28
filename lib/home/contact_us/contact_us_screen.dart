@@ -3,7 +3,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:trace/ui/container_with_corner.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../app/config.dart';
