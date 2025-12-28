@@ -11,10 +11,10 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/app/setup.dart';
-import 'package:trace/ui/text_with_tap.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/app/setup.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
+import 'package:juodylive/utils/colors.dart';
 
 import '../app/config.dart';
 import '../models/UserModel.dart';
