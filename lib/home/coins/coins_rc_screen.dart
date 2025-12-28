@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:parse_server_sdk/parse_server_sdk.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
-import 'package:trace/app/config.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/models/UserModel.dart';
+import 'package:juodylive/app/config.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/models/UserModel.dart';
 
 import '../../helpers/quick_actions.dart';
 import '../../models/others/in_app_model.dart';
