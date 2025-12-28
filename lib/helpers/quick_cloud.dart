@@ -1,11 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:parse_server_sdk/parse_server_sdk.dart';
-import 'package:trace/app/cloud_params.dart';
-import 'package:trace/app/setup.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/models/InvitedUsersModel.dart';
-import 'package:trace/models/UserModel.dart';
+import 'package:juodylive/app/cloud_params.dart';
+import 'package:juodylive/app/setup.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/models/InvitedUsersModel.dart';
+import 'package:juodylive/models/UserModel.dart';
 
 class QuickCloudCode {
 
