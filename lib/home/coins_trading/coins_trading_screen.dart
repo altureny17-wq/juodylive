@@ -3,8 +3,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:trace/home/coins_trading/select_receiver_screen.dart';
-import 'package:trace/ui/container_with_corner.dart';
+import 'package:juodylive/home/coins_trading/select_receiver_screen.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
 
 import '../../helpers/quick_help.dart';
 import '../../models/TradingCoinsModel.dart';
