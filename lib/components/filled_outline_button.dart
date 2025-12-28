@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/utils/colors.dart';
 
 class FillOutlineButton extends StatelessWidget {
   const FillOutlineButton({
