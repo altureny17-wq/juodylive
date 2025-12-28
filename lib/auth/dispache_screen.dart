@@ -1,10 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
-import 'package:trace/auth/welcome_screen.dart';
-import 'package:trace/home/home_screen.dart';
-import 'package:trace/home/location_screen.dart';
-import 'package:trace/models/UserModel.dart';
-import 'package:trace/helpers/quick_help.dart';
+import 'package:juodylive/auth/welcome_screen.dart';
+import 'package:juodylive/home/home_screen.dart';
+import 'package:juodylive/home/location_screen.dart';
+import 'package:juodylive/models/UserModel.dart';
+import 'package:juodylive/helpers/quick_help.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import '../home/profile/profile_edit_complete.dart';
