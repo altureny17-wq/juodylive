@@ -1,4 +1,4 @@
-package com.trace.trace
+package com.juodylive.app
 
 import io.flutter.embedding.android.FlutterActivity
 
