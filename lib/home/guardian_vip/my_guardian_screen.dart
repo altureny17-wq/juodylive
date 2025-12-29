@@ -2,9 +2,9 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/ui/button_widget.dart';
-import 'package:trace/ui/text_with_tap.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/ui/button_widget.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
 
 import '../../models/UserModel.dart';
 import '../../utils/colors.dart';
