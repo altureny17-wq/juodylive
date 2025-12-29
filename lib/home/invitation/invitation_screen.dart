@@ -3,7 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:trace/ui/container_with_corner.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
 
 import '../../app/setup.dart';
 import '../../helpers/quick_actions.dart';
