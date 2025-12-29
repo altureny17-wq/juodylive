@@ -10,10 +10,10 @@ import 'package:mime/mime.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/home/feed/video_player_screen.dart';
-import 'package:trace/home/home_screen.dart';
-import 'package:trace/models/PostsModel.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/home/feed/video_player_screen.dart';
+import 'package:juodylive/home/home_screen.dart';
+import 'package:juodylive/models/PostsModel.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 import '../../app/setup.dart';
@@ -25,7 +25,7 @@ import '../../ui/container_with_corner.dart';
 import '../../ui/text_with_tap.dart';
 import '../../utils/colors.dart';
 
-import 'package:trace/widgets/dospace/dospace.dart' as dospace;
+import 'package:juodylive/widgets/dospace/dospace.dart' as dospace;
 
 import '../reels/video_editor_screen.dart';
 
