@@ -2,10 +2,10 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:trace/models/MvpCoinRewardModel.dart';
-import 'package:trace/models/MvpModel.dart';
+import 'package:juodylive/models/MvpCoinRewardModel.dart';
+import 'package:juodylive/models/MvpModel.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:trace/home/mvp/privilege_info_screen.dart';
+import 'package:juodylive/home/mvp/privilege_info_screen.dart';
 
 import '../../app/config.dart';
 import '../../helpers/quick_help.dart';
