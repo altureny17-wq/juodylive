@@ -1,16 +1,16 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:trace/app/config.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/home/menu/referral_program_screen.dart';
-import 'package:trace/home/profile/profile_edit.dart';
-import 'package:trace/models/UserModel.dart';
-import 'package:trace/ui/app_bar.dart';
-import 'package:trace/ui/button_with_icon.dart';
-import 'package:trace/ui/container_with_corner.dart';
-import 'package:trace/ui/text_with_tap.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/app/config.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/home/menu/referral_program_screen.dart';
+import 'package:juodylive/home/profile/profile_edit.dart';
+import 'package:juodylive/models/UserModel.dart';
+import 'package:juodylive/ui/app_bar.dart';
+import 'package:juodylive/ui/button_with_icon.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
+import 'package:juodylive/utils/colors.dart';
 
 // ignore: must_be_immutable
 class SettingsScreen extends StatefulWidget {
