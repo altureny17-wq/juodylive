@@ -3,9 +3,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:trace/home/payment_methods/add_payoneer_payment_method_screen.dart';
-import 'package:trace/home/payment_methods/preferred_payment_screen.dart';
-import 'package:trace/ui/container_with_corner.dart';
+import 'package:juodylive/home/payment_methods/add_payoneer_payment_method_screen.dart';
+import 'package:juodylive/home/payment_methods/preferred_payment_screen.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
 
 import '../../helpers/quick_help.dart';
 import '../../models/PaymentSourceModel.dart';
