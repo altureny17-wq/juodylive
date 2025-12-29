@@ -3,8 +3,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:trace/helpers/quick_actions.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/helpers/quick_actions.dart';
+import 'package:juodylive/utils/colors.dart';
 import 'package:zego_uikit_prebuilt_live_streaming/zego_uikit_prebuilt_live_streaming.dart';
 
 import '../../models/UserModel.dart';
