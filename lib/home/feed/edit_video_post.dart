@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:trace/home/feed/video_player_screen.dart';
+import 'package:juodylive/home/feed/video_player_screen.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
