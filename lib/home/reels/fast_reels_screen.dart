@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:trace/models/PostsModel.dart';
+import 'package:juodylive/models/PostsModel.dart';
 
 import 'package:video_player/video_player.dart';
 import 'package:cached_network_image/cached_network_image.dart';
