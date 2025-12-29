@@ -9,15 +9,15 @@ import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:trace/app/setup.dart';
-import 'package:trace/helpers/quick_actions.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/home/profile/update_bio_screen.dart';
-import 'package:trace/home/profile/update_username_screen.dart';
-import 'package:trace/models/UserModel.dart';
-import 'package:trace/ui/container_with_corner.dart';
-import 'package:trace/ui/text_with_tap.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/app/setup.dart';
+import 'package:juodylive/helpers/quick_actions.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/home/profile/update_bio_screen.dart';
+import 'package:juodylive/home/profile/update_username_screen.dart';
+import 'package:juodylive/models/UserModel.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
+import 'package:juodylive/utils/colors.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 // ignore: must_be_immutable
