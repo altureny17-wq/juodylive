@@ -4,11 +4,11 @@ import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/home/reels/video_crop_screen.dart';
-import 'package:trace/models/others/video_editor_model.dart';
-import 'package:trace/ui/container_with_corner.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/home/reels/video_crop_screen.dart';
+import 'package:juodylive/models/others/video_editor_model.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
+import 'package:juodylive/utils/colors.dart';
 import 'package:video_editor/video_editor.dart';
 import 'package:ffmpeg_kit_flutter_new_min_gpl/ffmpeg_kit.dart';
 
