@@ -8,7 +8,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:trace/models/LiveStreamingModel.dart';
+import 'package:juodylive/models/LiveStreamingModel.dart';
 
 import '../../app/setup.dart';
 import '../../helpers/quick_actions.dart';
