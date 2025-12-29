@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:trace/home/pk_battle/pk_widgets/events.dart';
-import 'package:trace/home/pk_battle/pk_widgets/surface.dart';
-import 'package:trace/home/pk_battle/pk_widgets/widgets/mute_button.dart';
+import 'package:juodylive/home/pk_battle/pk_widgets/events.dart';
+import 'package:juodylive/home/pk_battle/pk_widgets/surface.dart';
+import 'package:juodylive/home/pk_battle/pk_widgets/widgets/mute_button.dart';
 
 import 'package:zego_uikit_prebuilt_live_streaming/zego_uikit_prebuilt_live_streaming.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
