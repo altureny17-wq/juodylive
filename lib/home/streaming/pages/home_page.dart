@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:trace/ui/container_with_corner.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
 
 import '../../../helpers/quick_help.dart';
 import '../../../models/LiveStreamingModel.dart';
