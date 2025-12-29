@@ -1,12 +1,12 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:trace/app/setup.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/models/UserModel.dart';
-import 'package:trace/ui/app_bar.dart';
-import 'package:trace/ui/rounded_gradient_button.dart';
-import 'package:trace/ui/text_with_tap.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/app/setup.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/models/UserModel.dart';
+import 'package:juodylive/ui/app_bar.dart';
+import 'package:juodylive/ui/rounded_gradient_button.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
+import 'package:juodylive/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 
