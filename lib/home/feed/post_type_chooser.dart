@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:trace/home/feed/upload_banuba_edited_video_screen.dart';
+import 'package:juodylive/home/feed/upload_banuba_edited_video_screen.dart';
 import 'package:video_compress/video_compress.dart';
 
 import '../../helpers/quick_help.dart';
@@ -18,7 +18,7 @@ import 'create_text_post_screen.dart';
 
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:trace/app/setup.dart';
+import 'package:juodylive/app/setup.dart';
 
 import '../../audio_browser.dart';
 
