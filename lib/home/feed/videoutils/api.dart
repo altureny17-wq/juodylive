@@ -1,4 +1,4 @@
-import 'package:trace/home/feed/videoutils/video.dart';
+import 'package:juodylive/home/feed/videoutils/video.dart';
 
 abstract class VideoNewFeedApi<V extends VideoInfo> {
   Future<List<V>> getListVideo();
