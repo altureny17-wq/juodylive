@@ -1,9 +1,9 @@
 // ignore_for_file: must_be_immutable
 
-import 'package:trace/app/config.dart';
-import 'package:trace/ui/app_bar.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/app/config.dart';
+import 'package:juodylive/ui/app_bar.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:webview_flutter/webview_flutter.dart';
