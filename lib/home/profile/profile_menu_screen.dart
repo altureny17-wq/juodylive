@@ -1,22 +1,22 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:trace/helpers/quick_actions.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/home/coins/refill_coins_screen.dart';
-import 'package:trace/home/menu/blocked_users_screen.dart';
-import 'package:trace/home/menu/get_money_screen.dart';
-import 'package:trace/home/menu/invited_friends.dart';
-import 'package:trace/home/menu/referral_program_screen.dart';
-import 'package:trace/home/menu/settings_screen.dart';
-import 'package:trace/home/profile/profile_screen.dart';
-import 'package:trace/models/UserModel.dart';
-import 'package:trace/ui/app_bar.dart';
-import 'package:trace/ui/button_widget.dart';
-import 'package:trace/ui/button_with_icon.dart';
-import 'package:trace/ui/container_with_corner.dart';
-import 'package:trace/ui/text_with_tap.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/helpers/quick_actions.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/home/coins/refill_coins_screen.dart';
+import 'package:juodylive/home/menu/blocked_users_screen.dart';
+import 'package:juodylive/home/menu/get_money_screen.dart';
+import 'package:juodylive/home/menu/invited_friends.dart';
+import 'package:juodylive/home/menu/referral_program_screen.dart';
+import 'package:juodylive/home/menu/settings_screen.dart';
+import 'package:juodylive/home/profile/profile_screen.dart';
+import 'package:juodylive/models/UserModel.dart';
+import 'package:juodylive/ui/app_bar.dart';
+import 'package:juodylive/ui/button_widget.dart';
+import 'package:juodylive/ui/button_with_icon.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
+import 'package:juodylive/utils/colors.dart';
 
 // ignore: must_be_immutable
 class ProfileMenuScreen extends StatefulWidget {
