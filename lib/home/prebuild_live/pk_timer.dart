@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:trace/home/controller/controller.dart';
+import 'package:juodylive/home/controller/controller.dart';
 import '../../helpers/quick_help.dart';
 import '../../ui/container_with_corner.dart';
 import '../../ui/text_with_tap.dart';
