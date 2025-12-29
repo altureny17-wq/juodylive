@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:trace/home/feed/comment_post_screen.dart';
-import 'package:trace/home/feed/visualize_multiple_pictures_screen.dart';
+import 'package:juodylive/home/feed/comment_post_screen.dart';
+import 'package:juodylive/home/feed/visualize_multiple_pictures_screen.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 import '../../app/setup.dart';
