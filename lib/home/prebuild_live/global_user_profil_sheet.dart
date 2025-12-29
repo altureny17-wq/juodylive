@@ -1,9 +1,9 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:trace/helpers/quick_actions.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/models/UserModel.dart';
+import 'package:juodylive/helpers/quick_actions.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/models/UserModel.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
 import '../../ui/container_with_corner.dart';
