@@ -3,9 +3,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:trace/helpers/quick_actions.dart';
-import 'package:trace/home/feed/videoutils/video.dart';
-import 'package:trace/home/feed/videoutils/video_item_config.dart';
+import 'package:juodylive/helpers/quick_actions.dart';
+import 'package:juodylive/home/feed/videoutils/video.dart';
+import 'package:juodylive/home/feed/videoutils/video_item_config.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
