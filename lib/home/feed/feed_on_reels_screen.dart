@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:trace/home/feed/visualize_multiple_pictures_screen.dart';
-import 'package:trace/models/PostsModel.dart';
-import 'package:trace/models/UserModel.dart';
+import 'package:juodylive/home/feed/visualize_multiple_pictures_screen.dart';
+import 'package:juodylive/models/PostsModel.dart';
+import 'package:juodylive/models/UserModel.dart';
 
 import '../../helpers/quick_actions.dart';
 import '../../helpers/quick_cloud.dart';
