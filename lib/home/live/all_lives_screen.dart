@@ -13,9 +13,9 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:lottie/lottie.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:trace/helpers/quick_actions.dart';
-import 'package:trace/home/profile/profile_screen.dart';
-import 'package:trace/ui/text_with_tap.dart';
+import 'package:juodylive/helpers/quick_actions.dart';
+import 'package:juodylive/home/profile/profile_screen.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
 import 'package:zego_uikit_prebuilt_live_streaming/zego_uikit_prebuilt_live_streaming.dart'
     as zego;
 import '../../app/constants.dart';
