@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:like_button/like_button.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:trace/home/reels/reels_video_screen.dart';
-import 'package:trace/models/CommentsModel.dart';
-import 'package:trace/ui/text_with_tap.dart';
+import 'package:juodylive/home/reels/reels_video_screen.dart';
+import 'package:juodylive/models/CommentsModel.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
 
 import '../../../helpers/quick_actions.dart';
 import '../../../helpers/quick_cloud.dart';
