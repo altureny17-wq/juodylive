@@ -1,6 +1,6 @@
 // ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
 import 'package:flutter/cupertino.dart';
-import 'package:trace/models/LiveStreamingModel.dart';
+import 'package:juodylive/models/LiveStreamingModel.dart';
 import 'package:zego_uikit_prebuilt_live_streaming/zego_uikit_prebuilt_live_streaming.dart';
 
 class PKEvents {
