@@ -6,9 +6,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:like_button/like_button.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:trace/ui/container_with_corner.dart';
-import 'package:trace/ui/text_with_tap.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
+import 'package:juodylive/utils/colors.dart';
 
 import '../../app/setup.dart';
 import '../../helpers/quick_actions.dart';
