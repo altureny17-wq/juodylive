@@ -4,7 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:get/instance_manager.dart';
-import 'package:trace/home/prebuild_live/pk_points_controller.dart';
+import 'package:juodylive/home/prebuild_live/pk_points_controller.dart';
 import 'package:zego_uikit/zego_uikit.dart';
 
 import '../../ui/container_with_corner.dart';
