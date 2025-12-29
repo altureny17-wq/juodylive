@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:trace/ui/container_with_corner.dart';
-import 'package:trace/ui/text_with_tap.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
 
 import 'package:zego_uikit_prebuilt_live_streaming/zego_uikit_prebuilt_live_streaming.dart';
 import '../../prebuild_live/pk_timer.dart';
