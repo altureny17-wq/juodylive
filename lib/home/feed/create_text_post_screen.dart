@@ -7,12 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/helpers/send_notifications.dart';
-import 'package:trace/models/UserModel.dart';
-import 'package:trace/ui/container_with_corner.dart';
-import 'package:trace/ui/text_with_tap.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/helpers/send_notifications.dart';
+import 'package:juodylive/models/UserModel.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
+import 'package:juodylive/utils/colors.dart';
 
 import '../../models/PostsModel.dart';
 import 'comment_post_screen.dart';
