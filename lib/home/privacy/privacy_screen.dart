@@ -3,7 +3,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:trace/app/config.dart';
+import 'package:juodylive/app/config.dart';
 
 import '../../helpers/quick_help.dart';
 import '../../models/UserModel.dart';
