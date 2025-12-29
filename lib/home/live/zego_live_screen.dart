@@ -2,7 +2,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/utils/colors.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
 
 import '../../app/setup.dart';
