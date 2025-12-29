@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:custom_zoom_widget/custom_zoom_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:trace/ui/text_with_tap.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
 
 class VisualizeMultiplePicturesScreen extends StatefulWidget {
   int? initialIndex;
