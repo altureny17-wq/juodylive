@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:trace/home/feed/video_player_screen.dart';
+import 'package:juodylive/home/feed/video_player_screen.dart';
 
 import '../../helpers/quick_actions.dart';
 import '../../helpers/quick_help.dart';
