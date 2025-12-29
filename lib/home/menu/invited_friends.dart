@@ -2,15 +2,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:trace/app/setup.dart';
-import 'package:trace/helpers/quick_actions.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/models/InvitedUsersModel.dart';
-import 'package:trace/models/UserModel.dart';
-import 'package:trace/ui/button_with_icon.dart';
-import 'package:trace/ui/container_with_corner.dart';
-import 'package:trace/ui/text_with_tap.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/app/setup.dart';
+import 'package:juodylive/helpers/quick_actions.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/models/InvitedUsersModel.dart';
+import 'package:juodylive/models/UserModel.dart';
+import 'package:juodylive/ui/button_with_icon.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
+import 'package:juodylive/utils/colors.dart';
 
 // ignore: must_be_immutable
 class InvitedUsers extends StatefulWidget {
