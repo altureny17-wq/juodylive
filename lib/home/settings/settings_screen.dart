@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:in_app_review/in_app_review.dart';
-import 'package:trace/models/UserModel.dart';
-import 'package:trace/ui/container_with_corner.dart';
+import 'package:juodylive/models/UserModel.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
 
 import '../../auth/welcome_screen.dart';
 import '../../helpers/quick_help.dart';
