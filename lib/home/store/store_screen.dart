@@ -3,8 +3,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:trace/helpers/quick_actions.dart';
-import 'package:trace/home/store/wave.dart';
+import 'package:juodylive/helpers/quick_actions.dart';
+import 'package:juodylive/home/store/wave.dart';
 
 import '../../app/setup.dart';
 import '../../helpers/quick_help.dart';
