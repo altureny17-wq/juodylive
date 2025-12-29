@@ -1,9 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/home/reels/reels_single_screen.dart';
-import 'package:trace/ui/app_bar.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/home/reels/reels_single_screen.dart';
+import 'package:juodylive/ui/app_bar.dart';
 
 import '../../helpers/quick_actions.dart';
 import '../../models/PostsModel.dart';
