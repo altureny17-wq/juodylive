@@ -6,12 +6,12 @@ import 'package:flutter/material.dart';
 
 import 'package:lottie/lottie.dart';
 import 'package:preload_page_view/preload_page_view.dart';
-import 'package:trace/home/feed/videoutils/screen_config.dart';
-import 'package:trace/home/feed/videoutils/video.dart';
-import 'package:trace/home/feed/videoutils/video_item.dart';
-import 'package:trace/home/feed/videoutils/video_item_config.dart';
-import 'package:trace/models/PostsModel.dart';
-import 'package:trace/models/UserModel.dart';
+import 'package:juodylive/home/feed/videoutils/screen_config.dart';
+import 'package:juodylive/home/feed/videoutils/video.dart';
+import 'package:juodylive/home/feed/videoutils/video_item.dart';
+import 'package:juodylive/home/feed/videoutils/video_item_config.dart';
+import 'package:juodylive/models/PostsModel.dart';
+import 'package:juodylive/models/UserModel.dart';
 
 import '../../../helpers/quick_help.dart';
 import 'api.dart';
