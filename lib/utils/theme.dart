@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

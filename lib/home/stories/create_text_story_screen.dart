@@ -8,14 +8,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/home/home_screen.dart';
-import 'package:trace/models/StoriesAuthorsModel.dart';
-import 'package:trace/models/StoriesModel.dart';
-import 'package:trace/models/UserModel.dart';
-import 'package:trace/ui/container_with_corner.dart';
-import 'package:trace/ui/text_with_tap.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/home/home_screen.dart';
+import 'package:juodylive/models/StoriesAuthorsModel.dart';
+import 'package:juodylive/models/StoriesModel.dart';
+import 'package:juodylive/models/UserModel.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
+import 'package:juodylive/utils/colors.dart';
 
 import '../../helpers/send_notifications.dart';
 

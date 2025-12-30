@@ -1,5 +1,5 @@
 
-import 'package:trace/utils/helpers/extensions/extensions.dart';
+import 'package:juodylive/utils/helpers/extensions/extensions.dart';
 
 import '../type_defs.dart';
 

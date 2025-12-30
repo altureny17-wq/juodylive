@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:trace/utils/helpers/extensions/extensions.dart';
+import 'package:juodylive/utils/helpers/extensions/extensions.dart';
 
 import '../misc_build/build_color.dart';
 import '../misc_build/build_media.dart';

@@ -3,7 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:trace/utils/helpers/extensions/extensions.dart';
+import 'package:juodylive/utils/helpers/extensions/extensions.dart';
 
 import 'decorations.dart';
 import 'misc.dart';

@@ -66,7 +66,7 @@ class _BattleTimerState extends State<BattleTimer> {
 
 /*
 import 'package:flutter/material.dart';
-import 'package:trace/ui/container_with_corner.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
 import 'package:zego_uikit_prebuilt_live_streaming/zego_uikit_prebuilt_live_streaming.dart';
 import 'dart:async';
 import 'dart:convert';

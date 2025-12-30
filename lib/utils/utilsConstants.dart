@@ -1,8 +1,8 @@
 import 'package:parse_server_sdk/parse_server_sdk.dart';
-import 'package:trace/models/LiveStreamingModel.dart';
-import 'package:trace/models/MessageListModel.dart';
-import 'package:trace/models/MessageModel.dart';
-import 'package:trace/models/PostsModel.dart';
+import 'package:juodylive/models/LiveStreamingModel.dart';
+import 'package:juodylive/models/MessageListModel.dart';
+import 'package:juodylive/models/MessageModel.dart';
+import 'package:juodylive/models/PostsModel.dart';
 
 class UtilsConstant {
 

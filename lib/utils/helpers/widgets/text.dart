@@ -1,7 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:trace/utils/helpers/extensions/build_context.dart';
+import 'package:juodylive/utils/helpers/extensions/build_context.dart';
 
 class Headline1 extends StatelessWidget {
   ///`Text Widget` with the **headline1** theme style.

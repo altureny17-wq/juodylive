@@ -2,7 +2,7 @@
 
 import 'package:advstory/advstory.dart';
 import 'package:flutter/material.dart';
-import 'package:trace/models/UserModel.dart';
+import 'package:juodylive/models/UserModel.dart';
 
 class AllStoriesScreen extends StatefulWidget {
   UserModel? currentUser;

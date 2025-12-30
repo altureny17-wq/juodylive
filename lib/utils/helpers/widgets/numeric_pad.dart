@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:trace/utils/helpers/extensions/build_context.dart';
-import 'package:trace/utils/helpers/widgets/widgets.dart';
+import 'package:juodylive/utils/helpers/extensions/build_context.dart';
+import 'package:juodylive/utils/helpers/widgets/widgets.dart';
 
 const List<List<NumericPadNumber>> kNumericPadNumbers = [
   [NumericPadNumber.one, NumericPadNumber.two, NumericPadNumber.three],

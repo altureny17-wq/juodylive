@@ -1,7 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 

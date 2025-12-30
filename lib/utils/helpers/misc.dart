@@ -8,8 +8,8 @@ import 'package:flutter/foundation.dart' as foundation;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:trace/utils/helpers/extensions/extensions.dart';
-import 'package:trace/utils/helpers/print.dart';
+import 'package:juodylive/utils/helpers/extensions/extensions.dart';
+import 'package:juodylive/utils/helpers/print.dart';
 
 import 'lists/list_differences.dart';
 

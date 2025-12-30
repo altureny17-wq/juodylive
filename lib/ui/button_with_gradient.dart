@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:trace/ui/text_with_tap.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
 
 class ButtonWithGradient extends StatelessWidget {
   final Function? onTap;

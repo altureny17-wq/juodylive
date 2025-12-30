@@ -1,8 +1,8 @@
 
 import 'package:flutter/material.dart';
-import 'package:trace/utils/helpers/extensions/extensions.dart';
-import 'package:trace/utils/helpers/widgets/sliding_bottom_sheet/widgets/sliding_bottom_sheet.dart';
-import 'package:trace/utils/helpers/widgets/sliding_bottom_sheet/widgets/sliding_bottom_sheet_chevron.dart';
+import 'package:juodylive/utils/helpers/extensions/extensions.dart';
+import 'package:juodylive/utils/helpers/widgets/sliding_bottom_sheet/widgets/sliding_bottom_sheet.dart';
+import 'package:juodylive/utils/helpers/widgets/sliding_bottom_sheet/widgets/sliding_bottom_sheet_chevron.dart';
 
 import '../../../misc.dart';
 import '../../../size.dart';

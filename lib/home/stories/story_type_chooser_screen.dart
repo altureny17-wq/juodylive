@@ -3,14 +3,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:trace/app/setup.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/home/stories/create_photo_story_screen.dart';
-import 'package:trace/home/stories/create_text_story_screen.dart';
-import 'package:trace/models/UserModel.dart';
-import 'package:trace/ui/container_with_corner.dart';
-import 'package:trace/ui/text_with_tap.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/app/setup.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/home/stories/create_photo_story_screen.dart';
+import 'package:juodylive/home/stories/create_text_story_screen.dart';
+import 'package:juodylive/models/UserModel.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
+import 'package:juodylive/utils/colors.dart';
 
 class StoryTypeChooserScreen extends StatefulWidget {
   UserModel? currentUser;

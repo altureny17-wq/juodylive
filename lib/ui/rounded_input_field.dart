@@ -1,5 +1,5 @@
-import 'package:trace/ui/text_field_container.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/ui/text_field_container.dart';
+import 'package:juodylive/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

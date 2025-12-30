@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/utils/colors.dart';
 
 class ButtonWithIcon extends StatelessWidget {
   final Function? onTap;

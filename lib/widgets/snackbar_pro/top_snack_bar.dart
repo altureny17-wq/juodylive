@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:trace/widgets/snackbar_pro/tap_bounce_container.dart';
+import 'package:juodylive/widgets/snackbar_pro/tap_bounce_container.dart';
 
 OverlayEntry? _previousEntry;
 

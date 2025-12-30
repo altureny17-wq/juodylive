@@ -5,16 +5,16 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:trace/helpers/quick_actions.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/home/home_screen.dart';
-import 'package:trace/home/stories/see_stories_screen.dart';
-import 'package:trace/home/stories/story_type_chooser_screen.dart';
-import 'package:trace/models/StoriesAuthorsModel.dart';
-import 'package:trace/models/UserModel.dart';
-import 'package:trace/ui/container_with_corner.dart';
-import 'package:trace/ui/text_with_tap.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/helpers/quick_actions.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/home/home_screen.dart';
+import 'package:juodylive/home/stories/see_stories_screen.dart';
+import 'package:juodylive/home/stories/story_type_chooser_screen.dart';
+import 'package:juodylive/models/StoriesAuthorsModel.dart';
+import 'package:juodylive/models/UserModel.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
+import 'package:juodylive/ui/text_with_tap.dart';
+import 'package:juodylive/utils/colors.dart';
 
 class StoriesPage extends StatefulWidget {
   final UserModel? currentUser;

@@ -1,7 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/ui/container_with_corner.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
 import 'package:flutter/material.dart';
 
 

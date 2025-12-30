@@ -1,9 +1,9 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/ui/container_with_corner.dart';
-import 'package:trace/utils/colors.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/ui/container_with_corner.dart';
+import 'package:juodylive/utils/colors.dart';
 
 class StickyHeader extends StatelessWidget {
   Widget? widget;

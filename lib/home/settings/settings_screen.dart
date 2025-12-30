@@ -21,7 +21,7 @@ import '../message_notification/new_messages_notifications_screen.dart';
 import '../privacy/privacy_screen.dart';
 import '../privilege/privilege_setting_screen.dart';
 import '../profile/profile_edit.dart';
-import 'package:trace/app/config.dart' as conf;
+import 'package:juodylive/app/config.dart' as conf;
 
 class SettingsScreen extends StatefulWidget {
   UserModel? currentUser;
