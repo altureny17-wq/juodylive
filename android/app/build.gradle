@@ -43,9 +43,9 @@ android {
         versionName flutterVersionName
         multiDexEnabled true
     
-        ndk {
-            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
-        }
+      //  ndk {
+       //     abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
+      //  }
     }
 
     // تم تصحيح الكتابة هنا (packagingOptions بدلاً من PackagingOptions)
