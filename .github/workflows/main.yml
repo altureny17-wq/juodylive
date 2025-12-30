@@ -23,7 +23,14 @@ jobs:
           sudo docker image prune -a -f
           echo "المساحة المتاحة الآن:"
           df -h
-
+          
+     - name: Clean Gradle Cache
+       run: |
+          cd android
+          rm -rf .gradle/
+          ./gradlew clean
+          
+      
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
