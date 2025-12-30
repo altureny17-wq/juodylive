@@ -1,4 +1,4 @@
-import 'package:trace/app/setup.dart';
+import 'package:juodylive/app/setup.dart';
 import 'package:parse_server_sdk/parse_server_sdk.dart';
 import 'package:easy_localization/easy_localization.dart';
 
