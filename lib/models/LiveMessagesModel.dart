@@ -1,6 +1,6 @@
-import 'package:trace/models/GiftsSentModel.dart';
-import 'package:trace/models/LiveStreamingModel.dart';
-import 'package:trace/models/UserModel.dart';
+import 'package:juodylive/models/GiftsSentModel.dart';
+import 'package:juodylive/models/LiveStreamingModel.dart';
+import 'package:juodylive/models/UserModel.dart';
 import 'package:parse_server_sdk/parse_server_sdk.dart';
 
 class LiveMessagesModel extends ParseObject implements ParseCloneable {
