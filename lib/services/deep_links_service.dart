@@ -6,8 +6,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
-import 'package:trace/helpers/quick_help.dart';
-import 'package:trace/home/profile/user_profile_screen.dart';
+import 'package:juodylive/helpers/quick_help.dart';
+import 'package:juodylive/home/profile/user_profile_screen.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
 import '../app/config.dart';
