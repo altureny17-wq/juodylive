@@ -1,5 +1,5 @@
-import 'package:trace/models/MessageModel.dart';
-import 'package:trace/models/UserModel.dart';
+import 'package:juodylive/models/MessageModel.dart';
+import 'package:juodylive/models/UserModel.dart';
 import 'package:parse_server_sdk/parse_server_sdk.dart';
 
 import 'CallsModel.dart';
