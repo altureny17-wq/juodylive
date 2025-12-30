@@ -1,5 +1,5 @@
 import 'package:parse_server_sdk/parse_server_sdk.dart';
-import 'package:trace/models/FanClubModel.dart';
+import 'package:juodylive/models/FanClubModel.dart';
 
 import 'UserModel.dart';
 
