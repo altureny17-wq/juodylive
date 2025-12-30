@@ -20,7 +20,6 @@ jobs:
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
           sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf /usr/local/lib/android
           sudo apt-get clean
           sudo docker image prune -a -f
           echo "المساحة المتاحة الآن:"
@@ -47,6 +46,9 @@ jobs:
         run: |
           flutter clean
           flutter pub get
+          
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
       - name: Build APK
         run: flutter build apk --release
