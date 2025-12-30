@@ -1,4 +1,4 @@
-import 'package:trace/models/UserModel.dart';
+import 'package:juodylive/models/UserModel.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
