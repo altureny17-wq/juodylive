@@ -1,7 +1,7 @@
 // ignore_for_file: file_names
 
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
-import 'package:trace/models/UserModel.dart';
+import 'package:juodylive/models/UserModel.dart';
 
 class StoriesModel extends ParseObject implements ParseCloneable {
   static const String keyTableName = "Stories";
