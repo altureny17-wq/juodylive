@@ -1,5 +1,5 @@
-import 'package:trace/models/LiveStreamingModel.dart';
-import 'package:trace/models/UserModel.dart';
+import 'package:juodylive/models/LiveStreamingModel.dart';
+import 'package:juodylive/models/UserModel.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
 class AudioChatUsersModel extends ParseObject implements ParseCloneable {
