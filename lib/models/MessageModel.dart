@@ -1,6 +1,6 @@
-import 'package:trace/models/CallsModel.dart';
-import 'package:trace/models/MessageListModel.dart';
-import 'package:trace/models/UserModel.dart';
+import 'package:juodylive/models/CallsModel.dart';
+import 'package:juodylive/models/MessageListModel.dart';
+import 'package:juodylive/models/UserModel.dart';
 import 'package:parse_server_sdk/parse_server_sdk.dart';
 
 import 'GroupMessageModel.dart';
