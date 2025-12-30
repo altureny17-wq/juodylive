@@ -1,6 +1,6 @@
-import 'package:trace/models/LiveStreamingModel.dart';
-import 'package:trace/models/PostsModel.dart';
-import 'package:trace/models/UserModel.dart';
+import 'package:juodylive/models/LiveStreamingModel.dart';
+import 'package:juodylive/models/PostsModel.dart';
+import 'package:juodylive/models/UserModel.dart';
 import 'package:parse_server_sdk/parse_server_sdk.dart';
 
 class NotificationsModel extends ParseObject implements ParseCloneable {
