@@ -1,4 +1,4 @@
-import 'package:trace/models/UserModel.dart';
+import 'package:juodylive/models/UserModel.dart';
 
 class LeadersCountModel {
 
