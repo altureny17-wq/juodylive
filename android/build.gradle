@@ -5,6 +5,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
+        // الحفاظ على النسخة التي يطلبها مشروعك
         classpath 'com.android.tools.build:gradle:8.9.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
@@ -15,15 +16,26 @@ allprojects {
         google()
         mavenCentral()
         maven { url 'https://jitpack.io' }
+        // إضافة مستودع Zego الرسمي ضروري جداً هنا
+        maven { url 'https://storage.zego.im/maven' }
     }
     
     configurations.all {
         resolutionStrategy {
-            // ضروري جداً لـ ZEGO
             force "com.google.android.gms:play-services-location:21.0.1"
-            
-            // ملاحظة: لا تضع أي قيود (force) لـ FFmpeg هنا.
-            // دع المكتبة الجديدة (2.1.1) تجلب ملفاتها الأصلية من مستودع المطور.
+
+            // هذا الجزء هو "المفتاح" لحل مشكلة 403 Forbidden
+            // سيقوم بإجبار Gradle على تجاهل أي طلب لنسخ كوتلن قديمة (مثل 1.3.72)
+            // واستخدام النسخة الحديثة المتوافقة مع Gradle 8
+            eachDependency { details ->
+                if (details.requested.group == 'org.jetbrains.kotlin') {
+                    details.useVersion "$kotlin_version"
+                }
+                // حل مشكلة Proguard القديم الذي يسبب فشل البناء
+                if (details.requested.group == 'net.sf.proguard') {
+                    details.useVersion "7.2.2" 
+                }
+            }
         }
     }
 }
