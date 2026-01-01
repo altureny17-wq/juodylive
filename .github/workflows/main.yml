@@ -1,4 +1,4 @@
-Name: Build Flutter APK
+name: Build Flutter APK
 
 on:
   workflow_dispatch:
@@ -14,19 +14,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # --- [تعديل هام] ---
-      # استخدام أداة متخصصة لتنظيف القرص بعمق قبل البدء
-      # هذا سيوفر مساحة كافية للـ NDK ومكتبات Zego الضخمة
+      # تنظيف القرص بعمق لتوفير مساحة للـ NDK
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space-action@v1.3.1
         with:
           tool-cache: false
-          android: false   # لا تحذف أدوات الأندرويد لأننا نحتاجها
-          dotnet: true     # احذف دوت نت
-          haskell: true    # احذف هاسكل
-          large-packages: true # احذف الحزم الكبيرة المثبتة مسبقاً
-          docker-images: true  # احذف صور دوكر
-          swap-storage: true   # احذف ملفات السواب
+          android: false
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -45,11 +43,7 @@ jobs:
           flutter clean
           flutter pub get
           
-      # تمت إزالة خطوة "Setup Android SDK" الزائدة لتوفير المساحة
-      # سيقوم Gradle بتحميل الـ SDK والـ NDK تلقائياً
-
       - name: Build APK
-        # استخدام split-per-abi ممتاز لتقليل حجم ملف الـ APK وتخفيف الضغط على الرام أثناء البناء
         run: flutter build apk --release --split-per-abi 
 
       - name: Upload APK Artifact
@@ -57,3 +51,4 @@ jobs:
         with:
           name: app-release
           path: build/app/outputs/flutter-apk/*.apk
+          
