@@ -1,4 +1,4 @@
-name: Build Flutter APK
+Name: Build Flutter APK
 
 on:
   workflow_dispatch:
@@ -14,22 +14,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Free Disk Space
-        run: |
-          # حذف الأدوات التي لا تؤثر على بناء الأندرويد أو الجافا
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo apt-get clean
-          sudo docker image prune -a -f
-          echo "المساحة المتاحة الآن:"
-          df -h
-          
-      - name: Clean Gradle cache
-        run: |
-          rm -rf ~/.gradle/caches
-          rm -rf ~/.gradle/wrapper 
-      
+      # --- [تعديل هام] ---
+      # استخدام أداة متخصصة لتنظيف القرص بعمق قبل البدء
+      # هذا سيوفر مساحة كافية للـ NDK ومكتبات Zego الضخمة
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space-action@v1.3.1
+        with:
+          tool-cache: false
+          android: false   # لا تحذف أدوات الأندرويد لأننا نحتاجها
+          dotnet: true     # احذف دوت نت
+          haskell: true    # احذف هاسكل
+          large-packages: true # احذف الحزم الكبيرة المثبتة مسبقاً
+          docker-images: true  # احذف صور دوكر
+          swap-storage: true   # احذف ملفات السواب
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -47,10 +45,11 @@ jobs:
           flutter clean
           flutter pub get
           
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      # تمت إزالة خطوة "Setup Android SDK" الزائدة لتوفير المساحة
+      # سيقوم Gradle بتحميل الـ SDK والـ NDK تلقائياً
 
       - name: Build APK
+        # استخدام split-per-abi ممتاز لتقليل حجم ملف الـ APK وتخفيف الضغط على الرام أثناء البناء
         run: flutter build apk --release --split-per-abi 
 
       - name: Upload APK Artifact
@@ -58,4 +57,3 @@ jobs:
         with:
           name: app-release
           path: build/app/outputs/flutter-apk/*.apk
-          
