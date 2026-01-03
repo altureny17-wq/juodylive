@@ -3,6 +3,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev' }
     }
     dependencies {
         // الحفاظ على النسخة التي يطلبها مشروعك
@@ -16,6 +17,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+         maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev' }
         maven { url 'https://jitpack.io' }
         maven { url "https://plugins.gradle.org/m2/" }
         maven { url 'https://storage.zego.im/maven' }
