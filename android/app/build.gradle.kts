@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.trace.trace"
+    namespace = "com.juodylive.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.trace.trace"
+        applicationId = "com.juodylive.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -41,4 +41,12 @@ android {
 
 flutter {
     source = "../.."
+}
+
+// إضافة قسم التبعيات لحل مشكلة مكتبة Material وواجهة المستخدم
+dependencies {
+    // استخدام الصيغة الصحيحة لملفات KTS مع رقم إصدار محدد
+    implementation("com.google.android.material:material:1.12.0")
+    // دعم مكتبة كوتلن القياسية
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 }
