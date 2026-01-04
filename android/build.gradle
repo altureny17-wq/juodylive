@@ -7,7 +7,6 @@ buildscript {
     }
     dependencies {
         // الحفاظ على النسخة التي يطلبها مشروعك
-        implementation 'com.google.android.material:material:<version>'
         classpath 'com.android.tools.build:gradle:8.9.1'
         classpath "org.jetbrains.kotlin:kotlin-build-tools-impl:2.1.0"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
