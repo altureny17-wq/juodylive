@@ -1,15 +1,11 @@
 buildscript {
-    // تم اختيار 1.9.22 لأنها الأكثر استقراراً مع Gradle 8 ومتاحة دائماً
     ext.kotlin_version = '2.1.0' 
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev' }
     }
     dependencies {
-        // نصيحة: استخدم 8.2.1 لضمان التوافق مع بيئة GitHub Actions الحالية
         classpath 'com.android.tools.build:gradle:8.9.1'
-        // هذا السطر غالباً لا نحتاجه كـ classpath، الـ plugin يكفي
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -19,36 +15,21 @@ allprojects {
         google()
         mavenCentral()
         maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev' }
-        maven { url 'https://jitpack.io' }
-        maven { url "https://plugins.gradle.org/m2/" }
         maven { url 'https://storage.zego.im/maven' }
+        maven { url 'https://jitpack.io' }
     }
-    
-    configurations.all {
-        resolutionStrategy {
-            force "com.google.android.gms:play-services-location:21.0.1"
+}
 
-            eachDependency { details ->
-                // إجبار كافة طلبات كوتلن (بما فيها kotlin-build-tools-impl) على نسخة واحدة
-                if (details.requested.group == 'org.jetbrains.kotlin') {
-                    details.useVersion "$kotlin_version"
-                }
-                // تصحيح Proguard كما فعلت أنت (ممتاز)
-                if (details.requested.group == 'net.sf.proguard') {
-                    details.useVersion "7.2.2" 
-                }
+// الرصاصة الفضية: إجبار كل شيء على العمل بالنسخة الحديثة
+subprojects {
+    configurations.all {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'org.jetbrains.kotlin') {
+                details.useVersion "$kotlin_version"
             }
         }
     }
-}
-
-rootProject.buildDir = '../build'
-subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
-}
-
-subprojects {
-    // هذا الجزء يحل مشكلة الـ namespace المفقود في المكتبات القديمة
+    // حل مشكلة الـ Namespace التي تظهر في المكتبات القديمة
     afterEvaluate { project ->
         if (project.hasProperty('android')) {
             project.android {
@@ -58,8 +39,4 @@ subprojects {
             }
         }
     }
-}
-
-tasks.register("clean", Delete) {
-    delete rootProject.buildDir
 }
