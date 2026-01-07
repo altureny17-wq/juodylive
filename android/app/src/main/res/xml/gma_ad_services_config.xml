@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ad-services-config>
-    <attest-ad-id-enabled>true</attest-ad-id-enabled>
+    <attribution allowAllToAccess="true" />
+    <ad-id allowAllToAccess="true" />
 </ad-services-config>
