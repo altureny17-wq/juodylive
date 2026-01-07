@@ -27,7 +27,7 @@ rootProject.buildDir = '../build'
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 
-    // 1. استراتيجية الإجبار لحل مشاكل النسخ المفقودة
+    // إجبار النسخ لضمان عدم البحث عن نسخ قديمة مفقودة
     project.configurations.all {
         resolutionStrategy {
             eachDependency { details ->
@@ -41,41 +41,20 @@ subprojects {
         }
     }
 
-    // 2. الإصلاح الذكي للـ Namespace (هذا هو الحل لمشكلة keyboard_visibility)
     afterEvaluate { project ->
         if (project.hasProperty('android')) {
             project.android {
-                // بدلاً من تأليف اسم جديد، نحاول قراءة الاسم الأصلي من ملف المكتبة
+                // حل مشكلة الـ namespace للمكتبات الأخرى المتبقية
                 if (namespace == null) {
-                    def manifestFile = file("src/main/AndroidManifest.xml")
-                    if (manifestFile.exists()) {
-                        try {
-                            def parser = new XmlSlurper()
-                            def root = parser.parse(manifestFile)
-                            def packageName = root.@package.text()
-                            if (packageName != null && !packageName.isEmpty()) {
-                                namespace = packageName
-                            } else {
-                                // اسم احتياطي فقط في حال فشل القراءة
-                                namespace = "com.juodylive.app.${project.name.replace("-", ".")}"
-                            }
-                        } catch (Exception e) {
-                            namespace = "com.juodylive.app.${project.name.replace("-", ".")}"
-                        }
-                    } else {
-                        namespace = "com.juodylive.app.${project.name.replace("-", ".")}"
-                    }
+                    namespace = "com.juodylive.app.${project.name.replace("-", ".")}"
                 }
-
-                // توحيد لغة الجافا
                 compileOptions {
                     sourceCompatibility = JavaVersion.VERSION_11
                     targetCompatibility = JavaVersion.VERSION_11
                 }
             }
         }
-
-        // إجبار Kotlin على استخدام Java 11
+        // توحيد لغة الكومبايلر لجميع المهام
         project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
             kotlinOptions {
                 jvmTarget = "11"
