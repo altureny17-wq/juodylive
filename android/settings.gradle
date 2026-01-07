@@ -1,19 +1,27 @@
 pluginManagement {
     def flutterSdkPath = {
         def properties = new Properties()
-        file("local.properties").withInputStream { properties.load(it) }
-        def flutterSdkPath = properties.getProperty("flutter.sdk")
-        assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
-        return flutterSdkPath
-    }()
+        def propertiesFile = file("local.properties")
+        if (propertiesFile.exists()) {
+            propertiesFile.withInputStream { properties.load(it) }
+        }
+        // في السيرفر (GitHub)، سيأتي المسار من متغير بيئة إذا لم يوجد الملف
+        def sdkPath = properties.getProperty("flutter.sdk") ?: System.getenv("FLUTTER_ROOT")
+        return sdkPath
+    }
+    def sdkPath = flutterSdkPath()
 
-    includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
+    // التأكد من وجود المسار قبل محاولة تضمين بناء أدوات فلاتر
+    if (sdkPath != null) {
+        includeBuild("$sdkPath/packages/flutter_tools/gradle")
+    }
 
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev' }
         gradlePluginPortal()
+        // استخدام الرابط الذي اقترحته لتجاوز مشاكل الشبكة
+        maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
     }
 }
 
@@ -27,3 +35,15 @@ plugins {
 }
 
 include ":app"
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
+        maven { url 'https://storage.zego.im/maven' }
+        maven { url 'https://jitpack.io' }
+    }
+}
+
