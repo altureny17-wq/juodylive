@@ -11,7 +11,7 @@ dependencies:
 
   flutter:
     sdk: flutter
-
+  flutter_keyboard_visibility: ^6.0.0
   # Default
   cupertino_icons: ^1.0.6
   google_fonts: ^6.3.0
@@ -60,7 +60,6 @@ dependencies:
   fade_shimmer: ^2.2.0
   calendar_date_picker2: ^2.0.1
   circular_menu: ^4.0.0
-  flutter_keyboard_visibility: ^5.4.1
   text_scroll: ^0.2.0
   emoji_picker_flutter: ^4.4.0
   flip_card: ^0.7.0
@@ -158,6 +157,7 @@ dependencies:
 dependency_overrides:
   parse_server_sdk: 9.4.0
   zego_express_engine: 3.22.0
+  flutter_keyboard_visibility: ^6.0.0
   
 dev_dependencies:
   flutter_native_splash: ^2.4.1
