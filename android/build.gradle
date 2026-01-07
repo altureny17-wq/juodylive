@@ -1,11 +1,12 @@
 buildscript {
-    ext.kotlin_version = '2.1.0' 
+    ext.kotlin_version = '2.1.0'
     repositories {
         google()
         mavenCentral()
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
+        // نسخة Gradle المتوافقة مع Kotlin 2.1.0
         classpath 'com.android.tools.build:gradle:8.9.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
@@ -22,29 +23,41 @@ allprojects {
     }
 }
 
-// الرصاصة الفضية: إجبار كل شيء على العمل بالنسخة الحديثة
+rootProject.buildDir = '../build'
+
 subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+    
+    // إجبار التوافق داخل كل المكتبات الفرعية (مثل :floating)
     project.configurations.all {
         resolutionStrategy {
             eachDependency { details ->
-                // إجبار أي طلب لكوتلن (سواء كان 1.8.22 أو غيره) على التحول لـ 2.1.0
                 if (details.requested.group == 'org.jetbrains.kotlin') {
                     details.useVersion "2.1.0"
                 }
-                // استهداف مباشر لملف الأدوات الذي يسبب الفشل في مكتبة :floating
                 if (details.requested.name == 'kotlin-build-tools-impl') {
                     details.useVersion "2.1.0"
+                }
             }
         }
     }
-    // حل مشكلة الـ Namespace التي تظهر في المكتبات القديمة
+
+    // إصلاح الـ Namespace والـ Java Version تلقائياً
     afterEvaluate { project ->
         if (project.hasProperty('android')) {
             project.android {
                 if (namespace == null) {
                     namespace = "com.juodylive.app.${project.name.replace("-", ".")}"
                 }
+                compileOptions {
+                    sourceCompatibility = JavaVersion.VERSION_11
+                    targetCompatibility = JavaVersion.VERSION_11
+                }
             }
         }
     }
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
 }
