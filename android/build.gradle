@@ -3,6 +3,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.9.1'
@@ -14,7 +15,8 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev' }
+        maven { url "https://storage.googleapis.com/download.flutter.io" }
+        maven { url "https://cache-redirector.jetbrains.com/maven.pkg.jetbrains.space/kotlin/p/kotlin/dev" }
         maven { url 'https://storage.zego.im/maven' }
         maven { url 'https://jitpack.io' }
     }
@@ -22,10 +24,16 @@ allprojects {
 
 // الرصاصة الفضية: إجبار كل شيء على العمل بالنسخة الحديثة
 subprojects {
-    configurations.all {
-        resolutionStrategy.eachDependency { details ->
-            if (details.requested.group == 'org.jetbrains.kotlin') {
-                details.useVersion "$kotlin_version"
+    project.configurations.all {
+        resolutionStrategy {
+            eachDependency { details ->
+                // إجبار أي طلب لكوتلن (سواء كان 1.8.22 أو غيره) على التحول لـ 2.1.0
+                if (details.requested.group == 'org.jetbrains.kotlin') {
+                    details.useVersion "2.1.0"
+                }
+                // استهداف مباشر لملف الأدوات الذي يسبب الفشل في مكتبة :floating
+                if (details.requested.name == 'kotlin-build-tools-impl') {
+                    details.useVersion "2.1.0"
             }
         }
     }
