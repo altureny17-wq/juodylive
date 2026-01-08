@@ -52,7 +52,7 @@ jobs:
           
       - name: Build APK
         run: |
-          flutter build apk --profile --split-per-abi
+          flutter build apk --release --split-per-abi
 
 
       - name: Upload APK Artifact
