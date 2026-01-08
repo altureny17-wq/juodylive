@@ -164,7 +164,7 @@
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="@string/admob_app_id" />
+            android:value="ca-app-pub-000089000040000~9013965649" />
 
         <!-- Branch init -->
         <!-- REPLACE `BranchKey` with the value from your Branch Dashboard -->
