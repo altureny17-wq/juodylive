@@ -23,15 +23,15 @@ class Setup {
 
   // App config
   static final bool isCallsEnabled = true;
-  static final String streamingProviderType = 'agora'; // webrtc
+  static final String streamingProviderType = 'zego'; // webrtc
   static final String streamingProviderKey = '';
 
 
   //Zego Cloud Credentials
-  static final int zegoLiveStreamAppID = 0;
-  static final String zegoLiveStreamAppSign = "";
-  static final String zegoLiveStreamServerSecret = "";
-  static final String zegoPushResourceID = "";
+  static final int zegoLiveStreamAppID = 475466083;
+  static final String zegoLiveStreamAppSign = "f316e780bb7846909daadaa32f62c5fe183eaaf0323e381c20960a16b645e8ed";
+  static final String zegoLiveStreamServerSecret = "a420410cf873bd075a8eaaa6e99193fd";
+  static final String zegoPushResourceID = "juodyliveResource";
 
 
   static const String licenseToken = "";
