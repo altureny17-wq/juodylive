@@ -57,13 +57,7 @@
         android:label="juodylive"
         tools:replace="android:icon"
         android:enableOnBackInvokedCallback="true"
-        android:requestLegacyExternalStorage="true">
-
-        <property
-          //  android:name="android.adservices.AD_SERVICES_CONFIG"
-         //   android:resource="@xml/gma_ad_services_config"
-         //   tools:replace="android:resource" />
-
+        android:requestLegacyExternalStorage="true"
 
         <activity
             android:name=".MainActivity"
