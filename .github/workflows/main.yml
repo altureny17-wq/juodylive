@@ -52,7 +52,7 @@ jobs:
           
       - name: Build APK
         run: |
-          flutter build apk --release --target-platform android-arm,android-arm64 --no-tree-shake-icons
+          flutter build apk --release  --split-per-abi
           
 
 
