@@ -14,27 +14,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # --- تنظيف عميق وحقيقي للمساحة ---
-      - name: Free Disk Space (Deep Clean)
+      # تنظيف آمن وفعال
+      - name: Free Disk Space
         run: |
-          echo "المساحة قبل التنظيف:"
+          echo "Disk before cleanup:"
           df -h
-          # حذف أضخم المجلدات التي لا يحتاجها الأندرويد
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf /usr/lib/jvm/
-          sudo rm -rf /var/lib/apt/lists/*
-          sudo rm -rf /usr/local/share/chromium
-          sudo rm -rf /opt/google/chrome
-          # تنظيف إضافي لصور دوكر والملفات المؤقتة
-          sudo docker image prune -a -f
-          sudo apt-get autoremove -y
+          sudo rm -rf /opt/hostedtoolcache
+          sudo rm -rf ~/.gradle/caches
+          sudo rm -rf ~/.pub-cache
           sudo apt-get clean
-          echo "المساحة بعد التنظيف العميق (يجب أن تكون أكثر من 30G):"
+          echo "Disk after cleanup:"
           df -h
-      
-      - name: Setup Java
+
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -44,21 +38,19 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          cache: false # تعطيل الكاش لتوفير المساحة
+          cache: false
+
+      - name: Flutter Clean
+        run: flutter clean
 
       - name: Install Dependencies
-        run: |
-          flutter pub get
-          
-      - name: Build APK
-        run: |
-          flutter build apk --release  --split-per-abi
-          
+        run: flutter pub get
 
+      - name: Build APK (Release)
+        run: flutter build apk --release --split-per-abi
 
-      - name: Upload APK Artifact
+      - name: Upload APKs
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
-          path: build/app/outputs/flutter-apk/app-release.apk
-          
+          name: release-apks
+          path: build/app/outputs/flutter-apk/*.apk
