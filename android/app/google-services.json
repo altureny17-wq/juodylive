@@ -12,7 +12,20 @@
           "package_name": "com.juodylive.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "196495623634-i4uouvm33h4jumnuovfsj0uokb6b0n0h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.juodylive.app",
+            "certificate_hash": "68b479045ddb5a3c800b679e2a1f651ac437a40f"
+          }
+        },
+        {
+          "client_id": "196495623634-2i2ga8ncj97gdt319vs0rqs45pdjr8bi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCvmGtejeNESkEDJyAdeBEVIdjWzXaT_yY"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "196495623634-2i2ga8ncj97gdt319vs0rqs45pdjr8bi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
