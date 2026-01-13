@@ -164,7 +164,7 @@
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-5660393455301038~3625270763 " />
+            android:value="ca-app-pub-5660393455301038~3625270763" />
 
         <!-- Branch init -->
         <!-- REPLACE `BranchKey` with the value from your Branch Dashboard -->
