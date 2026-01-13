@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -98,16 +97,31 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
 
-  ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navigatorKey);
-
-  await Firebase.initializeApp();
-
-
-  if (QuickHelp.isMobile()) {
-    MobileAds.instance.initialize();
+  // تهيئة Firebase أولاً وبحماية
+  try {
+    await Firebase.initializeApp();
+    if (!QuickHelp.isWebPlatform()) {
+      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    }
+  } catch (e) {
+    debugPrint("Firebase init error: $e");
   }
 
-  initPlatformState();
+  ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navigatorKey);
+
+  if (QuickHelp.isMobile()) {
+    try {
+      MobileAds.instance.initialize();
+    } catch (e) {
+      debugPrint("Ads init error: $e");
+    }
+  }
+
+  try {
+    await initPlatformState();
+  } catch (e) {
+    debugPrint("Platform state error: $e");
+  }
 
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
       overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
@@ -153,34 +167,30 @@ void main() async {
     PostReactionsModel.keyTableName: () => PostReactionsModel(),
   };
 
-  await Parse().initialize(
-    Config.appId,
-    Config.serverUrl,
-    clientKey: Config.clientKey,
-    liveQueryUrl: Config.liveQueryUrl,
-    autoSendSessionId: true,
-    coreStore: QuickHelp.isWebPlatform()
-        ? await CoreStoreSharedPreferences.getInstance()
-        : await CoreStoreSembast.getInstance(password: Config.appId),
-    debug: Setup.isDebug,
-    appName: Setup.appName,
-    appPackageName: Setup.appPackageName,
-    appVersion: Setup.appVersion,
-    locale: await Devicelocale.currentLocale,
-    parseUserConstructor: (username, password, email,
-            {client, debug, sessionToken}) =>
-        UserModel(username, password, email),
-    registeredSubClassMap: subClassMap,
-  );
-
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-
-  if(!QuickHelp.isWebPlatform()) {
-    FlutterError.onError =
-        FirebaseCrashlytics.instance.recordFlutterFatalError;
+  try {
+    await Parse().initialize(
+      Config.appId,
+      Config.serverUrl,
+      clientKey: Config.clientKey,
+      liveQueryUrl: Config.liveQueryUrl,
+      autoSendSessionId: true,
+      coreStore: QuickHelp.isWebPlatform()
+          ? await CoreStoreSharedPreferences.getInstance()
+          : await CoreStoreSembast.getInstance(password: Config.appId),
+      debug: Setup.isDebug,
+      appName: Setup.appName,
+      appPackageName: Setup.appPackageName,
+      appVersion: Setup.appVersion,
+      locale: await Devicelocale.currentLocale,
+      parseUserConstructor: (username, password, email,
+              {client, debug, sessionToken}) =>
+          UserModel(username, password, email),
+      registeredSubClassMap: subClassMap,
+    );
+  } catch (e) {
+    debugPrint("Parse init error: $e");
   }
-  await EasyLocalization.ensureInitialized();
+
   ZegoUIKit().initLog().then((value) {
     ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI(
       [ZegoUIKitSignalingPlugin()],
@@ -208,8 +218,9 @@ Future<void> initPlatformState() async {
   } else if (QuickHelp.isIOSPlatform()) {
     configuration = PurchasesConfiguration(Config.publicIosSdkKey);
   }
-  if(!QuickHelp.isWebPlatform()) {
-    await Purchases.configure(configuration!);
+  
+  if(!QuickHelp.isWebPlatform() && configuration != null) {
+    await Purchases.configure(configuration);
   }
 }
 
@@ -228,17 +239,16 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       getCurrentUser();
       QuickHelp.saveCurrentRoute(route: HomeScreen.route);
-      print("AppState: resumed");
     } else {
       RemoveOnline();
       QuickHelp.saveCurrentRoute(route: "background");
-      print("AppState: background / closed");
     }
   }
 
   @override
   void dispose() {
     RemoveOnline();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -262,19 +272,20 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
   @override
   void initState() {
-
+    super.initState();
     getCurrentUser();
 
     if (!QuickHelp.isWebPlatform()) {
       Future.delayed(Duration(seconds: 2), () async {
-        await FlutterBranchSdk.init(enableLogging: true);
-        //FlutterBranchSdk.validateSDKIntegration();
+        try {
+          await FlutterBranchSdk.init(enableLogging: true);
+        } catch (e) {
+          debugPrint("Branch init error: $e");
+        }
       });
     }
 
     WidgetsBinding.instance.addObserver(this);
-
-    super.initState();
   }
 
   @override
@@ -289,48 +300,27 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       navigatorKey: navigatorKey,
       locale: context.locale,
       routes: {
-        //Before Login
         WelcomeScreen.route: (_) => WelcomeScreen(),
         ForgotScreen.route: (_) => ForgotScreen(),
-
-        // Home and tabs
         HomeScreen.route: (_) => HomeScreen(),
-
         NotificationsScreen.route: (_) => NotificationsScreen(),
         LocationScreen.route: (_) => LocationScreen(),
         ReelsHomeScreen.route: (_) => ReelsHomeScreen(),
-
-        //Profile
         ProfileMenuScreen.route: (_) => ProfileMenuScreen(),
         ProfileScreen.route: (_) => ProfileScreen(),
         ProfileEdit.route: (_) => ProfileEdit(),
         UserProfileScreen.route: (_) => UserProfileScreen(),
-
-        //Chat
         MessagesListScreen.route: (_) => MessagesListScreen(),
         MessageScreen.route: (_) => MessageScreen(),
-
-        //Feed
-        CommentPostScreen.route: (_) =>
-            CommentPostScreen(),
-        VisualizeMultiplePicturesScreen.route: (_) =>
-            VisualizeMultiplePicturesScreen(),
+        CommentPostScreen.route: (_) => CommentPostScreen(),
+        VisualizeMultiplePicturesScreen.route: (_) => VisualizeMultiplePicturesScreen(),
         CreateVideoPostScreen.route: (_) => CreateVideoPostScreen(),
         CreatePicturesPostScreen.route: (_) => CreatePicturesPostScreen(),
         VideoPlayerScreen.route: (_) => VideoPlayerScreen(),
-
-        //LiveStreaming
         LivePreviewScreen.route: (_) => LivePreviewScreen(),
-
-        //Leaders
         LeadersPage.route: (_) => LeadersPage(),
-
         SelectCountryScreen.route: (_) => SelectCountryScreen(),
-
-        //Report
         ReportScreen.route: (_) => ReportScreen(),
-
-        // Menu
         StatisticsScreen.route: (_) => StatisticsScreen(),
         ReferralScreen.route: (_) => ReferralScreen(),
         BlockedUsersScreen.route: (_) => BlockedUsersScreen(),
@@ -338,29 +328,16 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         GetMoneyScreen.route: (_) => GetMoneyScreen(),
         SettingsScreen.route: (_) => SettingsScreen(),
         WithdrawHistoryScreen.route: (_) => WithdrawHistoryScreen(),
-
-        //Official Announcement
         OfficialAnnouncementScreen.route: (_) => OfficialAnnouncementScreen(),
-
-        // Logged user or not
-        QuickHelp.pageTypeTerms: (_) =>
-            WebViewScreen(pageType: QuickHelp.pageTypeTerms),
-        QuickHelp.pageTypePrivacy: (_) =>
-            WebViewScreen(pageType: QuickHelp.pageTypePrivacy),
-        QuickHelp.pageTypeHelpCenter: (_) =>
-            WebViewScreen(pageType: QuickHelp.pageTypeHelpCenter),
-        QuickHelp.pageTypeOpenSource: (_) =>
-            WebViewScreen(pageType: QuickHelp.pageTypeOpenSource),
-        QuickHelp.pageTypeSafety: (_) =>
-            WebViewScreen(pageType: QuickHelp.pageTypeSafety),
-        QuickHelp.pageTypeCommunity: (_) =>
-            WebViewScreen(pageType: QuickHelp.pageTypeCommunity),
-        QuickHelp.pageTypeInstructions: (_) =>
-            WebViewScreen(pageType: QuickHelp.pageTypeInstructions),
-        QuickHelp.pageTypeSupport: (_) =>
-            WebViewScreen(pageType: QuickHelp.pageTypeSupport),
-        QuickHelp.pageTypeCashOut: (_) =>
-            WebViewScreen(pageType: QuickHelp.pageTypeCashOut),
+        QuickHelp.pageTypeTerms: (_) => WebViewScreen(pageType: QuickHelp.pageTypeTerms),
+        QuickHelp.pageTypePrivacy: (_) => WebViewScreen(pageType: QuickHelp.pageTypePrivacy),
+        QuickHelp.pageTypeHelpCenter: (_) => WebViewScreen(pageType: QuickHelp.pageTypeHelpCenter),
+        QuickHelp.pageTypeOpenSource: (_) => WebViewScreen(pageType: QuickHelp.pageTypeOpenSource),
+        QuickHelp.pageTypeSafety: (_) => WebViewScreen(pageType: QuickHelp.pageTypeSafety),
+        QuickHelp.pageTypeCommunity: (_) => WebViewScreen(pageType: QuickHelp.pageTypeCommunity),
+        QuickHelp.pageTypeInstructions: (_) => WebViewScreen(pageType: QuickHelp.pageTypeInstructions),
+        QuickHelp.pageTypeSupport: (_) => WebViewScreen(pageType: QuickHelp.pageTypeSupport),
+        QuickHelp.pageTypeCashOut: (_) => WebViewScreen(pageType: QuickHelp.pageTypeCashOut),
       },
       home: FutureBuilder<UserModel?>(
           future: QuickHelp.getUserAwait(),
@@ -374,18 +351,9 @@ class _AppState extends State<App> with WidgetsBindingObserver {
               default:
                 if (snapshot.hasData) {
                   UserModel? getUser = snapshot.data;
-                  if (getUser == null) {
-                    return DispacheScreen(
-                      currentUser: currentUser,
-                    );
-                  } else {
-                    return DispacheScreen(
-                      currentUser: getUser,
-                    );
-                  }
+                  return DispacheScreen(currentUser: getUser ?? currentUser);
                 } else {
                   logoutUserPurchase();
-
                   return WelcomeScreen();
                 }
             }
@@ -394,24 +362,15 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         return Stack(
           children: [
             child!,
-            /// support minimizing
             ZegoUIKitPrebuiltLiveStreamingMiniOverlayPage(
               showLeaveButton: false,
               soundWaveColor: kBlueDark,
-              backgroundBuilder: (BuildContext context,
-                  Size size, ZegoUIKitUser? user, Map extraInfo) {
+              backgroundBuilder: (BuildContext context, Size size, ZegoUIKitUser? user, Map extraInfo) {
                 return user != null
-                    ? Image.asset(
-                  "assets/images/audio_bg_start.png",
-                  height: size.height,
-                  width: size.width,
-                  fit: BoxFit.fill,
-                )
+                    ? Image.asset("assets/images/audio_bg_start.png", height: size.height, width: size.width, fit: BoxFit.fill)
                     : const SizedBox();
               },
-              contextQuery: () {
-                return navigatorKey.currentState!.context;
-              },
+              contextQuery: () => navigatorKey.currentState!.context,
             ),
           ],
         );
@@ -420,8 +379,12 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   }
 
   logoutUserPurchase() async {
-    if (!await Purchases.isAnonymous) {
-      await Purchases.logOut().then((value) => print("purchase logout"));
+    try {
+      if (!await Purchases.isAnonymous) {
+        await Purchases.logOut();
+      }
+    } catch (e) {
+      debugPrint("Purchase logout error: $e");
     }
   }
 }
