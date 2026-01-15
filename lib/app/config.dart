@@ -3,8 +3,8 @@ import 'dart:ui';
 
 class Config {
   
-  static const String packageNameAndroid = "";
-  static const String packageNameiOS = "";
+  static const String packageNameAndroid = "com.juodylive.app";
+  static const String packageNameiOS = "com.juodylive.app";
   static const String iosAppStoreId = "1048";
   static final String appName = "juodylive";
   static final String appVersion = "1.0.0";
@@ -13,12 +13,12 @@ class Config {
   static final String initialCountry = 'AO'; // United States
 
   static final String serverUrl = "https://parseapi.back4app.com";
-  static final String liveQueryUrl = "wss://.b4a.io";
-  static final String appId = "";
-  static final String clientKey = "";
+  static final String liveQueryUrl = "wss://juodylive.b4a.io";
+  static final String appId = "HcSOWjniJeuMeleN3KSjo9SlOcUiE3kGul0ST4Ky";
+  static final String clientKey = "vofuFokus7ck7MQbi8cyeKopMQVrYspCeGW43Lli";
 
   //OneSignal
-  static final String oneSignalAppId = "";
+  static final String oneSignalAppId = "d5afccd9-e25e-4816-b0db-3e3e852979fc";
 
   // Firebase Cloud Messaging
   static final String pushGcm = "";
