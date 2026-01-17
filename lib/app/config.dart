@@ -40,20 +40,20 @@ class Config {
   ];
 
   // Android Admob ad
-  static const String admobAndroidOpenAppAd = "ca-app-pub-9318890613494690/4325316561";
-  static const String admobAndroidHomeBannerAd = "ca-app-pub-9318890613494690/8240828077";
-  static const String admobAndroidFeedNativeAd = "ca-app-pub-9318890613494690/9362338057";
-  static const String admobAndroidChatListBannerAd = "ca-app-pub-9318890613494690/6736174716";
-  static const String admobAndroidLiveBannerAd = "ca-app-pub-9318890613494690/7959371442";
-  static const String admobAndroidFeedBannerAd = "ca-app-pub-9318890613494690/9362338057";
+  static const String admobAndroidOpenAppAd = "ca-app-pub-5660393455301038/4652262037";
+  static const String admobAndroidHomeBannerAd = "ca-app-pub-5660393455301038/9357793808";
+  static const String admobAndroidFeedNativeAd = "ca-app-pub-5660393455301038/8917798346";
+  static const String admobAndroidChatListBannerAd = "ca-app-pub-5660393455301038/1535144108";
+  static const String admobAndroidLiveBannerAd = "ca-app-pub-5660393455301038/5226977103";
+  static const String admobAndroidFeedBannerAd = "ca-app-pub-5660393455301038/6899151425";
 
   // iOS Admob ad
-  static const String admobIOSOpenAppAd = "ca-app-pub-1084112649181796/6328973508";
-  static const String admobIOSHomeBannerAd = "ca-app-pub-1084112649181796/1185447057";
-  static const String admobIOSFeedNativeAd = "ca-app-pub-1084112649181796/7224203806";
-  static const String admobIOSChatListBannerAd = "ca-app-pub-1084112649181796/5811376758";
-  static const String admobIOSLiveBannerAd = "ca-app-pub-1084112649181796/8093979063";
-  static const String admobIOSFeedBannerAd = "ca-app-pub-1084112649181796/6907075815";
+  static const String admobIOSOpenAppAd = "ca-app-pub-5660393455301038/7660556994";
+  static const String admobIOSHomeBannerAd = "ca-app-pub-5660393455301038/6239664113";
+  static const String admobIOSFeedNativeAd = "ca-app-pub-5660393455301038/3143739248";
+  static const String admobIOSChatListBannerAd = "ca-app-pub-5660393455301038/8016791972";
+  static const String admobIOSLiveBannerAd = "ca-app-pub-5660393455301038/7552745783";
+  static const String admobIOSFeedBannerAd = "ca-app-pub-5660393455301038/7118643272";
 
   // Web links for help, privacy policy and terms of use.
   static final String helpCenterUrl = "https://trace-34749.web.app/terms/";
