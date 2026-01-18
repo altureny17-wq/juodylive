@@ -9,7 +9,7 @@ class Config {
   static final String appName = "juodylive";
   static final String appVersion = "1.0.0";
   static final String companyName = "juodylive, inc";
-  static final String appOrCompanyUrl = "https://juodylive.com";
+  static final String appOrCompanyUrl = "https://juodylive.thsite.top";
   static final String initialCountry = 'AO'; // United States
 
   static final String serverUrl = "https://parseapi.back4app.com";
