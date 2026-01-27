@@ -295,6 +295,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       debugShowCheckedModeBanner: false,
       theme: lightThemeData(context),
       darkTheme: darkThemeData(context),
+      themeMode: ThemeMode.light,
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       navigatorKey: navigatorKey,
