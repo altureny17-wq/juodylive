@@ -1,50 +1,36 @@
+import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'gift_manager/defines.dart';
 
-final List<ZegoGiftItem> giftItemList = [
-  ZegoGiftItem(
-    name: 'Music Box1',
-    icon: 'assets/gift/musicBox.png',
-    sourceURL:
-        'https://storage.zego.im/sdk-doc/Pics/zegocloud/gift/music_box.mp4',
-    source: ZegoGiftSource.url,
-    type: ZegoGiftType.mp4,
-    weight: 1,
-  ),
-  ZegoGiftItem(
-    name: 'Music Box2',
-    icon: 'assets/gift/musicBox.png',
-    sourceURL:
-        'https://storage.zego.im/sdk-doc/Pics/zegocloud/gift/music_box.mp4',
-    source: ZegoGiftSource.url,
-    type: ZegoGiftType.mp4,
-    weight: 10,
-  ),
-  ZegoGiftItem(
-    name: 'Music Box3',
-    icon: 'assets/gift/musicBox.png',
-    sourceURL:
-        'https://storage.zego.im/sdk-doc/Pics/zegocloud/gift/music_box.mp4',
-    source: ZegoGiftSource.url,
-    type: ZegoGiftType.mp4,
-    weight: 100,
-  ),
-  ZegoGiftItem(
-    name: 'rocket',
-    icon: 'assets/gift/rocket.png',
-    sourceURL: 'assets/gift/rocket.svga',
-    source: ZegoGiftSource.asset,
-    type: ZegoGiftType.svga,
-    weight: 1,
-  ),
-  ZegoGiftItem(
-    name: 'crown',
-    icon: 'assets/gift/crown.png',
-    sourceURL: 'assets/gift/crown.svga',
-    source: ZegoGiftSource.asset,
-    type: ZegoGiftType.svga,
-    weight: 100,
-  ),
-];
+// هذه القائمة ستبدأ فارغة وتتم تعبئتها من السيرفر
+List<ZegoGiftItem> giftItemList = [];
+
+// دالة لجلب الهدايا من Back4app وتحويلها لتنسيق ZegoCloud
+Future<void> loadGiftsFromServer() async {
+  QueryBuilder<ParseObject> queryGifts = QueryBuilder<ParseObject>(ParseObject('Gifts'));
+  
+  final ParseResponse response = await queryGifts.query();
+
+  if (response.success && response.results != null) {
+    giftItemList = response.results!.map((gift) {
+      // تحديد نوع الملف بناءً على الامتداد
+      String fileUrl = gift.get<ParseFileBase>('file')?.url ?? '';
+      ZegoGiftType giftType = fileUrl.endsWith('.svga') 
+          ? ZegoGiftType.svga 
+          : ZegoGiftType.mp4;
+
+      return ZegoGiftItem(
+        name: gift.get<String>('name') ?? 'Gift',
+        icon: gift.get<ParseFileBase>('preview')?.url ?? '', 
+        sourceURL: fileUrl,
+        source: ZegoGiftSource.url,
+        type: giftType,
+        weight: gift.get<int>('coins') ?? 1,
+      );
+    }).toList();
+  } else {
+    print("خطأ في جلب الهدايا من السيرفر: ${response.error?.message}");
+  }
+}
 
 ZegoGiftItem? queryGiftInItemList(String name) {
   final index = giftItemList.indexWhere((item) => item.name == name);
