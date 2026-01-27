@@ -83,6 +83,8 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
   @override
   void initState() {
     super.initState();
+    loadGiftsFromServer().then((_) {
+    setState(() {});
     WakelockPlus.enable();
     initSharedPref();
     Future.delayed(Duration(minutes: 2)).then((value){
@@ -155,6 +157,10 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
     final AvatarService avatarService = AvatarService();
     final hostConfig = ZegoUIKitPrebuiltLiveStreamingConfig.host(
       plugins: [ZegoUIKitSignalingPlugin()],
+       )..bottomMenuBarConfig.buttons = [
+      ZegoMenuBarButtonName.toggleMicrophoneButton,
+      ZegoMenuBarButtonName.switchAudioOutputButton,
+      ZegoMenuBarButtonName.giftButton,()],
     )
       ..audioVideoView.foregroundBuilder = hostAudioVideoViewForegroundBuilder
       ..preview.showPreviewForHost = false
