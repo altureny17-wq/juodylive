@@ -152,53 +152,72 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
   }
 
   @override
-  Widget build(BuildContext context) {
-    Size size = MediaQuery.sizeOf(context);
-    final AvatarService avatarService = AvatarService();
-    final hostConfig = ZegoUIKitPrebuiltLiveStreamingConfig.host(
-      plugins: [ZegoUIKitSignalingPlugin()],
-       )..bottomMenuBarConfig.buttons = [
+Widget build(BuildContext context) {
+  Size size = MediaQuery.sizeOf(context);
+  final AvatarService avatarService = AvatarService();
+
+  // 1. إعدادات المضيف (Host Config)
+  final hostConfig = ZegoUIKitPrebuiltLiveStreamingConfig.host(
+    plugins: [ZegoUIKitSignalingPlugin()],
+  )
+    ..bottomMenuBarConfig.buttons = [
       ZegoMenuBarButtonName.toggleMicrophoneButton,
       ZegoMenuBarButtonName.switchAudioOutputButton,
-      ZegoMenuBarButtonName.giftButton,()],
-    )
-      ..audioVideoView.foregroundBuilder = hostAudioVideoViewForegroundBuilder
-      ..preview.showPreviewForHost = false
-      ..bottomMenuBar.hostExtendButtons = [shareMediaButton, privateLiveBtn]
-      ..avatarBuilder = (BuildContext context, Size size, ZegoUIKitUser? user,
-          Map extraInfo) {
-        return user != null
-            ? Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    fit: BoxFit.contain,
-                    image: NetworkImage(
-                      widget.liveStreaming!.getAuthor!.getAvatar!.url!,
-                    ),
+      ZegoMenuBarButtonName.giftButton, 
+    ]
+    ..audioVideoView.foregroundBuilder = hostAudioVideoViewForegroundBuilder
+    ..preview.showPreviewForHost = false
+    ..bottomMenuBarConfig.hostExtendButtons = [shareMediaButton, privateLiveBtn]
+    ..avatarBuilder = (BuildContext context, Size size, ZegoUIKitUser? user, Map extraInfo) {
+      return user != null
+          ? Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                  fit: BoxFit.contain,
+                  image: NetworkImage(
+                    widget.liveStreaming!.getAuthor!.getAvatar!.url!,
                   ),
                 ),
-              )
-            : const SizedBox();
-      };
+              ),
+            )
+          : const SizedBox();
+    };
 
-    final audienceConfig = ZegoUIKitPrebuiltLiveStreamingConfig.audience(
-      plugins: [ZegoUIKitSignalingPlugin()],
-    )
-      ..bottomMenuBar.coHostExtendButtons = [giftButton]
-      ..bottomMenuBar.audienceExtendButtons = [giftButton];
-    final audienceEvents = ZegoUIKitPrebuiltLiveStreamingEvents(
-        inRoomMessage: ZegoLiveStreamingInRoomMessageEvents(
-          onClicked: (message) {
-            if(message.user.id != widget.currentUser!.objectId) {
-              showUserProfileBottomSheet(
-                currentUser: widget.currentUser!,
-                userId: message.user.id,
-                context: context,
-              );
-            }
-          },
-        ),
+  // 2. إعدادات الجمهور (Audience Config)
+  final audienceConfig = ZegoUIKitPrebuiltLiveStreamingConfig.audience(
+    plugins: [ZegoUIKitSignalingPlugin()],
+  )
+    ..bottomMenuBarConfig.coHostExtendButtons = [giftButton]
+    ..bottomMenuBarConfig.audienceExtendButtons = [giftButton];
+
+  // 3. أحداث البث (Events) - تم إغلاق الأقواس هنا بشكل صحيح
+  final audienceEvents = ZegoUIKitPrebuiltLiveStreamingEvents(
+    inRoomMessage: ZegoLiveStreamingInRoomMessageEvents(
+      onClicked: (message) {
+        if (message.user.id != widget.currentUser!.objectId) {
+          showUserProfileBottomSheet(
+            currentUser: widget.currentUser!,
+            userId: message.user.id,
+            context: context,
+          );
+        }
+      },
+    ),
+  );
+
+  // 4. إرجاع الـ Widget النهائي وإغلاق الدالة
+  return ZegoUIKitPrebuiltLiveStreaming(
+    appID: widget.appID,
+    appSign: widget.appSign,
+    userID: widget.localUserID,
+    userName: widget.localUserID,
+    liveID: widget.liveID,
+    config: widget.isHost ? hostConfig : audienceConfig,
+    events: audienceEvents,
+  );
+}
+                               
         memberList: ZegoLiveStreamingMemberListEvents(
             onClicked: (user) {
               if(user.id != widget.currentUser!.objectId) {
