@@ -3,9 +3,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
 import '../../helpers/quick_help.dart';
 import '../../models/UserModel.dart';
+import '../../models/AgencyInvitationModel.dart'; // تأكد من استيراد الموديل
 import '../../ui/container_with_corner.dart';
 import '../../ui/text_with_tap.dart';
 import '../../utils/colors.dart';
@@ -31,6 +33,52 @@ class _AgencyScreenState extends State<AgencyScreen> {
   ];
 
   bool showTempAlert = false;
+
+  // دالة البحث والارسال للوكالة
+  _joinAgency(String agencyId) async {
+    QuickHelp.showLoadingDialog(context); // إظهار مؤشر التحميل
+
+    // 1. البحث عن الوكالة برقم المعرف
+    QueryBuilder<ParseObject> queryAgency = QueryBuilder<ParseObject>(ParseObject('Agency'));
+    queryAgency.whereEqualTo('agencyId', agencyId);
+    queryAgency.includeObject(['owner']); // جلب بيانات صاحب الوكالة
+
+    ParseResponse response = await queryAgency.query();
+
+    if (response.success && response.results != null) {
+      ParseObject agency = response.results!.first;
+      UserModel agent = agency.get<UserModel>('owner')!;
+
+      // 2. إنشاء طلب الانضمام في جدول AgencyInvitation
+      AgencyInvitationModel invitation = AgencyInvitationModel();
+      invitation.setAgent = agent;
+      invitation.setAgentId = agencyId;
+      invitation.setHost = widget.currentUser!;
+      invitation.setHostId = widget.currentUser!.objectId!;
+      invitation.setInvitationStatus = AgencyInvitationModel.keyStatusPending;
+
+      ParseResponse inviteResponse = await invitation.save();
+
+      QuickHelp.hideLoadingDialog(context); // إخفاء التحميل
+
+      if (inviteResponse.success) {
+        QuickHelp.showAppNotification(
+          context: context,
+          title: "تم إرسال طلبك للوكالة بنجاح، بانتظار الموافقة".tr(),
+          isError: false,
+        );
+        agentIdController.clear();
+      } else {
+        QuickHelp.showAppNotification(context: context, title: "حدث خطأ أثناء إرسال الطلب".tr());
+      }
+    } else {
+      QuickHelp.hideLoadingDialog(context);
+      QuickHelp.showAppNotification(
+        context: context,
+        title: "عذراً، لا توجد وكالة بهذا الرقم".tr(),
+      );
+    }
+  }
 
   showTemporaryAlert() {
     setState(() {
@@ -123,20 +171,12 @@ class _AgencyScreenState extends State<AgencyScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 130,
-                    ),
+                    const SizedBox(height: 130),
                     Padding(
-                      padding: const EdgeInsets.only(
-                        left: 30,
-                        right: 30,
-                        bottom: 10,
-                      ),
+                      padding: const EdgeInsets.only(left: 30, right: 30, bottom: 10),
                       child: Stack(
                         children: [
-                          Image.asset(
-                            "assets/images/agency_method.png",
-                          ),
+                          Image.asset("assets/images/agency_method.png"),
                           Column(
                             children: [
                               TextWithTap(
@@ -181,35 +221,43 @@ class _AgencyScreenState extends State<AgencyScreen> {
                                       color: Colors.black,
                                       fontSize: 12,
                                     ),
-                                    // validator: (text) {},
                                     decoration: InputDecoration(
-                                      hintText:
-                                          "my_agency_screen.please_enter_id"
-                                              .tr(),
+                                      hintText: "my_agency_screen.please_enter_id".tr(),
                                       border: InputBorder.none,
-                                      hintStyle: GoogleFonts.roboto(
-                                        color: kGrayColor,
-                                      ),
+                                      hintStyle: GoogleFonts.roboto(color: kGrayColor),
                                     ),
                                   ),
                                 ),
                               ),
-                              ContainerCorner(
-                                color: kPrimaryColor,
-                                borderWidth: 0,
-                                borderRadius: 50,
-                                marginBottom: 15,
-                                marginTop: 10,
-                                height: 45,
-                                marginRight: 30,
-                                marginLeft: 30,
-                                child: TextWithTap(
-                                  "my_agency_screen.please_enter_id".tr(),
-                                  alignment: Alignment.center,
-                                  textAlign: TextAlign.center,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
-                                  fontSize: 16,
+                              // التعديل هنا: إضافة GestureDetector للزر
+                              GestureDetector(
+                                onTap: () {
+                                  if (agentIdController.text.isNotEmpty) {
+                                    _joinAgency(agentIdController.text);
+                                  } else {
+                                    QuickHelp.showAppNotification(
+                                      context: context,
+                                      title: "my_agency_screen.please_enter_id".tr(),
+                                    );
+                                  }
+                                },
+                                child: ContainerCorner(
+                                  color: kPrimaryColor,
+                                  borderWidth: 0,
+                                  borderRadius: 50,
+                                  marginBottom: 15,
+                                  marginTop: 10,
+                                  height: 45,
+                                  marginRight: 30,
+                                  marginLeft: 30,
+                                  child: TextWithTap(
+                                    "confirm_".tr(), // تم تغيير النص ليكون "تأكيد"
+                                    alignment: Alignment.center,
+                                    textAlign: TextAlign.center,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ),
                             ],
@@ -217,19 +265,16 @@ class _AgencyScreenState extends State<AgencyScreen> {
                         ],
                       ),
                     ),
+                    // ... بقية الأكواد (Method 2 و Notes) تظل كما هي
                     Padding(
-                      padding: const EdgeInsets.only(
-                          left: 30, right: 30, bottom: 10),
+                      padding: const EdgeInsets.only(left: 30, right: 30, bottom: 10),
                       child: Stack(
                         children: [
-                          Image.asset(
-                            "assets/images/agency_method.png",
-                          ),
+                          Image.asset("assets/images/agency_method.png"),
                           Column(
                             children: [
                               TextWithTap(
-                                "my_agency_screen.method_count"
-                                    .tr(namedArgs: {"number": "2"}),
+                                "my_agency_screen.method_count".tr(namedArgs: {"number": "2"}),
                                 color: kOrangeColor,
                                 textAlign: TextAlign.center,
                                 alignment: Alignment.center,
@@ -265,67 +310,31 @@ class _AgencyScreenState extends State<AgencyScreen> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          TextWithTap(
-                                            "my_agency_screen.user_id".tr(),
-                                            color:
-                                                Colors.black.withOpacity(0.6),
-                                          ),
-                                          TextWithTap(
-                                            "${widget.currentUser!.getUid!}",
-                                            color:
-                                                Colors.black.withOpacity(0.6),
-                                            marginRight: 5,
-                                          ),
+                                          TextWithTap("my_agency_screen.user_id".tr(), color: Colors.black.withOpacity(0.6)),
+                                          TextWithTap("${widget.currentUser!.getUid!}", color: Colors.black.withOpacity(0.6), marginRight: 5),
                                           GestureDetector(
                                             onTap: () {
-                                              QuickHelp.copyText(
-                                                  textToCopy:
-                                                      "${widget.currentUser!.getUid!}");
+                                              QuickHelp.copyText(textToCopy: "${widget.currentUser!.getUid!}");
                                               showTemporaryAlert();
                                             },
-                                            child: Icon(
-                                              Icons.copy,
-                                              color: kOrangeColor,
-                                              size: 23,
-                                            ),
+                                            child: Icon(Icons.copy, color: kOrangeColor, size: 23),
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(
-                                        height: 25,
-                                      ),
+                                      const SizedBox(height: 25),
                                       Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          TextWithTap(
-                                            "my_agency_screen.host_code".tr(),
-                                            color:
-                                                Colors.black.withOpacity(0.6),
-                                          ),
-                                          TextWithTap(
-                                            "${widget.currentUser!.objectId!}",
-                                            color: kOrangeColor,
-                                            fontWeight: FontWeight.w900,
-                                            marginLeft: 3,
-                                            fontSize: 15,
-                                            marginRight: 5,
-                                          ),
+                                          TextWithTap("my_agency_screen.host_code".tr(), color: Colors.black.withOpacity(0.6)),
+                                          TextWithTap("${widget.currentUser!.objectId!}", color: kOrangeColor, fontWeight: FontWeight.w900, marginLeft: 3, fontSize: 15, marginRight: 5),
                                           GestureDetector(
                                             onTap: () {
-                                              QuickHelp.copyText(
-                                                  textToCopy:
-                                                      "${widget.currentUser!.objectId!}");
+                                              QuickHelp.copyText(textToCopy: "${widget.currentUser!.objectId!}");
                                               showTemporaryAlert();
                                             },
-                                            child: Icon(
-                                              Icons.copy,
-                                              color: kOrangeColor,
-                                              size: 20,
-                                            ),
+                                            child: Icon(Icons.copy, color: kOrangeColor, size: 20),
                                           ),
                                         ],
                                       )
@@ -339,13 +348,10 @@ class _AgencyScreenState extends State<AgencyScreen> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(
-                          left: 30, right: 30, bottom: 10),
+                      padding: const EdgeInsets.only(left: 30, right: 30, bottom: 10),
                       child: Stack(
                         children: [
-                          Image.asset(
-                            "assets/images/agenccy_rules_bg.png",
-                          ),
+                          Image.asset("assets/images/agenccy_rules_bg.png"),
                           Column(
                             children: [
                               TextWithTap(
