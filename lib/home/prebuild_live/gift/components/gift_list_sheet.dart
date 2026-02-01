@@ -92,8 +92,6 @@ class _ZegoGiftSheetState extends State<ZegoGiftSheet>
   Widget getGifts() {
     QueryBuilder<GiftsModel> giftQuery = QueryBuilder<GiftsModel>(GiftsModel());
     giftQuery.whereValueExists(GiftsModel.keyGiftCategories, true);
-    giftQuery.whereEqualTo(
-        GiftsModel.keyGiftCategories, GiftsModel.categorySvgaGifts);
 
     return ContainerCorner(
       color: kTransparentColor,
