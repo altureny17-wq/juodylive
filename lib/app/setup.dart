@@ -16,7 +16,7 @@ class Setup {
   static final int verificationCodeDigits = 6;
 
   // Social login= Config.appName
-  static final bool isPhoneLoginEnabled = false;
+  static final bool isPhoneLoginEnabled = true;
   static final bool isFacebookLoginEnabled = true;
   static final bool isGoogleLoginEnabled = true;
   static final bool isAppleLoginEnabled = true;
@@ -51,13 +51,13 @@ class Setup {
   static const argExportedVideoFile = 'exportedVideoFilePath';
   static const argExportedVideoCoverPreviewPath = 'exportedVideoCoverPreviewPath';
 
-  static final bool isWithdrawIbanEnabled = false;
-  static final bool isWithdrawPayoneerEnabled = false;
+  static final bool isWithdrawIbanEnabled = true;
+  static final bool isWithdrawPayoneerEnabled = true;
   static final bool isWithdrawPaypalEnabled = true;
   static final bool isWithdrawUSDTlEnabled = true;
 
   // Additional Payments method, Google Play and Apple Pay are enabled by default
-  static final bool isStripePaymentsEnabled = false;
+  static final bool isStripePaymentsEnabled = true;
   static final bool isPayPalPaymentsEnabled = true;
 
   // User fields
@@ -74,7 +74,7 @@ class Setup {
   static final int diamondsEarnPercent = 60; //Percent to give the streamer.
   static final int withDrawPercent = 50; //Percent to give the streamer.
   static final int agencyPercent = 10; //Percent to give the agency.
-  static final int diamondsNeededToRedeem = 10000; // Minimum diamonds needed to redeem
+  static final int diamondsNeededToRedeem = 100000; // Minimum diamonds needed to redeem
 
   // Calls cost
   static final int coinsNeededForVideoCallPerMinute =
@@ -95,8 +95,8 @@ class Setup {
   // Ads Config
   static final bool isBannerAdsOnHomeReelsEnabled = true;
   static final bool isAdsOnMessageListEnabled = true;
-  static final bool isAdsOnFeedEnabled = false;
-  static final bool isOpenAppAdsEnabled = true;
+  static final bool isAdsOnFeedEnabled = true;
+  static final bool isOpenAppAdsEnabled = false;
 
   //Languages Setup
   static List<String> languages = ["en", "fr", "pt", "ar"];
@@ -106,18 +106,18 @@ class Setup {
 
   //Social media links
   static const String facebookPage =
-      "https://www.facebook.com/profile.php?id=100063582998530";
+      "https://www.facebook.com/share/1GuxWxGPkv/";
   static const String facebookProfile =
-      "https://www.facebook.com/chancilsom.jose/";
+      "https://www.facebook.com/share/1GuxWxGPkv/";
   static const String youtube =
       "https://www.youtube.com/channel/UCtsFF65NSAGiq-5Ese1Jg_w";
   static const String instagram = "https://www.instagram.com/chancilson/";
-  static const String gmail = "matulaalberto@gmail.com";
+  static const String gmail = "juodylive@gmail.com";
 
   //Admob
   static const String admobAndroidWalletReward =
-      "ca-app-pub-9318890613494690/8007216714";
-  static const int earnCredit = 5;
+      "ca-app-pub-5660393455301038/8917798346";
+  static const int earnCredit = 25;
 
   //Max video size allowed
   static const maxVideoSize = 10; //MegaBytes
@@ -157,7 +157,7 @@ class Setup {
   static const int level32MaxPoint = 8398080;
   static const int level33MaxPoint = 93958590;
   static const int level34MaxPoint = 1039590100;
-  static const int level35MaxPoint = 1139595110;
-  static const int level36MaxPoint = 12395100120;
+  static const int level35MaxPoint = 2139595110;
+  static const int level36MaxPoint = 32395100120;
 
 }
