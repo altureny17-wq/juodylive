@@ -12,7 +12,7 @@ import 'package:juodylive/home/settings/settings_screen.dart';
 import 'package:juodylive/ui/button_widget.dart';
 import 'package:juodylive/ui/container_with_corner.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../tasks/DailyTasksScreen.dart';  // أضف هذا السطر
+import '../../screens/tasks/DailyTasksScreen.dart';  // المسار الصحيح  // أضف هذا السطر
 import '../../helpers/quick_help.dart';
 import '../../models/GroupMessageModel.dart';
 import '../../models/UserModel.dart';
