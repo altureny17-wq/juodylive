@@ -73,8 +73,8 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
         bottom: TabBar(
           controller: _tabController,
           tabs: [
-            Tab(text: 'daily_tasks.today_tasks').tr(),
-            Tab(text: 'daily_tasks.statistics').tr(),
+            Tab(text: 'daily_tasks.today_tasks'.tr()),
+            Tab(text: 'daily_tasks.statistics'.tr()),
           ],
         ),
       ),
@@ -306,7 +306,7 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
         ContainerCorner(
           borderRadius: 16,
           color: Colors.blue.withOpacity(0.1),
-          paddingAll: 20,
+          padding: EdgeInsets.all(20),
           child: Column(
             children: [
               Row(
@@ -502,7 +502,9 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
         });
         
         // TODO: أظهر رسالة نجاح
-        QuickActions.showSuccess('daily_tasks.task_started'.tr());
+        QuickHelp.showAppNotification(
+  title: 'daily_tasks.task_started'.tr(),
+  context: context,);
       }
     } else {
       // تحديث التقدم - هنا يمكن فتح شاشة توقيت أو إضافة دقائق
@@ -551,7 +553,9 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
                 
                 if (success) {
                   await _loadData(); // إعادة تحميل البيانات
-                  QuickActions.showSuccess('daily_tasks.progress_updated'.tr());
+                  QuickHelp.showAppNotification(
+  title: 'daily_tasks.task_started'.tr(),
+  context: context,);
                 }
               }
             },
@@ -566,7 +570,9 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
     final success = await DailyTaskService.claimReward(progress.objectId!);
     
     if (success) {
-      QuickActions.showSuccess('daily_tasks.reward_claimed'.tr());
+      QuickHelp.showAppNotification(
+  title: 'daily_tasks.task_started'.tr(),
+  context: context,);
       await _loadData();
     }
   }
