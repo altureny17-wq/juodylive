@@ -12,7 +12,7 @@ import 'package:juodylive/home/settings/settings_screen.dart';
 import 'package:juodylive/ui/button_widget.dart';
 import 'package:juodylive/ui/container_with_corner.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import '../tasks/DailyTasksScreen.dart';  // أضف هذا السطر
 import '../../helpers/quick_help.dart';
 import '../../models/GroupMessageModel.dart';
 import '../../models/UserModel.dart';
@@ -269,7 +269,7 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
 
   var listMenuTitle = [
     "profile_list_menu.host_center".tr(),
-    //"profile_list_menu.batter_of_glory".tr(),
+    "profile_list_menu.batter_of_glory".tr(),
     "profile_list_menu.who_viewed_me".tr(),
     "profile_list_menu.view_record".tr(),
     "profile_list_menu.customer_service".tr(),
@@ -393,7 +393,7 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
       UploadLivePhoto(
         currentUser: widget.currentUser,
       ),
-      MyFeedbackScreen(
+      DailyTasksScreen(
         currentUser: widget.currentUser,
       ),
       TaskRulesScreen(
