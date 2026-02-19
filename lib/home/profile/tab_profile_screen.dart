@@ -49,6 +49,7 @@ import '../task_rules/task_rules_screen.dart';
 import '../upload_live_photo/upload_live_photo_screen.dart';
 import '../wallet/wallet_screen.dart';
 import '../withdraw/witthdraw_screen.dart';
+import 'package:juodylive/home/rank/RankingScreen.dart'; // تأكد من المسار الصحيح للمجلد
 
 class TabProfileScreen extends StatefulWidget {
   UserModel? currentUser;
@@ -330,10 +331,9 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
       HostCenterScreen(
         currentUser: widget.currentUser,
       ),
-      /*HostCenterScreen(
-        currentUser: widget.currentUser,
-
-      ),*/
+      RankingScreen(
+        currentUser: widget.currentUser
+      ),
       VisitScreen(
         currentUser: widget.currentUser,
         initialIndex: 0,
