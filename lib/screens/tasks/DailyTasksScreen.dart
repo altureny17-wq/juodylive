@@ -1,4 +1,3 @@
-// lib/screens/tasks/DailyTasksScreen.dart
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../models/UserModel.dart';
@@ -35,17 +34,22 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
   }
 
   Future<void> _loadData() async {
+    if (!mounted) return;
     setState(() => isLoading = true);
     
     try {
-      // جلب المهام وتقدم المستخدم في نفس الوقت
-      final [loadedTasks, loadedProgress, loadedStats] = await Future.wait([
+      // تنفيذ الطلبات بالتوازي
+      final results = await Future.wait([
         DailyTaskService.getActiveTasks(),
         DailyTaskService.getUserProgress(widget.currentUser.objectId!),
         DailyTaskService.getTaskStats(widget.currentUser.objectId!),
       ]);
       
-      // تحويل قائمة التقدم إلى Map للوصول السريع
+      // عمل Casting يدوي لكل نتيجة لضمان توافق الأنواع
+      final loadedTasks = results[0] as List<DailyTaskModel>;
+      final loadedProgress = results[1] as List<UserTaskProgressModel>;
+      final loadedStats = results[2] as Map<String, dynamic>;
+      
       final progressMap = <String, UserTaskProgressModel>{};
       for (var p in loadedProgress) {
         if (p.getTaskId != null) {
@@ -53,15 +57,17 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
         }
       }
       
-      setState(() {
-        tasks = loadedTasks;
-        userProgress = progressMap;
-        stats = loadedStats;
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          tasks = loadedTasks;
+          userProgress = progressMap;
+          stats = loadedStats;
+          isLoading = false;
+        });
+      }
     } catch (e) {
       print('❌ خطأ في تحميل البيانات: $e');
-      setState(() => isLoading = false);
+      if (mounted) setState(() => isLoading = false);
     }
   }
 
@@ -121,11 +127,10 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
   Widget _buildTaskCard(DailyTaskModel task, UserTaskProgressModel? progress) {
     final bool isStarted = progress != null;
     final bool isCompleted = progress?.getIsCompleted ?? false;
-    final int targetMinutes = task.getHoursRequired! * 60;
+    final int targetMinutes = (task.getHoursRequired ?? 0) * 60;
     final int currentProgress = progress?.getProgress ?? 0;
-    final double progressPercentage = isStarted ? (currentProgress / targetMinutes) : 0;
+    final double progressPercentage = targetMinutes > 0 ? (currentProgress / targetMinutes).clamp(0.0, 1.0) : 0;
     
-    // ألوان حسب التصنيف
     Color taskColor = _getTaskColor(task.getTaskId ?? 'A');
     
     return ContainerCorner(
@@ -134,7 +139,6 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
       color: Colors.white,
       child: Column(
         children: [
-          // Header
           Container(
             padding: EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -146,7 +150,6 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
             ),
             child: Row(
               children: [
-                // التصنيف (A, B, C, ...)
                 Container(
                   width: 40,
                   height: 40,
@@ -181,7 +184,6 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
                     ],
                   ),
                 ),
-                // المكافأة
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
@@ -203,13 +205,10 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
               ],
             ),
           ),
-          
-          // Body
           Padding(
             padding: EdgeInsets.all(12),
             child: Column(
               children: [
-                // وصف المهمة
                 if (task.getDescription != null && task.getDescription!.isNotEmpty)
                   Align(
                     alignment: Alignment.centerRight,
@@ -220,8 +219,6 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
                     ),
                   ),
                 SizedBox(height: 8),
-                
-                // شريط التقدم
                 if (isStarted) ...[
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -247,8 +244,6 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
                   ),
                   SizedBox(height: 8),
                 ],
-                
-                // زر الإجراء
                 Row(
                   children: [
                     Expanded(
@@ -302,7 +297,6 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
     return ListView(
       padding: EdgeInsets.all(16),
       children: [
-        // بطاقة الإحصائيات الرئيسية
         ContainerCorner(
           borderRadius: 16,
           color: Colors.blue.withOpacity(0.1),
@@ -312,21 +306,9 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStatCircle(
-                    '${stats['completedTasks'] ?? 0}',
-                    'daily_tasks.completed',
-                    Colors.green,
-                  ),
-                  _buildStatCircle(
-                    '${stats['totalTasks'] ?? 0}',
-                    'daily_tasks.total',
-                    Colors.blue,
-                  ),
-                  _buildStatCircle(
-                    '${(stats['completionRate'] ?? 0).toStringAsFixed(0)}%',
-                    'daily_tasks.rate',
-                    Colors.orange,
-                  ),
+                  _buildStatCircle('${stats['completedTasks'] ?? 0}', 'daily_tasks.completed', Colors.green),
+                  _buildStatCircle('${stats['totalTasks'] ?? 0}', 'daily_tasks.total', Colors.blue),
+                  _buildStatCircle('${((stats['completionRate'] ?? 0) as num).toStringAsFixed(0)}%', 'daily_tasks.rate', Colors.orange),
                 ],
               ),
               SizedBox(height: 16),
@@ -335,41 +317,21 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStatItem(
-                    Icons.timer,
-                    '${_formatMinutes(stats['totalMinutes'] ?? 0)}',
-                    'daily_tasks.total_time',
-                  ),
-                  _buildStatItem(
-                    Icons.diamond,
-                    '${stats['totalRewards'] ?? 0}',
-                    'daily_tasks.total_rewards',
-                  ),
+                  _buildStatItem(Icons.timer, _formatMinutes(stats['totalMinutes'] ?? 0), 'daily_tasks.total_time'),
+                  _buildStatItem(Icons.diamond, '${stats['totalRewards'] ?? 0}', 'daily_tasks.total_rewards'),
                 ],
               ),
             ],
           ),
         ),
-        
         SizedBox(height: 20),
-        
-        // جدول المكافآت (كما في الصورة)
-        TextWithTap(
-          'daily_tasks.rewards_table',
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
+        TextWithTap('daily_tasks.rewards_table', fontSize: 18, fontWeight: FontWeight.bold),
         SizedBox(height: 12),
-        
-        // رأس الجدول
         Container(
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: Colors.grey[200],
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(8),
-              topRight: Radius.circular(8),
-            ),
+            borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)),
           ),
           child: Row(
             children: [
@@ -379,17 +341,11 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
             ],
           ),
         ),
-        
-        // صفوف الجدول
         ...List.generate(tasks.length, (index) {
           final task = tasks[index];
           return Container(
             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(color: Colors.grey[300]!),
-              ),
-            ),
+            decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey[300]!))),
             child: Row(
               children: [
                 Expanded(
@@ -399,34 +355,15 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
                       Container(
                         width: 24,
                         height: 24,
-                        decoration: BoxDecoration(
-                          color: _getTaskColor(task.getTaskId ?? 'A'),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            task.getTaskId ?? '',
-                            style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                        ),
+                        decoration: BoxDecoration(color: _getTaskColor(task.getTaskId ?? 'A'), shape: BoxShape.circle),
+                        child: Center(child: Text(task.getTaskId ?? '', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold))),
                       ),
                       SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          task.getTaskName ?? '',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
+                      Expanded(child: Text(task.getTaskName ?? '', maxLines: 1, overflow: TextOverflow.ellipsis)),
                     ],
                   ),
                 ),
-                Expanded(
-                  child: Text(
-                    '${task.getHoursRequired}H',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+                Expanded(child: Text('${task.getHoursRequired}H', textAlign: TextAlign.center)),
                 Expanded(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -451,20 +388,8 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
         Container(
           width: 70,
           height: 70,
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: Text(
-              value,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-          ),
+          decoration: BoxDecoration(color: color.withOpacity(0.2), shape: BoxShape.circle),
+          child: Center(child: Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color))),
         ),
         SizedBox(height: 8),
         Text(label.tr(), style: TextStyle(color: Colors.grey)),
@@ -490,31 +415,18 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
 
   void _handleTaskAction(DailyTaskModel task, UserTaskProgressModel? progress) async {
     if (progress == null) {
-      // بدء مهمة جديدة
-      final newProgress = await DailyTaskService.startTask(
-        widget.currentUser.objectId!,
-        task,
-      );
-      
+      final newProgress = await DailyTaskService.startTask(widget.currentUser.objectId!, task);
       if (newProgress != null) {
-        setState(() {
-          userProgress[task.objectId!] = newProgress;
-        });
-        
-        // TODO: أظهر رسالة نجاح
-        QuickHelp.showAppNotification(
-  title: 'daily_tasks.task_started'.tr(),
-  context: context,);
+        setState(() => userProgress[task.objectId!] = newProgress);
+        _showNotification('daily_tasks.task_started'.tr());
       }
     } else {
-      // تحديث التقدم - هنا يمكن فتح شاشة توقيت أو إضافة دقائق
       _showAddProgressDialog(progress);
     }
   }
 
   void _showAddProgressDialog(UserTaskProgressModel progress) {
     final TextEditingController minutesController = TextEditingController();
-    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -528,34 +440,21 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
             TextField(
               controller: minutesController,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'daily_tasks.minutes'.tr(),
-                border: OutlineInputBorder(),
-              ),
+              decoration: InputDecoration(labelText: 'daily_tasks.minutes'.tr(), border: OutlineInputBorder()),
             ),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('cancel'.tr()),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('cancel'.tr())),
           ElevatedButton(
             onPressed: () async {
               final minutes = int.tryParse(minutesController.text) ?? 0;
               if (minutes > 0) {
                 Navigator.pop(context);
-                
-                final success = await DailyTaskService.updateProgress(
-                  progress.objectId!,
-                  minutes,
-                );
-                
+                final success = await DailyTaskService.updateProgress(progress.objectId!, minutes);
                 if (success) {
-                  await _loadData(); // إعادة تحميل البيانات
-                  QuickHelp.showAppNotification(
-  title: 'daily_tasks.task_started'.tr(),
-  context: context,);
+                  await _loadData();
+                  _showNotification('daily_tasks.progress_updated'.tr());
                 }
               }
             },
@@ -568,13 +467,15 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
 
   void _claimReward(UserTaskProgressModel progress) async {
     final success = await DailyTaskService.claimReward(progress.objectId!);
-    
     if (success) {
-      QuickHelp.showAppNotification(
-  title: 'daily_tasks.task_started'.tr(),
-  context: context,);
+      _showNotification('daily_tasks.reward_claimed'.tr());
       await _loadData();
     }
+  }
+
+  // دالة مساعدة لتجنب أخطاء عدم تعريف QuickHelp
+  void _showNotification(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Color _getTaskColor(String taskId) {
@@ -584,11 +485,6 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
       case 'B': return Colors.orange;
       case 'C': return Colors.amber;
       case 'D': return Colors.green;
-      case 'E': return Colors.teal;
-      case 'F': return Colors.blue;
-      case 'G': return Colors.indigo;
-      case 'H': return Colors.brown;
-      case 'I': return Colors.grey;
       default: return Colors.blue;
     }
   }
@@ -596,11 +492,7 @@ class _DailyTasksScreenState extends State<DailyTasksScreen> with SingleTickerPr
   String _formatMinutes(int minutes) {
     final hours = minutes ~/ 60;
     final mins = minutes % 60;
-    
-    if (hours > 0) {
-      return '${hours}H ${mins}M';
-    }
-    return '${mins}M';
+    return hours > 0 ? '${hours}H ${mins}M' : '${mins}M';
   }
 
   @override
