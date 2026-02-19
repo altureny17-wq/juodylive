@@ -1,4 +1,3 @@
-// lib/services/DailyTaskService.dart
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import '../models/DailyTaskModel.dart';
 import '../models/UserTaskProgressModel.dart';
@@ -16,7 +15,8 @@ class DailyTaskService {
       final response = await query.query();
       
       if (response.success && response.results != null) {
-        return response.results as List<DailyTaskModel>;
+        // تحويل النتيجة بشكل صريح إلى List<DailyTaskModel>
+        return List<DailyTaskModel>.from(response.results!);
       }
     } catch (e) {
       print('❌ خطأ في جلب المهام: $e');
@@ -37,7 +37,8 @@ class DailyTaskService {
       final response = await query.query();
       
       if (response.success && response.results != null) {
-        return response.results as List<UserTaskProgressModel>;
+        // تحويل النتيجة بشكل صريح إلى List<UserTaskProgressModel>
+        return List<UserTaskProgressModel>.from(response.results!);
       }
     } catch (e) {
       print('❌ خطأ في جلب تقدم المستخدم: $e');
@@ -49,23 +50,22 @@ class DailyTaskService {
   // 3. بدء مهمة جديدة للمستخدم
   static Future<UserTaskProgressModel?> startTask(String userId, DailyTaskModel task) async {
     try {
-      // تحقق إذا كان المستخدم لديه تقدم في هذه المهمة اليوم
       final existingProgress = await _getTodayTaskProgress(userId, task.objectId!);
       
       if (existingProgress != null) {
-        return existingProgress; // المهمة موجودة بالفعل
+        return existingProgress;
       }
       
-      // إنشاء تقدم جديد
+      // التعديل هنا: استخدام = بدلاً من () لأنها Setters
       final progress = UserTaskProgressModel()
-        ..setUserId(userId)
-        ..setTask(task)
-        ..setTaskId(task.objectId!)
-        ..setProgress(0)
-        ..setTarget(task.getHoursRequired! * 60) // تحويل الساعات إلى دقائق
-        ..setIsCompleted(false)
-        ..setCompletionDate(DateTime.now())
-        ..setLastUpdated(DateTime.now());
+        ..setUserId = userId
+        ..setTask = task
+        ..setTaskId = task.objectId!
+        ..setProgress = 0
+        ..setTarget = (task.getHoursRequired ?? 0) * 60 
+        ..setIsCompleted = false
+        ..setCompletionDate = DateTime.now()
+        ..setLastUpdated = DateTime.now();
       
       final response = await progress.save();
       
@@ -84,12 +84,11 @@ class DailyTaskService {
     try {
       final progress = UserTaskProgressModel()
         ..objectId = progressId
-        ..incrementProgress(minutes)
-        ..setLastUpdated(DateTime.now());
+        ..incrementProgress = minutes // استخدام = للـ setter
+        ..setLastUpdated = DateTime.now();
       
       final response = await progress.save();
       
-      // تحقق إذا اكتملت المهمة
       await _checkTaskCompletion(progressId);
       
       return response.success;
@@ -111,11 +110,9 @@ class DailyTaskService {
         final progress = response.results!.first as UserTaskProgressModel;
         
         if (progress.getIsCompleted == true && progress.getRewardClaimed == false) {
-          // TODO: أضف المكافأة إلى حساب المستخدم
-          
           progress
-            ..setRewardClaimed(true)
-            ..setClaimedAt(DateTime.now());
+            ..setRewardClaimed = true
+            ..setClaimedAt = DateTime.now();
           
           await progress.save();
           return true;
@@ -130,13 +127,13 @@ class DailyTaskService {
 
   // 6. إحصائيات المهام
   static Future<Map<String, dynamic>> getTaskStats(String userId) async {
-    final progress = await getUserProgress(userId);
+    final progressList = await getUserProgress(userId);
     
     int completed = 0;
     int totalRewards = 0;
     int totalMinutes = 0;
     
-    for (var p in progress) {
+    for (var p in progressList) {
       if (p.getIsCompleted == true) {
         completed++;
         totalRewards += p.getTask?.getReward ?? 0;
@@ -145,11 +142,11 @@ class DailyTaskService {
     }
     
     return {
-      'totalTasks': progress.length,
+      'totalTasks': progressList.length,
       'completedTasks': completed,
       'totalRewards': totalRewards,
       'totalMinutes': totalMinutes,
-      'completionRate': progress.isEmpty ? 0 : (completed / progress.length * 100),
+      'completionRate': progressList.isEmpty ? 0.0 : (completed / progressList.length * 100),
     };
   }
 
@@ -185,14 +182,16 @@ class DailyTaskService {
     if (response.success && response.results != null && response.results!.isNotEmpty) {
       final progress = response.results!.first as UserTaskProgressModel;
       
-      if (progress.getProgress! >= progress.getTarget! && progress.getIsCompleted == false) {
+      // تأكد من عدم وجود قيم null أثناء المقارنة
+      int currentProgress = progress.getProgress ?? 0;
+      int target = progress.getTarget ?? 0;
+
+      if (currentProgress >= target && progress.getIsCompleted == false) {
         progress
-          ..setIsCompleted(true)
-          ..setCompletedAt(DateTime.now());
+          ..setIsCompleted = true
+          ..setCompletedAt = DateTime.now();
         
         await progress.save();
-        
-        // TODO: أضف إشعار للمستخدم
         print('🎉 تهانينا! لقد أكملت المهمة!');
       }
     }
