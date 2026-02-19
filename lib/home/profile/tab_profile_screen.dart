@@ -394,7 +394,7 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
         currentUser: widget.currentUser,
       ),
       DailyTasksScreen(
-        currentUser: widget.currentUser,
+        currentUser: widget.currentUser!,
       ),
       TaskRulesScreen(
         currentUser: widget.currentUser,
