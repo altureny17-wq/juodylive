@@ -394,7 +394,7 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
       UploadLivePhoto(
         currentUser: widget.currentUser,
       ),
-      DailyTasksScreen(
+      RewardScreen(
         currentUser: widget.currentUser!,
       ),
       TaskRulesScreen(
