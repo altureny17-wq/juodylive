@@ -50,6 +50,7 @@ import '../upload_live_photo/upload_live_photo_screen.dart';
 import '../wallet/wallet_screen.dart';
 import '../withdraw/witthdraw_screen.dart';
 import 'package:juodylive/home/rank/rank_screen.dart'; 
+import '../authentication/authentication_screen.dart'; // تأكد من المسار الصحيح للمجلد
 
 
 class TabProfileScreen extends StatefulWidget {
@@ -276,7 +277,7 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
     "profile_list_menu.view_record".tr(),
     "profile_list_menu.customer_service".tr(),
     "profile_list_menu.help_center".tr(),
-    "profile_list_menu.feed_back".tr(),
+    "profile_list_menu.auth".tr(),
     "profile_list_menu.contact_us".tr(),
   ];
 
@@ -349,7 +350,7 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
       HelpScreen(
         currentUser: widget.currentUser,
       ),
-      ReportScreen(
+      AuthenticationScreen(
         currentUser: widget.currentUser,
       ),
       ContactUsScreen(
