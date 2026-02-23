@@ -30,8 +30,6 @@ class _RewardScreenState extends State<RewardScreen>
   int tabIndex = 0;
 
   late TabController _tabController;
-
-  // تعريف الكنترولر للسلايدر
   final CarouselController _controller = CarouselController();
 
   var slideBanner = [
@@ -65,7 +63,6 @@ class _RewardScreenState extends State<RewardScreen>
 
   @override
   Widget build(BuildContext context) {
-    // ملء المصفوفة بالصفحات
     screensToGo = [
       HostRulesScreen(currentUser: widget.currentUser),
       TaskRulesScreen(currentUser: widget.currentUser),
@@ -98,16 +95,14 @@ class _RewardScreenState extends State<RewardScreen>
       ),
       body: ListView(
         children: [
-          // القسم العلوي (السلايدر والتبويبات)
           ContainerCorner(
             color: isDark ? kContentColorLightTheme : Colors.white,
             borderWidth: 0,
-            paddingBottom: 10,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                sliders(), // عرض السلايدر المعدل
+                sliders(),
                 const SizedBox(height: 10),
                 ContainerCorner(
                   height: 40,
@@ -139,12 +134,12 @@ class _RewardScreenState extends State<RewardScreen>
                       Tab(text: "reward_screen.daily_".tr()),
                     ],
                   ),
-                )
+                ),
+                const SizedBox(height: 10), // بديل لـ paddingBottom
               ],
             ),
           ),
           
-          // قسم مكافآت الـ VIP والحفلات
           ContainerCorner(
             borderWidth: 0,
             marginLeft: 15,
@@ -152,47 +147,40 @@ class _RewardScreenState extends State<RewardScreen>
             color: isDark ? kContentColorLightTheme : Colors.white,
             borderRadius: 10,
             marginTop: 20,
-            paddingAll: 10,
-            child: Column(
-              children: [
-                // مكافأة VIP
-                buildVipReward(size, isDark),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                  child: Divider(),
-                ),
-                // مكافأة الحفلة
-                buildPartyReward(size, isDark),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(10.0), // بديل لـ paddingAll
+              child: Column(
+                children: [
+                  buildVipReward(size, isDark),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    child: Divider(),
+                  ),
+                  buildPartyReward(size, isDark),
+                ],
+              ),
             ),
           ),
           
-          // محتوى التبويبات (هنا تظهر المهام)
+          // عرض محتوى المهام (Daily & Live)
           if(tabIndex == 0) 
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Center(child: Text("Live Tasks Content Here")),
-            )
+             _emptyTaskState("No Live Tasks")
           else
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Center(child: Text("Daily Tasks Content Here")),
-            ),
+             _emptyTaskState("No Daily Tasks"),
         ],
       ),
     );
   }
 
-  // دالة السلايدر المصححة والمضمون ظهورها
   Widget sliders() {
     Size size = MediaQuery.of(context).size;
     return ContainerCorner(
       marginTop: 10,
-      height: 160, // تحديد الارتفاع ضروري
+      height: 160,
       width: size.width,
       child: CarouselView(
         controller: _controller,
-        itemExtent: size.width - 40, // لا تستخدم infinity أبداً هنا
+        itemExtent: size.width - 40,
         shrinkExtent: size.width - 80,
         children: List.generate(slideBanner.length, (index) {
           return GestureDetector(
@@ -201,9 +189,8 @@ class _RewardScreenState extends State<RewardScreen>
                 QuickHelp.goToNavigatorScreen(context, screensToGo[index]);
               }
             },
-            child: ContainerCorner(
-              width: size.width,
-              borderRadius: 8,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
               child: Image.asset(
                 slideBanner[index],
                 fit: BoxFit.cover,
@@ -219,7 +206,6 @@ class _RewardScreenState extends State<RewardScreen>
     );
   }
 
-  // دالة مكافأة VIP
   Widget buildVipReward(Size size, bool isDark) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -253,14 +239,13 @@ class _RewardScreenState extends State<RewardScreen>
     );
   }
 
-  // دالة مكافأة الحفلة
   Widget buildPartyReward(Size size, bool isDark) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           children: [
-            const CircleAvatar(backgroundColor: Colors.blueAccent, child: Icon(Icons.mic, color: Colors.white)),
+            const CircleAvatar(radius: 20, backgroundColor: Colors.blueAccent, child: Icon(Icons.mic, color: Colors.white, size: 20)),
             const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,13 +270,23 @@ class _RewardScreenState extends State<RewardScreen>
       color: earnPointColor.withOpacity(0.1),
       borderRadius: 20,
       marginTop: 5,
-      paddingAll: 4,
-      child: Row(
-        children: [
-          Image.asset("assets/images/icon_jinbi.png", height: 12, width: 12),
-          Text(" +$amount", style: const TextStyle(color: earnPointColor, fontSize: 12, fontWeight: FontWeight.bold)),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // بديل لـ paddingAll
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset("assets/images/icon_jinbi.png", height: 12, width: 12),
+            Text(" +$amount", style: const TextStyle(color: earnPointColor, fontSize: 12, fontWeight: FontWeight.bold)),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _emptyTaskState(String message) {
+    return Padding(
+      padding: const EdgeInsets.all(40.0),
+      child: Center(child: Text(message, style: const TextStyle(color: Colors.grey))),
     );
   }
 
