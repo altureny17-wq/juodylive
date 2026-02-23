@@ -27,14 +27,11 @@ class RewardScreen extends StatefulWidget {
 class _RewardScreenState extends State<RewardScreen>
     with TickerProviderStateMixin {
   int tabsLength = 2;
-
-  int tabTypeMyVisitor = 0;
-  int tabTypeWhoIVisited = 1;
-
   int tabIndex = 0;
 
   late TabController _tabController;
 
+  // تعريف الكنترولر للسلايدر
   final CarouselController _controller = CarouselController();
 
   var slideBanner = [
@@ -62,24 +59,21 @@ class _RewardScreenState extends State<RewardScreen>
 
   @override
   void dispose() {
-    super.dispose();
     _tabController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-
+    // ملء المصفوفة بالصفحات
     screensToGo = [
-      HostRulesScreen(
-        currentUser: widget.currentUser,
-      ),
-      TaskRulesScreen(
-        currentUser: widget.currentUser,
-      ),
+      HostRulesScreen(currentUser: widget.currentUser),
+      TaskRulesScreen(currentUser: widget.currentUser),
     ];
 
     bool isDark = QuickHelp.isDarkMode(context);
     Size size = MediaQuery.of(context).size;
+
     return Scaffold(
       backgroundColor: isDark ? kContentDarkShadow : kGrayWhite,
       appBar: AppBar(
@@ -104,56 +98,53 @@ class _RewardScreenState extends State<RewardScreen>
       ),
       body: ListView(
         children: [
+          // القسم العلوي (السلايدر والتبويبات)
           ContainerCorner(
             color: isDark ? kContentColorLightTheme : Colors.white,
             borderWidth: 0,
+            paddingBottom: 10,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                sliders(),
+                sliders(), // عرض السلايدر المعدل
+                const SizedBox(height: 10),
                 ContainerCorner(
-                  height: 30,
+                  height: 40,
                   width: size.width,
-                  marginBottom: 10,
-                  marginLeft: 15,
-                  marginTop: 5,
                   child: TabBar(
                     isScrollable: true,
-                    enableFeedback: false,
                     controller: _tabController,
                     indicatorSize: TabBarIndicatorSize.label,
                     dividerColor: kTransparentColor,
                     unselectedLabelColor: kTabIconDefaultColor,
-                    indicatorWeight: 2.0,
-                    labelPadding: EdgeInsets.symmetric(horizontal: 10),
+                    indicatorWeight: 3.0,
+                    labelPadding: const EdgeInsets.symmetric(horizontal: 20),
                     indicator: UnderlineTabIndicator(
                       borderSide: BorderSide(
-                          width: 3.0,
-                          color:
-                              isDark ? Colors.white : kContentColorLightTheme),
-                      borderRadius: BorderRadius.all(Radius.circular(50)),
-                      insets: EdgeInsets.symmetric(horizontal: 20.0),
+                        width: 3.0,
+                        color: isDark ? Colors.white : kPrimaryColor,
+                      ),
+                      borderRadius: const BorderRadius.all(Radius.circular(50)),
                     ),
-                    automaticIndicatorColorAdjustment: false,
                     onTap: (index) {
                       setState(() {
                         tabIndex = index;
                       });
                     },
                     labelColor: isDark ? Colors.white : Colors.black,
-                    labelStyle:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    unselectedLabelStyle: TextStyle(fontSize: 14),
+                    labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     tabs: [
-                      TextWithTap("reward_screen.live_".tr()),
-                      TextWithTap("reward_screen.daily_".tr()),
+                      Tab(text: "reward_screen.live_".tr()),
+                      Tab(text: "reward_screen.daily_".tr()),
                     ],
                   ),
                 )
               ],
             ),
           ),
+          
+          // قسم مكافآت الـ VIP والحفلات
           ContainerCorner(
             borderWidth: 0,
             marginLeft: 15,
@@ -161,298 +152,162 @@ class _RewardScreenState extends State<RewardScreen>
             color: isDark ? kContentColorLightTheme : Colors.white,
             borderRadius: 10,
             marginTop: 20,
+            paddingAll: 10,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
               children: [
-                TextButton(
-                  onPressed: () {},
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            height: 50,
-                            width: 50,
-                            child: Image.asset(
-                              "assets/images/img_bg_reward_vip.png",
-                            ),
-                          ),
-                          const SizedBox(width: 10,),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SizedBox(
-                                    width: size.width/3.4,
-                                    child: AutoSizeText(
-                                      "reward_screen.VIP_daily_rewards".tr(),
-                                      maxFontSize: 14.0,
-                                      minFontSize: 10.0,
-                                      textAlign: TextAlign.start,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                        color: isDark ? Colors.white : kContentDarkShadow,
-                                      ),
-                                      maxLines: 2,
-                                    ),
-                                  ),
-                                  vipIconType(),
-                                ],
-                              ),
-                              ContainerCorner(
-                                color: earnPointColor.withOpacity(0.2),
-                                borderRadius: 50,
-                                marginTop: 5,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: Row(
-                                    children: [
-                                      const SizedBox(width: 2,),
-                                      Image.asset(
-                                        "assets/images/icon_jinbi.png",
-                                        height: 13,
-                                        width: 13,
-                                      ),
-                                      TextWithTap(
-                                        "+$vipRewardAmount",
-                                        color: earnPointColor,
-                                        marginRight: 3,
-                                        marginLeft: 3,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                      ContainerCorner(
-                        colors: [kPrimaryColor, kSecondaryColor],
-                        borderRadius: 50,
-                        onTap: () {
-                          QuickHelp.goToNavigatorScreen(
-                              context,
-                              GuardianAndVipStoreScreen(
-                                currentUser: widget.currentUser,
-                              ));
-                        },
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(width: 5,),
-                          Icon(
-                            Icons.arrow_upward,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          TextWithTap(
-                            "reward_screen.vip_".tr(),
-                            color: Colors.white,
-                            marginLeft: 3,
-                            fontWeight: FontWeight.w900,
-                            marginRight: 5,
-                          ),
-                        ],),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 20, right: 20),
+                // مكافأة VIP
+                buildVipReward(size, isDark),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                   child: Divider(),
                 ),
-                TextButton(
-                  onPressed: () {},
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ContainerCorner(
-                            height: 45,
-                            width: 45,
-                            borderWidth: 0,
-                            borderRadius: 50,
-                            color: kSecondaryColor.withOpacity(0.1),
-                            marginRight: 10,
-                            child: Icon(Icons.mic, color: kSecondaryColor, size: 20,),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                width: size.width/2,
-                                child: AutoSizeText(
-                                  "reward_screen.party_reward".tr(),
-                                  maxFontSize: 14.0,
-                                  minFontSize: 10.0,
-                                  textAlign: TextAlign.start,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark ? Colors.white : kContentDarkShadow,
-                                  ),
-                                  maxLines: 2,
-                                ),
-                              ),
-                              ContainerCorner(
-                                color: earnPointColor.withOpacity(0.2),
-                                borderRadius: 50,
-                                marginTop: 5,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: Row(
-                                    children: [
-                                      const SizedBox(width: 2,),
-                                      Image.asset(
-                                        "assets/images/icon_jinbi.png",
-                                        height: 13,
-                                        width: 13,
-                                      ),
-                                      TextWithTap(
-                                        "+$partyRewardAmount",
-                                        color: earnPointColor,
-                                        marginRight: 3,
-                                        marginLeft: 3,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                      ContainerCorner(
-                        color: kPrimaryColor.withOpacity(0.2),
-                        borderRadius: 50,
-                        onTap: () {
-                          QuickHelp.goToNavigatorScreen(
-                              context,
-                              HomeScreen(
-                                currentUser: widget.currentUser,
-                                initialTabIndex: 1,
-                              ));
-                        },
-                        child: TextWithTap(
-                          "reward_screen.go_".tr(),
-                          color: kPrimaryColor,
-                          marginLeft: 15,
-                          fontWeight: FontWeight.w900,
-                          alignment: Alignment.center,
-                          textAlign: TextAlign.center,
-                          marginRight: 15,
-                          marginTop: 5,
-                          marginBottom: 5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                // مكافأة الحفلة
+                buildPartyReward(size, isDark),
               ],
             ),
-          )
+          ),
+          
+          // محتوى التبويبات (هنا تظهر المهام)
+          if(tabIndex == 0) 
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Center(child: Text("Live Tasks Content Here")),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Center(child: Text("Daily Tasks Content Here")),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // دالة السلايدر المصححة والمضمون ظهورها
+  Widget sliders() {
+    Size size = MediaQuery.of(context).size;
+    return ContainerCorner(
+      marginTop: 10,
+      height: 160, // تحديد الارتفاع ضروري
+      width: size.width,
+      child: CarouselView(
+        controller: _controller,
+        itemExtent: size.width - 40, // لا تستخدم infinity أبداً هنا
+        shrinkExtent: size.width - 80,
+        children: List.generate(slideBanner.length, (index) {
+          return GestureDetector(
+            onTap: () {
+              if (screensToGo.length > index) {
+                QuickHelp.goToNavigatorScreen(context, screensToGo[index]);
+              }
+            },
+            child: ContainerCorner(
+              width: size.width,
+              borderRadius: 8,
+              child: Image.asset(
+                slideBanner[index],
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.broken_image),
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  // دالة مكافأة VIP
+  Widget buildVipReward(Size size, bool isDark) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Image.asset("assets/images/img_bg_reward_vip.png", height: 50, width: 50),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text("reward_screen.VIP_daily_rewards".tr(), 
+                      style: TextStyle(fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black)),
+                    const SizedBox(width: 5),
+                    vipIconType(),
+                  ],
+                ),
+                pointsBadge(vipRewardAmount),
+              ],
+            )
+          ],
+        ),
+        ElevatedButton(
+          onPressed: () => QuickHelp.goToNavigatorScreen(context, GuardianAndVipStoreScreen(currentUser: widget.currentUser)),
+          style: ElevatedButton.styleFrom(backgroundColor: kPrimaryColor, shape: const StadiumBorder()),
+          child: Text("reward_screen.vip_".tr(), style: const TextStyle(color: Colors.white)),
+        )
+      ],
+    );
+  }
+
+  // دالة مكافأة الحفلة
+  Widget buildPartyReward(Size size, bool isDark) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            const CircleAvatar(backgroundColor: Colors.blueAccent, child: Icon(Icons.mic, color: Colors.white)),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("reward_screen.party_reward".tr(), 
+                  style: TextStyle(fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.black)),
+                pointsBadge(partyRewardAmount),
+              ],
+            )
+          ],
+        ),
+        TextButton(
+          onPressed: () => QuickHelp.goToNavigatorScreen(context, HomeScreen(currentUser: widget.currentUser, initialTabIndex: 1)),
+          child: Text("reward_screen.go_".tr(), style: const TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold)),
+        )
+      ],
+    );
+  }
+
+  Widget pointsBadge(int amount) {
+    return ContainerCorner(
+      color: earnPointColor.withOpacity(0.1),
+      borderRadius: 20,
+      marginTop: 5,
+      paddingAll: 4,
+      child: Row(
+        children: [
+          Image.asset("assets/images/icon_jinbi.png", height: 12, width: 12),
+          Text(" +$amount", style: const TextStyle(color: earnPointColor, fontSize: 12, fontWeight: FontWeight.bold)),
         ],
       ),
     );
   }
 
   Widget vipIconType() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 5),
-      child: GestureDetector(
-        onTap: () {
-          QuickHelp.goToNavigatorScreen(
-              context,
-              GuardianAndVipStoreScreen(
-                currentUser: widget.currentUser,
-              ));
-        },
-        child: Image.asset(
-          "assets/images/icon_vip_3.webp",
-          height: 15,
-        ),
-      ),
-    );
+    return Image.asset("assets/images/icon_vip_3.webp", height: 15);
   }
 
-  confirmToRedeem() {
+  void confirmToRedeem() {
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return StatefulBuilder(builder: (context, newState) {
-            return AlertDialog(
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextWithTap(
-                    "reward_screen.reward_rule".tr(),
-                    fontWeight: FontWeight.w700,
-                    textAlign: TextAlign.center,
-                    marginBottom: 20,
-                  ),
-                  TextWithTap(
-                    "reward_screen.reward_rule_explain".tr(),
-                    textAlign: TextAlign.center,
-                    alignment: Alignment.center,
-                    marginTop: 10,
-                    marginBottom: 8,
-                  ),
-                  const Divider(
-                    height: 2,
-                  ),
-                  TextButton(
-                    child: TextWithTap(
-                      "confirm_".tr(),
-                      color: kPrimaryColor,
-                      marginRight: 20,
-                      marginLeft: 20,
-                      fontWeight: FontWeight.bold,
-                      textAlign: TextAlign.center,
-                      alignment: Alignment.center,
-                    ),
-                    onPressed: () {
-                      QuickHelp.hideLoadingDialog(context);
-                    },
-                  ),
-                ],
-              ),
-            );
-          });
-        });
-  }
-
-  Widget sliders() {
-    Size size = MediaQuery.of(context).size;
-    return ContainerCorner(
-      marginTop: 10,
-      child: CarouselView(
-        controller: _controller,
-        itemExtent: double.infinity,
-        children: List.generate(slideBanner.length, (index){
-          return ContainerCorner(
-            width: size.width,
-            borderRadius: 8,
-            onTap: () {
-              QuickHelp.goToNavigatorScreen(context, screensToGo[index]);
-            },
-            child: Image.asset(
-              slideBanner[index],
-            ),
-          );
-        }),
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("reward_screen.reward_rule".tr()),
+        content: Text("reward_screen.reward_rule_explain".tr()),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: Text("confirm_".tr())),
+        ],
       ),
     );
   }
