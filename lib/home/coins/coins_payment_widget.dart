@@ -18,30 +18,57 @@ import 'package:juodylive/utils/colors.dart';
 import '../../app/config.dart';
 
 class CoinsFlowPayment {
-  CoinsFlowPayment(
-      {required BuildContext context,
-      required UserModel currentUser,
-      Function(GiftsModel giftsModel)? onGiftSelected,
-      Function(int coins)? onCoinsPurchased,
-      bool isDismissible = true,
-      bool enableDrag = true,
-      bool isScrollControlled = false,
-      bool showOnlyCoinsPurchase = false,
-      Color backgroundColor = Colors.transparent}) {
+  CoinsFlowPayment({
+    required BuildContext context,
+    required UserModel currentUser,
+    Function(GiftsModel giftsModel)? onGiftSelected,
+    Function(int coins)? onCoinsPurchased,
+    bool isDismissible = true,
+    bool enableDrag = true,
+    bool isScrollControlled = false,
+    bool showOnlyCoinsPurchase = false,
+    Color backgroundColor = Colors.transparent,
+  }) {
     showModalBottomSheet(
-        context: (context),
-        isScrollControlled: isScrollControlled,
-        backgroundColor: backgroundColor,
-        enableDrag: enableDrag,
-        isDismissible: isDismissible,
-        builder: (context) {
-          return _CoinsFlowWidget(
-            currentUser: currentUser,
-            onCoinsPurchased: onCoinsPurchased,
-            onGiftSelected: onGiftSelected,
-            showOnlyCoinsPurchase: showOnlyCoinsPurchase,
-          );
-        });
+      context: context,
+      isScrollControlled: isScrollControlled,
+      backgroundColor: backgroundColor,
+      enableDrag: enableDrag,
+      isDismissible: isDismissible,
+      builder: (context) {
+        return _CoinsFlowWidget(
+          currentUser: currentUser,
+          onCoinsPurchased: onCoinsPurchased,
+          onGiftSelected: onGiftSelected,
+          showOnlyCoinsPurchase: showOnlyCoinsPurchase,
+        );
+      },
+    );
+  }
+
+  // ✅ دالة مساعدة للاستدعاء السهل
+  static void show({
+    required BuildContext context,
+    required UserModel currentUser,
+    Function(GiftsModel)? onGiftSelected,
+    Function(int)? onCoinsPurchased,
+    bool showOnlyCoinsPurchase = false,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      enableDrag: true,
+      isDismissible: true,
+      builder: (context) {
+        return _CoinsFlowWidget(
+          currentUser: currentUser,
+          onCoinsPurchased: onCoinsPurchased,
+          onGiftSelected: onGiftSelected,
+          showOnlyCoinsPurchase: showOnlyCoinsPurchase,
+        );
+      },
+    );
   }
 }
 
@@ -73,16 +100,29 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
   bool _loading = true;
   InAppPurchaseModel? _inAppPurchaseModel;
 
+  // ✅ قائمة بجميع التصنيفات المتوفرة في GiftsModel
+  final List<Map<String, String>> giftCategories = [
+    {'key': GiftsModel.giftCategoryTypeClassic, 'name': 'كلاسيك', 'icon': '🎁'},
+    {'key': GiftsModel.giftCategoryType3D, 'name': 'ثلاثي الأبعاد', 'icon': '🎨'},
+    {'key': GiftsModel.giftCategoryTypeVIP, 'name': 'VIP', 'icon': '👑'},
+    {'key': GiftsModel.giftCategoryTypeLove, 'name': 'رومانسي', 'icon': '❤️'},
+    {'key': GiftsModel.giftCategoryTypeMoods, 'name': 'حسب المزاج', 'icon': '😊'},
+    {'key': GiftsModel.giftCategoryTypeArtists, 'name': 'فنانين', 'icon': '🎤'},
+    {'key': GiftsModel.giftCategoryTypeCollectibles, 'name': 'تحف', 'icon': '🏆'},
+    {'key': GiftsModel.giftCategoryTypeGames, 'name': 'ألعاب', 'icon': '🎮'},
+    {'key': GiftsModel.giftCategoryTypeFamily, 'name': 'عائلي', 'icon': '👪'},
+    {'key': GiftsModel.categoryAvatarFrame, 'name': 'إطارات', 'icon': '🖼️'},
+    {'key': GiftsModel.categoryPartyTheme, 'name': 'ثيمات', 'icon': '🎉'},
+    {'key': GiftsModel.categoryEntranceEffect, 'name': 'تأثيرات دخول', 'icon': '✨'},
+    {'key': GiftsModel.categoryPromotionalImage, 'name': 'ترويجية', 'icon': '📢'},
+    {'key': GiftsModel.categorySvgaGifts, 'name': 'متحركة', 'icon': '🎬'},
+  ];
 
   List<InAppPurchaseModel> getInAppList() {
-
     List<Package> myProductList = offerings.current!.availablePackages;
-
     List<InAppPurchaseModel> inAppPurchaseList = [];
 
     for (Package package in myProductList) {
-
-      //if (package.identifier == Config.credit200) {
       if (package.storeProduct.identifier == Config.credit200) {
         InAppPurchaseModel credits200 = InAppPurchaseModel(
             id: Config.credit200,
@@ -100,14 +140,13 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
         }
       }
 
-      //if (package.identifier == Config.credit1000) {
       if (package.storeProduct.identifier == Config.credit1000) {
         InAppPurchaseModel credits1000 = InAppPurchaseModel(
             id: Config.credit1000,
             coins: 1000,
             price: package.storeProduct.priceString,
             image: "assets/images/ic_coins_1.png",
-            discount: (package.storeProduct.price*1.1).toStringAsFixed(2),
+            discount: (package.storeProduct.price * 1.1).toStringAsFixed(2),
             type: InAppPurchaseModel.typeNormal,
             storeProduct: package.storeProduct,
             package: package,
@@ -119,8 +158,7 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
         }
       }
 
-      //if (package.identifier == Config.credit100) {
-        if (package.storeProduct.identifier == Config.credit100) {
+      if (package.storeProduct.identifier == Config.credit100) {
         InAppPurchaseModel credits100 = InAppPurchaseModel(
             id: Config.credit100,
             coins: 100,
@@ -137,7 +175,6 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
         }
       }
 
-      //if (package.identifier == Config.credit500) {
       if (package.storeProduct.identifier == Config.credit500) {
         InAppPurchaseModel credits500 = InAppPurchaseModel(
             id: Config.credit500,
@@ -146,7 +183,7 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
             image: "assets/images/ic_coins_6.png",
             type: InAppPurchaseModel.typeNormal,
             storeProduct: package.storeProduct,
-            discount: (package.storeProduct.price*1.1).toStringAsFixed(2),
+            discount: (package.storeProduct.price * 1.1).toStringAsFixed(2),
             package: package,
             currency: package.storeProduct.currencyCode,
             currencySymbol: package.storeProduct.currencyCode);
@@ -156,13 +193,12 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
         }
       }
 
-      //if (package.identifier == Config.credit2100) {
       if (package.storeProduct.identifier == Config.credit2100) {
         InAppPurchaseModel credits2100 = InAppPurchaseModel(
             id: Config.credit2100,
             coins: 2100,
             price: package.storeProduct.priceString,
-            discount: (package.storeProduct.price*1.2).toStringAsFixed(2),
+            discount: (package.storeProduct.price * 1.2).toStringAsFixed(2),
             image: "assets/images/ic_coins_5.png",
             type: InAppPurchaseModel.typeNormal,
             storeProduct: package.storeProduct,
@@ -175,13 +211,12 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
         }
       }
 
-      //if (package.identifier == Config.credit5250) {
       if (package.storeProduct.identifier == Config.credit5250) {
         InAppPurchaseModel credits5250 = InAppPurchaseModel(
             id: Config.credit5250,
             coins: 5250,
             price: package.storeProduct.priceString,
-            discount: (package.storeProduct.price*1.3).toStringAsFixed(2),
+            discount: (package.storeProduct.price * 1.3).toStringAsFixed(2),
             image: "assets/images/ic_coins_7.png",
             type: InAppPurchaseModel.typeNormal,
             storeProduct: package.storeProduct,
@@ -194,13 +229,12 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
         }
       }
 
-      //if (package.identifier == Config.credit10500) {
       if (package.storeProduct.identifier == Config.credit10500) {
         InAppPurchaseModel credits10500 = InAppPurchaseModel(
             id: Config.credit10500,
             coins: 10500,
             price: package.storeProduct.priceString,
-            discount: (package.storeProduct.price*1.4).toStringAsFixed(2),
+            discount: (package.storeProduct.price * 1.4).toStringAsFixed(2),
             image: "assets/images/ic_coins_2.png",
             type: InAppPurchaseModel.typeNormal,
             storeProduct: package.storeProduct,
@@ -223,9 +257,7 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
   @override
   void initState() {
     super.initState();
-
     _animationController = AnimationController.unbounded(vsync: this);
-
     initProducts();
   }
 
@@ -234,17 +266,12 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
       offerings = await Purchases.getOfferings();
 
       if (offerings.current!.availablePackages.length > 0) {
-        // Display packages for sale
-
         setState(() {
           _isAvailable = true;
           _loading = false;
         });
-        // Display packages for sale
       }
     } on PlatformException {
-      // optional error handling
-
       setState(() {
         _isAvailable = false;
         _loading = false;
@@ -262,24 +289,22 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
     return _showGiftAndGetCoinsBottomSheet();
   }
 
-  _purchaseProduct(InAppPurchaseModel inAppPurchaseModel) async{
-
+  _purchaseProduct(InAppPurchaseModel inAppPurchaseModel) async {
     QuickHelp.showLoadingDialog(context);
-    Future.delayed(Duration(seconds: 3)).then((value){
+    Future.delayed(Duration(seconds: 3)).then((value) {
       QuickHelp.hideLoadingDialog(context);
     });
   }
 
   void handleInvalidPurchase() {
-
-    QuickHelp.showAppNotification(context:context, title: "in_app_purchases.invalid_purchase".tr());
+    QuickHelp.showAppNotification(
+        context: context, title: "in_app_purchases.invalid_purchase".tr());
     QuickHelp.hideLoadingDialog(context);
   }
 
   void handleError(PlatformException error) {
-
     QuickHelp.hideLoadingDialog(context);
-    QuickHelp.showAppNotification(context:context, title: error.message);
+    QuickHelp.showAppNotification(context: context, title: error.message);
   }
 
   showPendingUI() {
@@ -288,7 +313,6 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
   }
 
   Widget _showGiftAndGetCoinsBottomSheet() {
-
     return StatefulBuilder(builder: (context, setState) {
       return Container(
         decoration: BoxDecoration(
@@ -305,11 +329,12 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
                 ? 1
                 : bottomSheetCurrentIndex,
             children: [
+              // ✅ تبويب الهدايا
               Scaffold(
                 backgroundColor: kTransparentColor,
                 appBar: AppBar(
                   automaticallyImplyLeading: false,
-                  leading: BackButton(color: Colors.white,),
+                  leading: BackButton(color: Colors.white),
                   actions: [
                     ContainerCorner(
                       height: 30,
@@ -359,16 +384,9 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
                     ],
                   ),
                 ),
-                body: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      ContainerCorner(
-                          color: kTransparentColor,
-                          child: _tabSection(context, setState)),
-                    ],
-                  ),
-                ),
+                body: _buildGiftTabs(setState),
               ),
+              // ✅ تبويب شراء العملات
               Scaffold(
                 backgroundColor: kTransparentColor,
                 appBar: AppBar(
@@ -403,7 +421,7 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
                     color: Colors.white,
                     onPressed: () {
                       if (widget.showOnlyCoinsPurchase!) {
-                        Navigator.of(this.context).pop();
+                        Navigator.of(context).pop();
                       } else {
                         setState(() {
                           bottomSheetCurrentIndex = 0;
@@ -421,23 +439,67 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
     });
   }
 
-  Widget _tabSection(BuildContext context, StateSetter stateSetter) {
+  // ✅ بناء تبويبات الهدايا
+  Widget _buildGiftTabs(StateSetter setState) {
     return DefaultTabController(
-      length: 9,
+      length: giftCategories.length,
       child: Column(
         children: [
-          getGifts(GiftsModel.giftCategoryTypeClassic, stateSetter),
+          // شريط التبويبات القابل للتمرير
+          Container(
+            height: 50,
+            margin: EdgeInsets.symmetric(horizontal: 8),
+            child: TabBar(
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              indicator: BoxDecoration(
+                borderRadius: BorderRadius.circular(25),
+                color: Colors.purple.withOpacity(0.3),
+              ),
+              dividerColor: Colors.transparent,
+              tabs: giftCategories.map((category) {
+                return Tab(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    child: Row(
+                      children: [
+                        Text(category['icon']!),
+                        SizedBox(width: 4),
+                        Text(
+                          category['name']!,
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          // محتوى التبويبات
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.only(top: 8),
+              child: TabBarView(
+                children: giftCategories.map((category) {
+                  return _getGiftsByCategory(category['key']!, setState);
+                }).toList(),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget getGifts(String category, StateSetter setState) {
-
+  // ✅ جلب الهدايا حسب التصنيف
+  Widget _getGiftsByCategory(String category, StateSetter setState) {
     QueryBuilder<GiftsModel> giftQuery = QueryBuilder<GiftsModel>(GiftsModel());
-    giftQuery.whereValueExists(GiftsModel.keyGiftCategories, true);
-    giftQuery.whereEqualTo(
-        GiftsModel.keyGiftCategories, GiftsModel.categorySvgaGifts);
+    
+    // تصفية حسب التصنيف المحدد
+    giftQuery.whereEqualTo(GiftsModel.keyGiftCategories, category);
+    giftQuery.orderByAscending(GiftsModel.keyCoins);
+    giftQuery.setLimit(50); // حد أقصى 50 هدية لكل تصنيف
 
     return ContainerCorner(
       color: kTransparentColor,
@@ -445,103 +507,122 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
         query: giftQuery,
         crossAxisCount: 4,
         reverse: false,
-        crossAxisSpacing: 2,
-        mainAxisSpacing: 2,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
         lazyLoading: false,
-        //childAspectRatio: 1.0,
         shrinkWrap: true,
-        listenOnAllSubItems: true,
-        duration: Duration(seconds: 0),
-        animationController: _animationController,
+        physics: AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.all(12),
         childBuilder: (BuildContext context,
             ParseLiveListElementSnapshot<GiftsModel> snapshot) {
-          GiftsModel gift = snapshot.loadedData!;
-          return GestureDetector(
-            //onTap: () => _checkCredits(gift, setState),
-            child: SizedBox(
-              width: double.infinity,
-              height: double.infinity,
-              child: Column(
-                children: [
-                  GestureDetector(
-                    onTap: () => _checkCredits(gift, setState),
-                    child: Column(
-                      children: [
-                        ValueListenableBuilder<GiftsModel?>(
-                          valueListenable: selectedGiftItemNotifier,
-                          builder: (context, selectedGiftItem, _) {
-                            return Container(
-                              width: 50,
-                              height: 50,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(3),
-                                child: QuickActions.photosWidget(
-                                    gift.getPreview!.url),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
+          
+          if (snapshot.hasData) {
+            GiftsModel gift = snapshot.loadedData!;
+            
+            return GestureDetector(
+              onTap: () => _checkCredits(gift, setState),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Colors.white24,
+                    width: 1,
                   ),
-                  ContainerCorner(
-                    color: kTransparentColor,
-                    marginTop: 1,
-                    child: Row(
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // صورة الهدية
+                    Expanded(
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        margin: EdgeInsets.only(top: 8),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: gift.getPreview != null
+                              ? QuickActions.photosWidget(
+                                  gift.getPreview!.url,
+                                  fit: BoxFit.cover,
+                                )
+                              : Icon(Icons.card_giftcard, 
+                                     color: Colors.white54,
+                                     size: 30),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    // اسم الهدية
+                    Text(
+                      gift.getName ?? '',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 8,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
+                    // سعر الهدية
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SvgPicture.asset(
                           "assets/svg/ic_coin_with_star.svg",
-                          width: 16,
-                          height: 16,
+                          width: 10,
+                          height: 10,
                         ),
-                        TextWithTap(
+                        SizedBox(width: 2),
+                        Text(
                           gift.getCoins.toString(),
-                          color: Colors.white,
-                          fontSize: 14,
-                          marginLeft: 5,
-                        )
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                ],
+                    SizedBox(height: 4),
+                  ],
+                ),
               ),
-            ),
-          );
+            );
+          } else {
+            return SizedBox();
+          }
         },
-        queryEmptyElement: QuickActions.noContentFound(context),
-        gridLoadingElement: Container(
-          margin: EdgeInsets.only(top: 50),
-          alignment: Alignment.topCenter,
-          child: CircularProgressIndicator(),
+        queryEmptyElement: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.card_giftcard,
+                size: 50,
+                color: Colors.grey,
+              ),
+              SizedBox(height: 10),
+              Text(
+                "لا توجد هدايا في هذا التصنيف",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+        gridLoadingElement: Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.purple),
+          ),
         ),
       ),
     );
   }
 
-  Tab gefTab(String name, String image) {
-    return Tab(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset(
-            image,
-            color: Colors.white.withOpacity(0.7),
-            width: 20,
-            height: 20,
-          ),
-          TextWithTap(
-            name,
-            fontSize: 12,
-            marginTop: 5,
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget getBody() {
-
     if (_loading) {
       return QuickHelp.appLoading();
     } else if (_isAvailable) {
@@ -555,7 +636,7 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
           mainAxisSpacing: 10,
           children: List.generate(
             getInAppList().length,
-                (index) {
+            (index) {
               InAppPurchaseModel inApp = getInAppList()[index];
 
               return ContainerCorner(
@@ -612,7 +693,7 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
   _checkCredits(GiftsModel gift, StateSetter setState) {
     if (widget.currentUser.getCredits! >= gift.getCoins!) {
       if (widget.onGiftSelected != null) {
-        widget.onGiftSelected!(gift) as void Function()?;
+        widget.onGiftSelected!(gift);
         Navigator.of(context).pop();
       }
     } else {
