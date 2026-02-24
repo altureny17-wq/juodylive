@@ -677,7 +677,7 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
       /// on host can control pk
       //..foreground =
       ..preview.showPreviewForHost = false
-      ..bottomMenuBar.hostExtendButtons = [privateLiveBtn]
+      ..bottomMenuBar.hostExtendButtons = [privateLiveBtn, giftButton]
       ..avatarBuilder = (BuildContext context, Size size, ZegoUIKitUser? user,
           Map extraInfo) {
         return user != null
