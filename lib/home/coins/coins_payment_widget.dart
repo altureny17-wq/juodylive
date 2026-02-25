@@ -99,21 +99,13 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
   bool _loading = true;
   InAppPurchaseModel? _inAppPurchaseModel;
 
+  // ✅ التصنيفات حسب الصورة التي أرسلتها
   final List<Map<String, String>> giftCategories = [
-    {'key': GiftsModel.giftCategoryTypeClassic, 'name': 'كلاسيك', 'icon': '🎁'},
-    {'key': GiftsModel.giftCategoryType3D, 'name': 'ثلاثي الأبعاد', 'icon': '🎨'},
-    {'key': GiftsModel.giftCategoryTypeVIP, 'name': 'VIP', 'icon': '👑'},
-    {'key': GiftsModel.giftCategoryTypeLove, 'name': 'رومانسي', 'icon': '❤️'},
-    {'key': GiftsModel.giftCategoryTypeMoods, 'name': 'حسب المزاج', 'icon': '😊'},
-    {'key': GiftsModel.giftCategoryTypeArtists, 'name': 'فنانين', 'icon': '🎤'},
-    {'key': GiftsModel.giftCategoryTypeCollectibles, 'name': 'تحف', 'icon': '🏆'},
-    {'key': GiftsModel.giftCategoryTypeGames, 'name': 'ألعاب', 'icon': '🎮'},
-    {'key': GiftsModel.giftCategoryTypeFamily, 'name': 'عائلي', 'icon': '👪'},
-    {'key': GiftsModel.categoryAvatarFrame, 'name': 'إطارات', 'icon': '🖼️'},
-    {'key': GiftsModel.categoryPartyTheme, 'name': 'ثيمات', 'icon': '🎉'},
-    {'key': GiftsModel.categoryEntranceEffect, 'name': 'تأثيرات دخول', 'icon': '✨'},
-    {'key': GiftsModel.categoryPromotionalImage, 'name': 'ترويجية', 'icon': '📢'},
-    {'key': GiftsModel.categorySvgaGifts, 'name': 'متحركة', 'icon': '🎬'},
+    {'key': 'classic', 'name': 'كلاسيك', 'icon': '🎁'},
+    {'key': 'vip', 'name': 'VIP', 'icon': '👑'},
+    {'key': '_3d', 'name': 'ثلاثي الأبعاد', 'icon': '🎨'},
+    {'key': 'love', 'name': 'رومانسي', 'icon': '❤️'},
+    {'key': 'svga_gifts', 'name': 'متحركة', 'icon': '🎬'},
   ];
 
   List<InAppPurchaseModel> getInAppList() {
@@ -256,6 +248,31 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
     super.initState();
     _animationController = AnimationController.unbounded(vsync: this);
     initProducts();
+    
+    // ✅ التحقق من الهدايا عند بدء التشغيل
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAllGifts();
+    });
+  }
+
+  // ✅ دالة للتحقق من جميع الهدايا في قاعدة البيانات
+  void _checkAllGifts() async {
+    print("🔍 بدء التحقق من الهدايا في قاعدة البيانات...");
+    
+    QueryBuilder<GiftsModel> query = QueryBuilder<GiftsModel>(GiftsModel());
+    ParseResponse response = await query.query();
+    
+    if (response.success && response.results != null) {
+      print("✅ تم العثور على ${response.results!.length} هدية في قاعدة البيانات");
+      
+      for (var gift in response.results!) {
+        GiftsModel g = gift as GiftsModel;
+        print("📦 هدية: ${g.getName} | التصنيف: ${g.getGiftCategories} | السعر: ${g.getCoins}");
+      }
+    } else {
+      print("❌ لا توجد هدايا في قاعدة البيانات أو فشل الاتصال");
+      print("   الخطأ: ${response.error?.message}");
+    }
   }
 
   initProducts() async {
@@ -456,7 +473,10 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     child: Row(
                       children: [
-                        Text(category['icon']!),
+                        Text(
+                          category['icon']!,
+                          style: TextStyle(fontSize: 14),
+                        ),
                         SizedBox(width: 4),
                         Text(
                           category['name']!,
@@ -485,8 +505,11 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
   }
 
   Widget _getGiftsByCategory(String category, StateSetter setState) {
+    print("🔍 جلب هدايا للتصنيف: $category");
+    
     QueryBuilder<GiftsModel> giftQuery = QueryBuilder<GiftsModel>(GiftsModel());
     
+    // ✅ جلب الهدايا حسب التصنيف المحدد
     giftQuery.whereEqualTo(GiftsModel.keyGiftCategories, category);
     giftQuery.orderByAscending(GiftsModel.keyCoins);
     giftQuery.setLimit(50);
@@ -507,6 +530,7 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
           
           if (snapshot.hasData) {
             GiftsModel gift = snapshot.loadedData!;
+            print("✅ تم العثور على هدية: ${gift.getName} في تصنيف $category");
             
             return GestureDetector(
               onTap: () => _checkCredits(gift, setState),
@@ -530,19 +554,35 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: gift.getPreview != null
-                              ? QuickActions.photosWidget(
+                              ? Image.network(
                                   gift.getPreview!.url,
                                   fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    print("❌ خطأ في تحميل صورة الهدية: ${gift.getName}");
+                                    return Container(
+                                      color: Colors.grey.shade800,
+                                      child: Icon(
+                                        Icons.card_giftcard,
+                                        color: Colors.white54,
+                                        size: 25,
+                                      ),
+                                    );
+                                  },
                                 )
-                              : Icon(Icons.card_giftcard, 
-                                     color: Colors.white54,
-                                     size: 30),
+                              : Container(
+                                  color: Colors.grey.shade800,
+                                  child: Icon(
+                                    Icons.card_giftcard,
+                                    color: Colors.white54,
+                                    size: 25,
+                                  ),
+                                ),
                         ),
                       ),
                     ),
                     SizedBox(height: 4),
                     Text(
-                      gift.getName ?? '',
+                      gift.getName ?? 'هدية',
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: 8,
@@ -596,6 +636,14 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
                   fontSize: 14,
                 ),
               ),
+              if (category.isNotEmpty)
+                Text(
+                  "التصنيف: $category",
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 12,
+                  ),
+                ),
             ],
           ),
         ),
