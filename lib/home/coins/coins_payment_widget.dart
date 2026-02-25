@@ -99,7 +99,6 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
   bool _loading = true;
   InAppPurchaseModel? _inAppPurchaseModel;
 
-  // ✅ التصنيفات حسب الصورة التي أرسلتها
   final List<Map<String, String>> giftCategories = [
     {'key': 'classic', 'name': 'كلاسيك', 'icon': '🎁'},
     {'key': 'vip', 'name': 'VIP', 'icon': '👑'},
@@ -249,13 +248,11 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
     _animationController = AnimationController.unbounded(vsync: this);
     initProducts();
     
-    // ✅ التحقق من الهدايا عند بدء التشغيل
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkAllGifts();
     });
   }
 
-  // ✅ دالة للتحقق من جميع الهدايا في قاعدة البيانات
   void _checkAllGifts() async {
     print("🔍 بدء التحقق من الهدايا في قاعدة البيانات...");
     
@@ -509,7 +506,6 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
     
     QueryBuilder<GiftsModel> giftQuery = QueryBuilder<GiftsModel>(GiftsModel());
     
-    // ✅ جلب الهدايا حسب التصنيف المحدد
     giftQuery.whereEqualTo(GiftsModel.keyGiftCategories, category);
     giftQuery.orderByAscending(GiftsModel.keyCoins);
     giftQuery.setLimit(50);
@@ -553,30 +549,8 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
                         margin: EdgeInsets.only(top: 8),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: gift.getPreview != null
-                              ? Image.network(
-                                  gift.getPreview!.url,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    print("❌ خطأ في تحميل صورة الهدية: ${gift.getName}");
-                                    return Container(
-                                      color: Colors.grey.shade800,
-                                      child: Icon(
-                                        Icons.card_giftcard,
-                                        color: Colors.white54,
-                                        size: 25,
-                                      ),
-                                    );
-                                  },
-                                )
-                              : Container(
-                                  color: Colors.grey.shade800,
-                                  child: Icon(
-                                    Icons.card_giftcard,
-                                    color: Colors.white54,
-                                    size: 25,
-                                  ),
-                                ),
+                          // ✅ حل مشكلة null safety بشكل صحيح
+                          child: _buildGiftImage(gift),
                         ),
                       ),
                     ),
@@ -654,6 +628,66 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
         ),
       ),
     );
+  }
+
+  // ✅ دالة مساعدة لبناء صورة الهدية مع معالجة null بأمان
+  Widget _buildGiftImage(GiftsModel gift) {
+    try {
+      final preview = gift.getPreview;
+      
+      if (preview != null) {
+        final url = preview.url;
+        if (url != null && url.isNotEmpty) {
+          return Image.network(
+            url,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              print("❌ خطأ في تحميل صورة الهدية: ${gift.getName} - $error");
+              return Container(
+                color: Colors.grey.shade800,
+                child: Icon(
+                  Icons.card_giftcard,
+                  color: Colors.white54,
+                  size: 25,
+                ),
+              );
+            },
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Container(
+                color: Colors.grey.shade800,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.purple),
+                  ),
+                ),
+              );
+            },
+          );
+        }
+      }
+      
+      // إذا لم توجد صورة
+      return Container(
+        color: Colors.grey.shade800,
+        child: Icon(
+          Icons.card_giftcard,
+          color: Colors.white54,
+          size: 25,
+        ),
+      );
+    } catch (e) {
+      print("❌ خطأ غير متوقع في بناء صورة الهدية: $e");
+      return Container(
+        color: Colors.grey.shade800,
+        child: Icon(
+          Icons.card_giftcard,
+          color: Colors.white54,
+          size: 25,
+        ),
+      );
+    }
   }
 
   Widget getBody() {
