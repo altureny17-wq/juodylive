@@ -1579,9 +1579,8 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
     );
   }
 
-  Widget svgaWidget(GiftsModel giftItem) {
-    /// you can define the area and size for displaying your own
-    /// animations here
+    // ✅ دالة جديدة لعرض الهدايا كصور عادية
+  Widget imageGiftWidget(GiftsModel giftItem) {
     int level = 1;
     if (giftItem.getCoins! < 10) {
       level = 1;
@@ -1590,6 +1589,112 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
     } else {
       level = 3;
     }
+  
+    double imageSize = 100;
+    double positionBottom = 200;
+    int durationSeconds = 3;
+  
+    if (level == 2) {
+      imageSize = 150;
+      positionBottom = 150;
+      durationSeconds = 4;
+    } else if (level == 3) {
+      imageSize = 200;
+      positionBottom = 100;
+      durationSeconds = 5;
+    }
+  
+    return Positioned(
+      bottom: positionBottom,
+      left: 0,
+      right: 0,
+      child: Center(
+        child: TweenAnimationBuilder<double>(
+          tween: Tween<double>(begin: 0.0, end: 1.0),
+          duration: Duration(seconds: durationSeconds),
+          curve: Curves.elasticOut,
+          onEnd: () {
+            print("🖼️ انتهى عرض الصورة، تشغيل الهدية التالية");
+            ZegoGiftManager().playList.next();
+          },
+          builder: (context, value, child) {
+            double opacity = 1.0;
+            if (value > 0.8) {
+              opacity = 1.0 - ((value - 0.8) * 5);
+            }
+          
+            return Opacity(
+              opacity: opacity,
+              child: Transform.scale(
+                scale: value,
+                child: child,
+              ),
+            );
+          },
+          child: Container(
+            width: imageSize,
+            height: imageSize,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.purple.withOpacity(0.5),
+                  blurRadius: 20,
+                  spreadRadius: 5,
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.network(
+                giftItem.getPreview?.url ?? '',
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  print("❌ خطأ في تحميل صورة الهدية: ${giftItem.getName}");
+                  return Container(
+                    color: Colors.purple.withOpacity(0.3),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.card_giftcard, size: 40, color: Colors.white),
+                        Text(
+                          giftItem.getName ?? 'هدية',
+                          style: TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+   
+  Widget svgaWidget(GiftsModel giftItem) {
+  // ✅ التحقق من نوع ملف الهدية
+  String? fileUrl = giftItem.getFile?.url ?? '';
+  String? fileName = giftItem.getFile?.name ?? '';
+  
+  print("🎁 نوع ملف الهدية: $fileName");
+  print("🎁 اسم الهدية: ${giftItem.getName}");
+  
+  // إذا كان الملف من نوع SVGA
+  if (fileName.toLowerCase().endsWith('.svga') || 
+      fileUrl.toLowerCase().contains('.svga')) {
+    print("🎬 تشغيل هدية SVGA: ${giftItem.getName}");
+    
+    int level = 1;
+    if (giftItem.getCoins! < 10) {
+      level = 1;
+    } else if (giftItem.getCoins! < 100) {
+      level = 2;
+    } else {
+      level = 3;
+    }
+    
     switch (level) {
       case 2:
         return Positioned(
@@ -1615,21 +1720,80 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
           },
           count: 1,
         );
+      default:
+        return Positioned(
+          bottom: 200,
+          child: ZegoSvgaPlayerWidget(
+            key: UniqueKey(),
+            size: const Size(100, 100),
+            giftItem: giftItem,
+            onPlayEnd: () {
+              ZegoGiftManager().playList.next();
+            },
+            count: 1,
+          ),
+        );
     }
-    // level 1
-    return Positioned(
-      bottom: 200,
-      child: ZegoSvgaPlayerWidget(
-        key: UniqueKey(),
-        size: const Size(100, 100),
-        giftItem: giftItem,
-        onPlayEnd: () {
-          /// if there is another gift animation, then play
-          ZegoGiftManager().playList.next();
-        },
-        count: 1,
-      ),
-    );
+  } 
+  // إذا كان الملف من نوع MP4
+  else if (fileName.toLowerCase().endsWith('.mp4') || 
+           fileUrl.toLowerCase().contains('.mp4')) {
+    print("🎬 تشغيل هدية MP4: ${giftItem.getName}");
+    
+    int level = 1;
+    if (giftItem.getCoins! < 10) {
+      level = 1;
+    } else if (giftItem.getCoins! < 100) {
+      level = 2;
+    } else {
+      level = 3;
+    }
+    
+    PlayData playData = PlayData(giftItem, 1);
+    
+    switch (level) {
+      case 2:
+        return Positioned(
+          top: 100,
+          bottom: 100,
+          left: 1,
+          right: 1,
+          child: ZegoMp4PlayerWidget(
+            key: UniqueKey(),
+            playData: playData,
+            onPlayEnd: () {
+              ZegoGiftManager().playList.next();
+            },
+          ),
+        );
+      case 3:
+        return ZegoMp4PlayerWidget(
+          key: UniqueKey(),
+          playData: playData,
+          onPlayEnd: () {
+            ZegoGiftManager().playList.next();
+          },
+        );
+      default:
+        return Positioned(
+          bottom: 200,
+          left: 1,
+          child: ZegoMp4PlayerWidget(
+            key: UniqueKey(),
+            size: const Size(100, 100),
+            playData: playData,
+            onPlayEnd: () {
+              ZegoGiftManager().playList.next();
+            },
+          ),
+        );
+     }
+   } 
+   // ✅ إذا كانت الهدية صورة عادية
+   else {
+     print("🖼️ عرض الهدية كصورة عادية: ${giftItem.getName}");
+     return imageGiftWidget(giftItem);
+   }
   }
 
   Widget mp4Widget(PlayData playData) {
@@ -1809,6 +1973,8 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
       );
 
   sendGift(GiftsModel giftsModel, UserModel mUser) async {
+    print("🎁 تشغيل تأثير الهدية: ${giftsModel.getName}");
+    ZegoGiftManager().playList.add(giftsModel);
     GiftsSentModel giftsSentModel = new GiftsSentModel();
     giftsSentModel.setAuthor = widget.currentUser!;
     giftsSentModel.setAuthorId = widget.currentUser!.objectId!;
