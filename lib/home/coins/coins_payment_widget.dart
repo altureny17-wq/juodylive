@@ -46,7 +46,6 @@ class CoinsFlowPayment {
     );
   }
 
-  // ✅ دالة مساعدة للاستدعاء السهل
   static void show({
     required BuildContext context,
     required UserModel currentUser,
@@ -100,7 +99,6 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
   bool _loading = true;
   InAppPurchaseModel? _inAppPurchaseModel;
 
-  // ✅ قائمة بجميع التصنيفات المتوفرة في GiftsModel
   final List<Map<String, String>> giftCategories = [
     {'key': GiftsModel.giftCategoryTypeClassic, 'name': 'كلاسيك', 'icon': '🎁'},
     {'key': GiftsModel.giftCategoryType3D, 'name': 'ثلاثي الأبعاد', 'icon': '🎨'},
@@ -182,7 +180,6 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
             price: package.storeProduct.priceString,
             image: "assets/images/ic_coins_6.png",
             type: InAppPurchaseModel.typeNormal,
-            storeProduct: package.storeProduct,
             discount: (package.storeProduct.price * 1.1).toStringAsFixed(2),
             package: package,
             currency: package.storeProduct.currencyCode,
@@ -329,7 +326,6 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
                 ? 1
                 : bottomSheetCurrentIndex,
             children: [
-              // ✅ تبويب الهدايا
               Scaffold(
                 backgroundColor: kTransparentColor,
                 appBar: AppBar(
@@ -386,7 +382,6 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
                 ),
                 body: _buildGiftTabs(setState),
               ),
-              // ✅ تبويب شراء العملات
               Scaffold(
                 backgroundColor: kTransparentColor,
                 appBar: AppBar(
@@ -439,13 +434,11 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
     });
   }
 
-  // ✅ بناء تبويبات الهدايا
   Widget _buildGiftTabs(StateSetter setState) {
     return DefaultTabController(
       length: giftCategories.length,
       child: Column(
         children: [
-          // شريط التبويبات القابل للتمرير
           Container(
             height: 50,
             margin: EdgeInsets.symmetric(horizontal: 8),
@@ -476,7 +469,6 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
               }).toList(),
             ),
           ),
-          // محتوى التبويبات
           Expanded(
             child: Container(
               margin: EdgeInsets.only(top: 8),
@@ -492,14 +484,12 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
     );
   }
 
-  // ✅ جلب الهدايا حسب التصنيف
   Widget _getGiftsByCategory(String category, StateSetter setState) {
     QueryBuilder<GiftsModel> giftQuery = QueryBuilder<GiftsModel>(GiftsModel());
     
-    // تصفية حسب التصنيف المحدد
     giftQuery.whereEqualTo(GiftsModel.keyGiftCategories, category);
     giftQuery.orderByAscending(GiftsModel.keyCoins);
-    giftQuery.setLimit(50); // حد أقصى 50 هدية لكل تصنيف
+    giftQuery.setLimit(50);
 
     return ContainerCorner(
       color: kTransparentColor,
@@ -511,7 +501,6 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
         mainAxisSpacing: 8,
         lazyLoading: false,
         shrinkWrap: true,
-        physics: AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.all(12),
         childBuilder: (BuildContext context,
             ParseLiveListElementSnapshot<GiftsModel> snapshot) {
@@ -533,7 +522,6 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // صورة الهدية
                     Expanded(
                       child: Container(
                         width: 50,
@@ -553,7 +541,6 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
                       ),
                     ),
                     SizedBox(height: 4),
-                    // اسم الهدية
                     Text(
                       gift.getName ?? '',
                       style: TextStyle(
@@ -564,7 +551,6 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                     ),
-                    // سعر الهدية
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -634,6 +620,8 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
           crossAxisCount: 3,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
+          shrinkWrap: true,
+          physics: BouncingScrollPhysics(),
           children: List.generate(
             getInAppList().length,
             (index) {
