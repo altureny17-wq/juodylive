@@ -1749,7 +1749,10 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
       level = 3;
     }
     
-    PlayData playData = PlayData(giftItem, 1);
+    PlayData playData = PlayData(
+      giftItem: giftItem,
+      count: 1,
+    );  // ✅ صحيح
     
     switch (level) {
       case 2:
