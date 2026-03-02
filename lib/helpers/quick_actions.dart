@@ -120,11 +120,15 @@ class QuickActions {
     EdgeInsets? margin,
     String? imageUrl,
     bool hideAvatarFrame = false,
-    double frameWidth = 0.0,
-    double frameHeight = 0.0,
+    double? frameWidth,
+    double? frameHeight,
     double? vipFrameWidth = 43,
     double? vipFrameHeight = 40,
   }) {
+    // احسب حجم الإطار تلقائياً إذا لم يُمرَّر
+    final double resolvedFrameWidth = frameWidth ?? (width != null ? width + 15 : 55);
+    final double resolvedFrameHeight = frameHeight ?? (height != null ? height + 15 : 55);
+
     if (currentUser.getAvatar != null) {
       return Stack(
         alignment: AlignmentDirectional.center,
@@ -145,14 +149,14 @@ class QuickActions {
               errorWidget: (context, url, error) => _avatarInitials(currentUser),
             ),
           ),
+          // ✅ إطار المتجر المشترى - يدعم جميع صيغ الصور
           if (currentUser.getAvatarFrame != null &&
               !hideAvatarFrame &&
-              currentUser.getCanUseAvatarFrame! &&
-              currentUser.getAvatarFrame!.url!.toLowerCase().endsWith('.png'))
+              currentUser.getCanUseAvatarFrame!)
             ContainerCorner(
               borderWidth: 0,
-              width: frameWidth,
-              height: frameHeight,
+              width: resolvedFrameWidth,
+              height: resolvedFrameHeight,
               child: CachedNetworkImage(
                 imageUrl: currentUser.getAvatarFrame!.url!,
                 imageBuilder: (context, imageProvider) => Container(
@@ -166,7 +170,8 @@ class QuickActions {
                 ),
               ),
             ),
-          if(!hideAvatarFrame && currentUser.getIsUserVip! && !currentUser.getCanUseAvatarFrame!)
+          // ✅ إطار VIP فقط إذا لم يكن هناك إطار مشترى
+          if (!hideAvatarFrame && currentUser.getIsUserVip! && !currentUser.getCanUseAvatarFrame!)
             Container(
               margin: margin,
               child: Image.asset(
@@ -524,6 +529,8 @@ class QuickActions {
           width: width,
           height: height,
           margin: avatarMargin,
+          frameWidth: width != null ? width + 15 : null,
+          frameHeight: height != null ? height + 15 : null,
           vipFrameWidth: vipFrameWidth,
           vipFrameHeight: vipFrameHeight,
           hideAvatarFrame: hideAvatarFrame,
