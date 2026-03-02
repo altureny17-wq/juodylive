@@ -1236,8 +1236,8 @@ class _UserProfileScreenState extends State<UserProfileScreen>
     if (userPictures.length <= 1) {
       return Stack(
         children: [
-          QuickActions.profileAvatar(
-            widget.mUser!.getAvatar!.url!,
+          QuickActions.profileAvatarWithFrame(
+            widget.mUser!,
             width: double.infinity,
             height: double.infinity,
           ),
@@ -1262,12 +1262,20 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                 return Stack(
                   alignment: AlignmentDirectional.bottomEnd,
                   children: [
-                    QuickActions.profileAvatar(
-                      userPictures[index].url!,
-                      fit: BoxFit.contain,
-                      width: double.infinity,
-                      height: double.infinity,
-                    ),
+                    // ✅ الصورة الأولى هي صورة البروفايل - تعرض مع الإطار
+                    index == 0
+                        ? QuickActions.profileAvatarWithFrame(
+                            widget.mUser!,
+                            fit: BoxFit.contain,
+                            width: double.infinity,
+                            height: double.infinity,
+                          )
+                        : QuickActions.profileAvatar(
+                            userPictures[index].url!,
+                            fit: BoxFit.contain,
+                            width: double.infinity,
+                            height: double.infinity,
+                          ),
                     ContainerCorner(
                       borderWidth: 0,
                       color: Colors.black.withOpacity(0.1),
