@@ -371,6 +371,53 @@ class QuickActions {
     );
   }
 
+  // ✅ دالة جديدة: عرض صورة البروفايل الكبيرة مع الإطار المشترى
+  static Widget profileAvatarWithFrame(
+    UserModel user, {
+    double? width,
+    double? height,
+    BoxFit? fit = BoxFit.cover,
+    EdgeInsets? margin,
+  }) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          margin: margin,
+          width: width,
+          height: height,
+          child: CachedNetworkImage(
+            imageUrl: user.getAvatar!.url!,
+            imageBuilder: (context, imageProvider) => Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(image: imageProvider, fit: fit),
+              ),
+            ),
+            placeholder: (context, url) =>
+                _loadingWidget(width: width, height: height, radius: 0),
+            errorWidget: (context, url, error) =>
+                SvgPicture.asset("assets/svg/ic_avatar.svg"),
+          ),
+        ),
+        // ✅ الإطار المشترى فوق الصورة
+        if (user.getAvatarFrame != null && user.getCanUseAvatarFrame!)
+          Positioned.fill(
+            child: CachedNetworkImage(
+              imageUrl: user.getAvatarFrame!.url!,
+              imageBuilder: (context, imageProvider) => Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: imageProvider,
+                    fit: BoxFit.fill,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
   static Widget profileCover(String imageUrl, {double? borderRadius = 0, BoxFit? fit = BoxFit.cover, double? width, double? height, EdgeInsets? margin}) {
     return Container(
       margin: margin,
