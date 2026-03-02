@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/material.dart';
@@ -262,8 +263,8 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
               ..seat.avatarBuilder = (BuildContext context, Size size, ZegoUIKitUser? user, Map extraInfo) {
                 if (user == null) return const SizedBox();
                 userAvatar = avatarService.fetchUserAvatar(user.id);
-                return FutureBuilder<String?>(
-                  future: avatarService.fetchUserAvatar(user.id),
+                return FutureBuilder<UserModel?>(
+                  future: avatarService.fetchUserModel(user.id), // ✅ جلب UserModel كامل مع الإطار
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return FadeShimmer(
@@ -275,14 +276,29 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
                     } else if (snapshot.hasError || !snapshot.hasData) {
                       return Icon(Icons.account_circle, size: size.width);
                     }
-                    final avatarUrl = snapshot.data;
-                    return avatarUrl != null
-                        ? QuickActions.photosWidget(
-                      avatarUrl,
-                      width: size.width,
-                      height: size.height,
-                      borderRadius: 200,
-                    ) : const Icon(Icons.account_circle, size: 40);
+                    final userModel = snapshot.data!;
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // الصورة الأساسية
+                        QuickActions.photosWidget(
+                          userModel.getAvatar?.url ?? '',
+                          width: size.width,
+                          height: size.height,
+                          borderRadius: 200,
+                        ),
+                        // ✅ الإطار المشترى فوق الصورة
+                        if (userModel.getAvatarFrame != null && userModel.getCanUseAvatarFrame!)
+                          SizedBox(
+                            width: size.width + 10,
+                            height: size.height + 10,
+                            child: CachedNetworkImage(
+                              imageUrl: userModel.getAvatarFrame!.url!,
+                              fit: BoxFit.fill,
+                            ),
+                          ),
+                      ],
+                    );
                   },
                 );
               }
