@@ -622,6 +622,17 @@ class _UserProfileScreenState extends State<UserProfileScreen>
 
   init() async {
     preferences = await SharedPreferences.getInstance();
+
+    // ✅ إعادة جلب بيانات المستخدم مع الإطار من قاعدة البيانات
+    final query = QueryBuilder<UserModel>(UserModel.forQuery())
+      ..whereEqualTo(UserModel.keyObjectId, widget.mUser!.objectId!)
+      ..includeObject([UserModel.keyAvatarFrame]);
+    final response = await query.query();
+    if (response.success && response.results != null && response.results!.isNotEmpty) {
+      setState(() {
+        widget.mUser = response.results!.first as UserModel;
+      });
+    }
   }
 
   @override
