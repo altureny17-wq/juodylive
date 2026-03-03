@@ -249,102 +249,44 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
                   ),
               );
             }*/),
-            config: widget.isHost!
-                ? (ZegoUIKitPrebuiltLiveAudioRoomConfig.host()
-                  ..confirmDialogInfo = ZegoLiveAudioRoomDialogInfo(
-                    title: "account_settings.logout_user_sure".tr(),
-                    message: 'live_streaming.finish_live_ask'.tr(),
-                    cancelButtonName: "cancel".tr(),
-                    confirmButtonName: "confirm_".tr(),
-                  ))
-                : ZegoUIKitPrebuiltLiveAudioRoomConfig.audience()
-              ..bottomMenuBar.audienceExtendButtons = [giftButton]
-              ..bottomMenuBar.speakerExtendButtons = [giftButton]
-              ..seat.avatarBuilder = (BuildContext context, Size size, ZegoUIKitUser? user, Map extraInfo) {
+            config: () {
+              final roomConfig = widget.isHost!
+                  ? (ZegoUIKitPrebuiltLiveAudioRoomConfig.host()
+                    ..confirmDialogInfo = ZegoLiveAudioRoomDialogInfo(
+                      title: "account_settings.logout_user_sure".tr(),
+                      message: "live_streaming.finish_live_ask".tr(),
+                      cancelButtonName: "cancel".tr(),
+                      confirmButtonName: "confirm_".tr(),
+                    ))
+                  : ZegoUIKitPrebuiltLiveAudioRoomConfig.audience();
+              roomConfig.bottomMenuBar.audienceExtendButtons = [giftButton];
+              roomConfig.bottomMenuBar.speakerExtendButtons = [giftButton];
+              roomConfig.bottomMenuBar.hostExtendButtons = [giftButton, Obx(() { return ContainerCorner(color: Colors.white, borderRadius: 50, height: 38, width: 38, onTap: () => toggleSharingMedia(), child: Padding(padding: const EdgeInsets.all(5.0), child: SvgPicture.asset(showGiftSendersController.shareMediaFiles.value ? "assets/svg/stop_sharing_media.svg" : "assets/svg/start_sharing_media.svg")));  }), privateLiveBtn];
+              roomConfig.seat.avatarBuilder = (BuildContext context, Size size, ZegoUIKitUser? user, Map extraInfo) {
                 if (user == null) return const SizedBox();
-                userAvatar = avatarService.fetchUserAvatar(user.id);
-                return FutureBuilder<UserModel?>(
-                  future: avatarService.fetchUserModel(user.id), // ✅ جلب UserModel كامل مع الإطار
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return FadeShimmer(
-                        width: size.width,
-                        height: size.width,
-                        radius: 200,
-                        fadeTheme: QuickHelp.isDarkModeNoContext() ? FadeTheme.dark : FadeTheme.light,
-                      );
-                    } else if (snapshot.hasError || !snapshot.hasData) {
-                      return Icon(Icons.account_circle, size: size.width);
-                    }
-                    final userModel = snapshot.data!;
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // الصورة الأساسية
-                        QuickActions.photosWidget(
-                          userModel.getAvatar?.url ?? '',
-                          width: size.width,
-                          height: size.height,
-                          borderRadius: 200,
-                        ),
-                        // ✅ الإطار المشترى فوق الصورة
-                        if (userModel.getAvatarFrame != null && userModel.getCanUseAvatarFrame!)
-                          SizedBox(
-                            width: size.width + 10,
-                            height: size.height + 10,
-                            child: CachedNetworkImage(
-                              imageUrl: userModel.getAvatarFrame!.url!,
-                              fit: BoxFit.fill,
-                            ),
-                          ),
-                      ],
-                    );
-                  },
-                );
-              }
-            ..seat.layout.rowConfigs = List.generate(numberOfSeats, (index){
-              if(index == 0){
-                return ZegoLiveAudioRoomLayoutRowConfig(count: 1, alignment: ZegoLiveAudioRoomLayoutAlignment.center);
-              }
-
-              if(widget.liveStreaming!.getNumberOfChairs == 20){
-                return ZegoLiveAudioRoomLayoutRowConfig(count: 5, alignment: ZegoLiveAudioRoomLayoutAlignment.start);
-              }
-
-              if(widget.liveStreaming!.getNumberOfChairs == 24){
-                return ZegoLiveAudioRoomLayoutRowConfig(count: 6, alignment: ZegoLiveAudioRoomLayoutAlignment.start);
-              }
-
-              return ZegoLiveAudioRoomLayoutRowConfig(count: 4, alignment: ZegoLiveAudioRoomLayoutAlignment.spaceEvenly);
-            })
-              ..foreground = customUiComponents()
-              ..inRoomMessage.visible = true
-              ..inRoomMessage.showAvatar = true
-              ..bottomMenuBar.hostExtendButtons = [Obx((){
-                return ContainerCorner(
-                  color: Colors.white,
-                  borderRadius: 50,
-                  height: 38,
-                  width: 38,
-                  onTap: () {
-                    toggleSharingMedia();
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: SvgPicture.asset(
-                      showGiftSendersController.shareMediaFiles.value ? "assets/svg/stop_sharing_media.svg":
-                      "assets/svg/start_sharing_media.svg",
-                    ),
-                  ),
-                );
-              }), privateLiveBtn]
-              ..background = Image.asset(
-                "assets/images/audio_bg_start.png",
-                height: size.height,
-                width: size.width,
-                fit: BoxFit.fill,
-              ),
-          ),
+                return FutureBuilder<UserModel?>(future: avatarService.fetchUserModel(user.id), builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) { return FadeShimmer(width: size.width, height: size.width, radius: 200, fadeTheme: QuickHelp.isDarkModeNoContext() ? FadeTheme.dark : FadeTheme.light); }
+                  if (!snapshot.hasData || snapshot.data == null) { return Icon(Icons.account_circle, size: size.width); }
+                  final userModel = snapshot.data!;
+                  final bool hasFrame = userModel.getAvatarFrame != null && userModel.getCanUseAvatarFrame!;
+                  return Stack(alignment: Alignment.center, clipBehavior: Clip.none, children: [
+                    QuickActions.photosWidget(userModel.getAvatar?.url ?? "", width: size.width, height: size.height, borderRadius: 200),
+                    if (hasFrame) Positioned(top: -(size.height * 0.15), left: -(size.width * 0.15), child: SizedBox(width: size.width * 1.3, height: size.height * 1.3, child: CachedNetworkImage(imageUrl: userModel.getAvatarFrame!.url!, fit: BoxFit.fill))),
+                  ]);
+                });
+              };
+              roomConfig.seat.layout.rowConfigs = List.generate(numberOfSeats, (index) {
+                if (index == 0) return ZegoLiveAudioRoomLayoutRowConfig(count: 1, alignment: ZegoLiveAudioRoomLayoutAlignment.center);
+                if (widget.liveStreaming!.getNumberOfChairs == 20) return ZegoLiveAudioRoomLayoutRowConfig(count: 5, alignment: ZegoLiveAudioRoomLayoutAlignment.start);
+                if (widget.liveStreaming!.getNumberOfChairs == 24) return ZegoLiveAudioRoomLayoutRowConfig(count: 6, alignment: ZegoLiveAudioRoomLayoutAlignment.start);
+                return ZegoLiveAudioRoomLayoutRowConfig(count: 4, alignment: ZegoLiveAudioRoomLayoutAlignment.spaceEvenly);
+              });
+              roomConfig.foreground = customUiComponents();
+              roomConfig.inRoomMessage.visible = true;
+              roomConfig.inRoomMessage.showAvatar = true;
+              roomConfig.background = Image.asset("assets/images/audio_bg_start.png", height: size.height, width: size.width, fit: BoxFit.fill);
+              return roomConfig;
+            }(),
           Positioned(
             top: 30,
             left: 10,
