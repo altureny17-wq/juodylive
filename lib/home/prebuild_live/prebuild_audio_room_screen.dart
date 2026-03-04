@@ -929,11 +929,15 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
     final playerSize =
     Size(size.width - padding * 2, size.width * 9 / 16);
   
-    // ✅ استخدام الخصائص الأساسية فقط
     return ZegoUIKitMediaPlayer(
       size: playerSize,
-      canControl: canControl,
-      showSurface: true,
+      config: ZegoUIKitMediaPlayerConfig(  // ✅ كل الخيارات هنا
+        canControl: canControl,
+        showSurface: true,
+        autoStart: true,
+        isMovable: true,
+        enableRepeat: false,  // الآن enableRepeat موجودة!
+      ),
       initPosition: Offset(
         size.width - playerSize.width - padding,
         size.height - playerSize.height - padding - 40,
