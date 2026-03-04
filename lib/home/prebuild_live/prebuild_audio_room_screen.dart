@@ -929,10 +929,9 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
     final playerSize =
     Size(size.width - padding * 2, size.width * 9 / 16);
   
+    // ✅ استخدام الخصائص الأساسية فقط
     return ZegoUIKitMediaPlayer(
       size: playerSize,
-      enablePlayPause: true,
-      enableSlider: true,
       canControl: canControl,
       showSurface: true,
       initPosition: Offset(
@@ -941,7 +940,6 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
       ),
     );
   }
-
   // ✅ دالة جديدة لعرض الصور العادية
   Widget imageGiftWidget(GiftsModel giftItem) {
     int level = 1;
