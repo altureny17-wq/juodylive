@@ -428,10 +428,10 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
                           borderRadius: 10,
                           child: Padding(
                             padding: EdgeInsets.all( widget.liveStreaming!.getNumberOfChairs == 4 ? 70 : 40.0),
-                            child: SvgPicture.asset(
-                                'assets/svg/ic_add_sofa.svg',
-                              colorFilter: ColorFilter.mode(
-                                  Colors.white.withOpacity(0.3),
+                            child: image.asset(
+                                'assets/images/room_boss_icon.webp',
+                              //colorFilter: ColorFilter.mode(
+                                  //Colors.white.withOpacity(0.3),
                                   BlendMode.srcIn,
                               ),
                               height: 25,
