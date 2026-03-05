@@ -1,6 +1,5 @@
 // ignore_for_file: must_be_immutable
 
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
@@ -24,13 +23,12 @@ class RewardScreen extends StatefulWidget {
   State<RewardScreen> createState() => _RewardScreenState();
 }
 
-class _RewardScreenState extends State<RewardScreen>
-    with TickerProviderStateMixin {
+class _RewardScreenState extends State<RewardScreen> with TickerProviderStateMixin {
   int tabsLength = 2;
   int tabIndex = 0;
 
   late TabController _tabController;
-  final CarouselController _controller = CarouselController();
+  final ScrollController _carouselController = ScrollController();
 
   var slideBanner = [
     "assets/images/img_host_rules.png",
@@ -39,20 +37,18 @@ class _RewardScreenState extends State<RewardScreen>
 
   var screensToGo = [];
 
-  int current = 0;
   int vipRewardAmount = 35000;
   int partyRewardAmount = 200;
 
   @override
   void initState() {
     super.initState();
-    _tabController =
-        TabController(vsync: this, length: tabsLength, initialIndex: tabIndex)
-          ..addListener(() {
-            setState(() {
-              tabIndex = _tabController.index;
-            });
-          });
+    _tabController = TabController(vsync: this, length: tabsLength, initialIndex: tabIndex)
+      ..addListener(() {
+        setState(() {
+          tabIndex = _tabController.index;
+        });
+      });
   }
 
   @override
@@ -95,6 +91,7 @@ class _RewardScreenState extends State<RewardScreen>
       ),
       body: ListView(
         children: [
+          // Header Section: Sliders and Tabs
           ContainerCorner(
             color: isDark ? kContentColorLightTheme : Colors.white,
             borderWidth: 0,
@@ -122,11 +119,6 @@ class _RewardScreenState extends State<RewardScreen>
                       ),
                       borderRadius: const BorderRadius.all(Radius.circular(50)),
                     ),
-                    onTap: (index) {
-                      setState(() {
-                        tabIndex = index;
-                      });
-                    },
                     labelColor: isDark ? Colors.white : Colors.black,
                     labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     tabs: [
@@ -135,11 +127,12 @@ class _RewardScreenState extends State<RewardScreen>
                     ],
                   ),
                 ),
-                const SizedBox(height: 10), // بديل لـ paddingBottom
+                const SizedBox(height: 10),
               ],
             ),
           ),
           
+          // Fixed Rewards Section (VIP & Party)
           ContainerCorner(
             borderWidth: 0,
             marginLeft: 15,
@@ -148,26 +141,129 @@ class _RewardScreenState extends State<RewardScreen>
             borderRadius: 10,
             marginTop: 20,
             child: Padding(
-              padding: const EdgeInsets.all(10.0), // بديل لـ paddingAll
+              padding: const EdgeInsets.all(10.0),
               child: Column(
                 children: [
                   buildVipReward(size, isDark),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    child: Divider(),
-                  ),
+                  const Padding(padding: EdgeInsets.symmetric(vertical: 5), child: Divider()),
                   buildPartyReward(size, isDark),
                 ],
               ),
             ),
           ),
           
-          // عرض محتوى المهام (Daily & Live)
-          if(tabIndex == 0) 
-             _emptyTaskState("No Live Tasks")
-          else
-             _emptyTaskState("No Daily Tasks"),
+          const SizedBox(height: 10),
+
+          // Dynamic Task List based on Tab Selection
+          Column(
+            children: tabIndex == 0 
+              ? buildLiveTasksList(isDark) 
+              : buildDailyTasksList(isDark),
+          ),
+          
+          const SizedBox(height: 30),
         ],
+      ),
+    );
+  }
+
+  // دالة بناء كافة مستويات مهام البث (من S إلى I) كما في ملف القواعد
+  List<Widget> buildLiveTasksList(bool isDark) {
+    var liveTasks = [
+      {"level": "S", "reward": "70,000", "hours": "4", "req": "50M"},
+      {"level": "A", "reward": "50,000", "hours": "4", "req": "22M"},
+      {"level": "B", "reward": "40,000", "hours": "3", "req": "10M"},
+      {"level": "C", "reward": "35,000", "hours": "3", "req": "7M"},
+      {"level": "D", "reward": "28,000", "hours": "3", "req": "4M"},
+      {"level": "E", "reward": "18,000", "hours": "3", "req": "2M"},
+      {"level": "F", "reward": "12,000", "hours": "3", "req": "1.2M"},
+      {"level": "G", "reward": "9,000", "hours": "3", "req": "900K"},
+      {"level": "H", "reward": "5,000", "hours": "2", "req": "300K"},
+      {"level": "I", "reward": "3,000", "hours": "2", "req": "150K"},
+    ];
+
+    return liveTasks.map((task) => taskItem(
+      title: "مهمة المضيف مستوى ${task['level']}",
+      subtitle: "هدف الأسبوع: ${task['req']} | بث ${task['hours']} ساعات",
+      reward: task['reward']!,
+      icon: _getIconForLevel(task['level']!),
+      isDark: isDark,
+      btnText: "بث الآن",
+      onTap: () => QuickHelp.goToNavigatorScreen(context, HomeScreen(currentUser: widget.currentUser, initialTabIndex: 0)),
+    )).toList();
+  }
+
+  // أيقونة متغيرة حسب قيمة المستوى
+  IconData _getIconForLevel(String level) {
+    if (level == "S" || level == "A") return Icons.workspace_premium;
+    if (level == "B" || level == "C" || level == "D") return Icons.stars;
+    return Icons.live_tv;
+  }
+
+  // دالة بناء المهام اليومية العامة
+  List<Widget> buildDailyTasksList(bool isDark) {
+    var dailyTasks = [
+      {"title": "شاهد البث المباشر", "desc": "شاهد لمدة 5 دقائق", "reward": "100", "icon": Icons.remove_red_eye},
+      {"title": "مهمة الحفلة اليومية", "desc": "تحدث في الميكروفون لمدة 10 دقائق", "reward": "200", "icon": Icons.mic_external_on},
+      {"title": "أرسل هدايا", "desc": "أرسل أي هدية لمضيف", "reward": "500", "icon": Icons.card_giftcard},
+    ];
+
+    return dailyTasks.map((task) => taskItem(
+      title: task['title'] as String,
+      subtitle: task['desc'] as String,
+      reward: task['reward'] as String,
+      icon: task['icon'] as IconData,
+      isDark: isDark,
+      btnText: "تنفيذ",
+      onTap: () => QuickHelp.goBackToPreviousPage(context),
+    )).toList();
+  }
+
+  // الـ Widget الموحد لعرض كل مهمة في القائمة
+  Widget taskItem({
+    required String title,
+    required String subtitle,
+    required String reward,
+    required IconData icon,
+    required bool isDark,
+    required String btnText,
+    required VoidCallback onTap,
+  }) {
+    return ContainerCorner(
+      marginTop: 10,
+      marginLeft: 15,
+      marginRight: 15,
+      borderRadius: 12,
+      color: isDark ? kContentColorLightTheme : Colors.white,
+      child: ListTile(
+        leading: ContainerCorner(
+          paddingAll: 8,
+          color: kPrimaryColor.withOpacity(0.1),
+          borderRadius: 8,
+          child: Icon(icon, color: kPrimaryColor, size: 24),
+        ),
+        title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: isDark ? Colors.white : Colors.black)),
+        subtitle: Text(subtitle, style: TextStyle(fontSize: 11, color: Colors.grey)),
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            pointsBadge(int.parse(reward.replaceAll(',', ''))),
+            const SizedBox(height: 4),
+            GestureDetector(
+              onTap: onTap,
+              child: ContainerCorner(
+                color: kPrimaryColor,
+                borderRadius: 20,
+                paddingLeft: 10,
+                paddingRight: 10,
+                paddingTop: 4,
+                paddingBottom: 4,
+                child: Text(btnText, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -179,7 +275,6 @@ class _RewardScreenState extends State<RewardScreen>
       height: 160,
       width: size.width,
       child: CarouselView(
-        controller: _controller,
         itemExtent: size.width - 40,
         shrinkExtent: size.width - 80,
         children: List.generate(slideBanner.length, (index) {
@@ -232,7 +327,7 @@ class _RewardScreenState extends State<RewardScreen>
         ),
         ElevatedButton(
           onPressed: () => QuickHelp.goToNavigatorScreen(context, GuardianAndVipStoreScreen(currentUser: widget.currentUser)),
-          style: ElevatedButton.styleFrom(backgroundColor: kPrimaryColor, shape: const StadiumBorder()),
+          style: ElevatedButton.styleFrom(backgroundColor: kPrimaryColor, shape: const StadiumBorder(), elevation: 0),
           child: Text("reward_screen.vip_".tr(), style: const TextStyle(color: Colors.white)),
         )
       ],
@@ -269,24 +364,16 @@ class _RewardScreenState extends State<RewardScreen>
     return ContainerCorner(
       color: earnPointColor.withOpacity(0.1),
       borderRadius: 20,
-      marginTop: 5,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // بديل لـ paddingAll
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset("assets/images/icon_jinbi.png", height: 12, width: 12),
-            Text(" +$amount", style: const TextStyle(color: earnPointColor, fontSize: 12, fontWeight: FontWeight.bold)),
+            Image.asset("assets/images/icon_jinbi.png", height: 10, width: 10),
+            Text(" +$amount", style: const TextStyle(color: earnPointColor, fontSize: 11, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _emptyTaskState(String message) {
-    return Padding(
-      padding: const EdgeInsets.all(40.0),
-      child: Center(child: Text(message, style: const TextStyle(color: Colors.grey))),
     );
   }
 
