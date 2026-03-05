@@ -404,10 +404,12 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
       StoriesAuthorsModel.keyStoriesList,
     ]);
 
-    // لا يوجد فلتر انتهاء صلاحية — تظهر الحالة حتى يحذفها المستخدم يدوياً
+    // الحالات لا تنتهي تلقائياً — تبقى حتى يحذفها المستخدم
     query.orderByAscending(StoriesAuthorsModel.keyLastStorySeen);
-    query.whereNotContainedIn(StoriesAuthorsModel.keyAuthorId,
-        widget.currentUser!.getBlockedUsersIDs!);
+    final List<dynamic> blockedIds = widget.currentUser?.getBlockedUsersIDs ?? [];
+    if (blockedIds.isNotEmpty) {
+      query.whereNotContainedIn(StoriesAuthorsModel.keyAuthorId, blockedIds);
+    }
 
     ParseResponse parseResponse = await query.query();
 
@@ -426,10 +428,12 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
     QueryBuilder<StoriesAuthorsModel> query =
         QueryBuilder<StoriesAuthorsModel>(StoriesAuthorsModel());
 
-    // لا يوجد فلتر انتهاء صلاحية — تظهر الحالة حتى يحذفها المستخدم يدوياً
+    // الحالات لا تنتهي تلقائياً — تبقى حتى يحذفها المستخدم
     query.orderByAscending(StoriesAuthorsModel.keyLastStorySeen);
-    query.whereNotContainedIn(StoriesAuthorsModel.keyAuthorId,
-        widget.currentUser!.getBlockedUsersIDs!);
+    final List<dynamic> blockedStoriesIds = widget.currentUser?.getBlockedUsersIDs ?? [];
+    if (blockedStoriesIds.isNotEmpty) {
+      query.whereNotContainedIn(StoriesAuthorsModel.keyAuthorId, blockedStoriesIds);
+    }
 
     query.includeObject([
       StoriesAuthorsModel.keyAuthor,
@@ -537,7 +541,8 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
 
   Future<void> _objectUpdated(PostsModel object) async {
     for (int i = 0; i < postsResults.length; i++) {
-      if (postsResults[i].get<String>(keyVarObjectId) ==
+      if (postsResults[i] != null &&
+          postsResults[i].get<String>(keyVarObjectId) ==
           object.get<String>(keyVarObjectId)) {
         if (UtilsConstant.afterPosts(postsResults[i], object) == null) {
           setState(() {
@@ -570,10 +575,14 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
 
     queryBuilderLive.whereEqualTo(PostsModel.keyExclusive, false);
 
-    queryBuilderLive.whereNotContainedIn(
-        PostsModel.keyAuthorId, widget.currentUser!.getBlockedUsersIDs!);
-    queryBuilderLive.whereNotContainedIn(
-        PostsModel.keyObjectId, widget.currentUser!.getReportedPostIDs!);
+    final List<dynamic> liveBlockedIds = widget.currentUser?.getBlockedUsersIDs ?? [];
+    final List<dynamic> liveReportedIds = widget.currentUser?.getReportedPostIDs ?? [];
+    if (liveBlockedIds.isNotEmpty) {
+      queryBuilderLive.whereNotContainedIn(PostsModel.keyAuthorId, liveBlockedIds);
+    }
+    if (liveReportedIds.isNotEmpty) {
+      queryBuilderLive.whereNotContainedIn(PostsModel.keyObjectId, liveReportedIds);
+    }
 
     if (subscription == null) {
       subscription = await liveQuery.client.subscribe(queryBuilderLive);
@@ -622,49 +631,57 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
   }
 
   Future<dynamic> _loadFeeds() async {
-    disposeLiveQuery();
+    try {
+      disposeLiveQuery();
 
-    QueryBuilder<UserModel> queryUsers = QueryBuilder(UserModel.forQuery());
-    queryUsers.whereValueExists(UserModel.keyUserStatus, true);
-    queryUsers.whereEqualTo(UserModel.keyUserStatus, true);
+      final List<dynamic> blockedIds =
+          widget.currentUser?.getBlockedUsersIDs ?? [];
+      final List<dynamic> reportedIds =
+          widget.currentUser?.getReportedPostIDs ?? [];
 
-    queryBuilder = QueryBuilder<PostsModel>(PostsModel());
+      QueryBuilder<UserModel> queryUsers = QueryBuilder(UserModel.forQuery());
+      queryUsers.whereValueExists(UserModel.keyUserStatus, true);
+      queryUsers.whereEqualTo(UserModel.keyUserStatus, true);
 
-    queryBuilder.whereNotContainedIn(
-        PostsModel.keyAuthorId, widget.currentUser!.getBlockedUsersIDs!);
-    queryBuilder.whereNotContainedIn(
-        PostsModel.keyObjectId, widget.currentUser!.getReportedPostIDs!);
+      queryBuilder = QueryBuilder<PostsModel>(PostsModel());
 
-    queryBuilder.whereDoesNotMatchQuery(PostsModel.keyAuthor, queryUsers);
-
-    queryBuilder.orderByDescending(PostsModel.keyCreatedAt);
-
-    queryBuilder.includeObject([
-      PostsModel.keyAuthor,
-      PostsModel.keyLastLikeAuthor,
-      PostsModel.keyLastDiamondAuthor,
-      PostsModel.keyTargetPeople
-    ]);
-
-    //queryBuilder.setLimit(50);
-    ParseResponse apiResponse = await queryBuilder.query();
-    if (apiResponse.success) {
-      if (apiResponse.results != null) {
-        for (PostsModel post in apiResponse.results!) {
-          if (!allPosts.contains(post)) {
-            setState(() {
-              allPosts.add(post);
-            });
-          }
-        }
-
-        setupLiveQuery();
-        return apiResponse.results;
-      } else {
-        return [];
+      if (blockedIds.isNotEmpty) {
+        queryBuilder.whereNotContainedIn(PostsModel.keyAuthorId, blockedIds);
       }
-    } else {
-      return null;
+      if (reportedIds.isNotEmpty) {
+        queryBuilder.whereNotContainedIn(PostsModel.keyObjectId, reportedIds);
+      }
+
+      queryBuilder.whereDoesNotMatchQuery(PostsModel.keyAuthor, queryUsers);
+      queryBuilder.orderByDescending(PostsModel.keyCreatedAt);
+
+      queryBuilder.includeObject([
+        PostsModel.keyAuthor,
+        PostsModel.keyLastLikeAuthor,
+        PostsModel.keyLastDiamondAuthor,
+        PostsModel.keyTargetPeople
+      ]);
+
+      ParseResponse apiResponse = await queryBuilder.query();
+      if (apiResponse.success) {
+        if (apiResponse.results != null && apiResponse.results!.isNotEmpty) {
+          for (PostsModel post in apiResponse.results!) {
+            if (!allPosts.contains(post)) {
+              if (mounted) setState(() { allPosts.add(post); });
+            }
+          }
+          setupLiveQuery();
+          return apiResponse.results;
+        } else {
+          setupLiveQuery();
+          return <PostsModel>[];
+        }
+      } else {
+        return <PostsModel>[];
+      }
+    } catch (e) {
+      debugPrint('_loadFeeds error: $e');
+      return <PostsModel>[];
     }
   }
 
@@ -678,10 +695,12 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
           return Center(
             child: QuickHelp.showLoadingAnimation(),
           );
+        } else if (snapshot.hasError) {
+          return QuickActions.noContentFound(context);
         } else if (snapshot.hasData) {
-          // نعيّن البيانات مرة واحدة فقط حتى لا تُمحى التحديثات القادمة من LiveQuery
+          // نعيّن مرة واحدة فقط لحماية LiveQuery من الاستبدال
           if (postsResults.isEmpty) {
-            postsResults = snapshot.data! as List<PostsModel>;
+            postsResults = List<PostsModel>.from(snapshot.data ?? []);
           }
           if (shufflePosts) {
             postsResults.shuffle();
@@ -691,7 +710,9 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
 
             return ListView.separated(
               itemCount: postsResults.length,
+              physics: const AlwaysScrollableScrollPhysics(),
               itemBuilder: (context, index) {
+                try {
                 final PostsModel post = postsResults[index] as PostsModel;
                 return ContainerCorner(
                   color: QuickHelp.isDarkMode(context)
@@ -712,7 +733,7 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
                         TextWithTap(
                           "feed.you_was_mentioned".tr(
                             namedArgs: {
-                              "author_name": post.getAuthor!.getFullName!
+                              "author_name": post.getAuthor?.getFullName ?? ""
                             },
                           ),
                           marginLeft: 10,
@@ -770,7 +791,7 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
                                         Row(
                                           children: [
                                             TextWithTap(
-                                              post.getAuthor!.getFullName!,
+                                              post.getAuthor?.getFullName ?? "",
                                               fontWeight: FontWeight.w600,
                                               fontSize: size.width / 20,
                                               marginLeft: 10,
@@ -849,8 +870,9 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
                                   post.getText ?? '',
                                   style: GoogleFonts.nunito(
                                     fontSize: 30,
-                                    color: QuickHelp.stringToColor(
-                                        post.getTextColors!),
+                                    color: post.getTextColors != null
+                                        ? QuickHelp.stringToColor(post.getTextColors!)
+                                        : Colors.white,
                                   ),
                                   minFontSize: 15,
                                   stepGranularity: 5,
@@ -880,7 +902,7 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
                                     goToFeedOnReels(post: post);
                                   },
                                   child: QuickActions.photosWidget(
-                                      post.getImagesList![index].url),
+                                      post.getImagesList![index].url ?? ""),
                                 ),
                               ),
                             ),
@@ -1037,7 +1059,7 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
                                         width: 20,
                                       ),
                                       TextWithTap(
-                                        post.getComments!.length.toString(),
+                                        (post.getComments ?? []).length.toString(),
                                         marginLeft: 2,
                                       ),
                                     ],
@@ -1102,6 +1124,10 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
                     ],
                   ),
                 );
+                } catch (e) {
+                  debugPrint('Post render error at index $index: $e');
+                  return const SizedBox.shrink();
+                }
               },
               separatorBuilder: (BuildContext context, int index) {
                 if (index % _kAdIndex == 0 && Setup.isAdsOnFeedEnabled) {
@@ -1186,7 +1212,7 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
         dotPrimaryColor: kPrimaryColor,
         dotSecondaryColor: kPrimaryColor,
       ),
-      isLiked: postModel.getLikes!.contains(widget.currentUser!.objectId),
+      isLiked: (postModel.getLikes ?? []).contains(widget.currentUser?.objectId),
       likeCountAnimationType: LikeCountAnimationType.all,
       likeBuilder: (bool isLiked) {
         return Icon(
@@ -1199,7 +1225,7 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
           size: 20,
         );
       },
-      likeCount: postModel.getLikes!.length,
+      likeCount: (postModel.getLikes ?? []).length,
       countBuilder: (count, bool isLiked, String text) {
         Widget result;
         if (count == 0) {
@@ -1219,7 +1245,9 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
           postModel.removeLike = widget.currentUser!.objectId!;
 
           postModel.save().then((value) {
-            postModel = value.results!.first as PostsModel;
+            if (value.success && value.results != null && value.results!.isNotEmpty) {
+              postModel = value.results!.first as PostsModel;
+            }
           });
 
           _deleteLike(postModel);
@@ -1230,7 +1258,9 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
           postModel.setLastLikeAuthor = widget.currentUser!;
 
           postModel.save().then((value) {
-            postModel = value.results!.first as PostsModel;
+            if (value.success && value.results != null && value.results!.isNotEmpty) {
+              postModel = value.results!.first as PostsModel;
+            }
           });
 
           _likePost(postModel);
@@ -2039,7 +2069,9 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
             credits: post.getPaidAmount!,
         );
 
-        widget.currentUser = saved.results!.first! as UserModel;
+        if (saved.results != null && saved.results!.isNotEmpty) {
+          widget.currentUser = saved.results!.first as UserModel;
+        }
 
         post.setPaidBy = widget.currentUser!.objectId!;
         ParseResponse savedPost = await post.save();
