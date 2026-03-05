@@ -28,7 +28,6 @@ class _RewardScreenState extends State<RewardScreen> with TickerProviderStateMix
   int tabIndex = 0;
 
   late TabController _tabController;
-  final ScrollController _carouselController = ScrollController();
 
   var slideBanner = [
     "assets/images/img_host_rules.png",
@@ -91,7 +90,6 @@ class _RewardScreenState extends State<RewardScreen> with TickerProviderStateMix
       ),
       body: ListView(
         children: [
-          // Header Section: Sliders and Tabs
           ContainerCorner(
             color: isDark ? kContentColorLightTheme : Colors.white,
             borderWidth: 0,
@@ -132,7 +130,6 @@ class _RewardScreenState extends State<RewardScreen> with TickerProviderStateMix
             ),
           ),
           
-          // Fixed Rewards Section (VIP & Party)
           ContainerCorner(
             borderWidth: 0,
             marginLeft: 15,
@@ -154,7 +151,6 @@ class _RewardScreenState extends State<RewardScreen> with TickerProviderStateMix
           
           const SizedBox(height: 10),
 
-          // Dynamic Task List based on Tab Selection
           Column(
             children: tabIndex == 0 
               ? buildLiveTasksList(isDark) 
@@ -167,7 +163,6 @@ class _RewardScreenState extends State<RewardScreen> with TickerProviderStateMix
     );
   }
 
-  // دالة بناء كافة مستويات مهام البث (من S إلى I) كما في ملف القواعد
   List<Widget> buildLiveTasksList(bool isDark) {
     var liveTasks = [
       {"level": "S", "reward": "70,000", "hours": "4", "req": "50M"},
@@ -193,14 +188,12 @@ class _RewardScreenState extends State<RewardScreen> with TickerProviderStateMix
     )).toList();
   }
 
-  // أيقونة متغيرة حسب قيمة المستوى
   IconData _getIconForLevel(String level) {
     if (level == "S" || level == "A") return Icons.workspace_premium;
     if (level == "B" || level == "C" || level == "D") return Icons.stars;
     return Icons.live_tv;
   }
 
-  // دالة بناء المهام اليومية العامة
   List<Widget> buildDailyTasksList(bool isDark) {
     var dailyTasks = [
       {"title": "شاهد البث المباشر", "desc": "شاهد لمدة 5 دقائق", "reward": "100", "icon": Icons.remove_red_eye},
@@ -219,7 +212,6 @@ class _RewardScreenState extends State<RewardScreen> with TickerProviderStateMix
     )).toList();
   }
 
-  // الـ Widget الموحد لعرض كل مهمة في القائمة
   Widget taskItem({
     required String title,
     required String subtitle,
@@ -236,10 +228,12 @@ class _RewardScreenState extends State<RewardScreen> with TickerProviderStateMix
       borderRadius: 12,
       color: isDark ? kContentColorLightTheme : Colors.white,
       child: ListTile(
-        leading: ContainerCorner(
-          paddingAll: 8,
-          color: kPrimaryColor.withOpacity(0.1),
-          borderRadius: 8,
+        leading: Container( // استبدال ContainerCorner بـ Container عادي لتجنب خطأ paddingAll
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: kPrimaryColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
           child: Icon(icon, color: kPrimaryColor, size: 24),
         ),
         title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: isDark ? Colors.white : Colors.black)),
@@ -252,13 +246,12 @@ class _RewardScreenState extends State<RewardScreen> with TickerProviderStateMix
             const SizedBox(height: 4),
             GestureDetector(
               onTap: onTap,
-              child: ContainerCorner(
-                color: kPrimaryColor,
-                borderRadius: 20,
-                paddingLeft: 10,
-                paddingRight: 10,
-                paddingTop: 4,
-                paddingBottom: 4,
+              child: Container( // استبدال ContainerCorner لتجنب خطأ paddingLeft/paddingTop
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                   color: kPrimaryColor,
+                   borderRadius: BorderRadius.circular(20),
+                ),
                 child: Text(btnText, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
               ),
             )
@@ -361,18 +354,18 @@ class _RewardScreenState extends State<RewardScreen> with TickerProviderStateMix
   }
 
   Widget pointsBadge(int amount) {
-    return ContainerCorner(
-      color: earnPointColor.withOpacity(0.1),
-      borderRadius: 20,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset("assets/images/icon_jinbi.png", height: 10, width: 10),
-            Text(" +$amount", style: const TextStyle(color: earnPointColor, fontSize: 11, fontWeight: FontWeight.bold)),
-          ],
-        ),
+    return Container(
+      decoration: BoxDecoration(
+        color: earnPointColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset("assets/images/icon_jinbi.png", height: 10, width: 10),
+          Text(" +$amount", style: const TextStyle(color: earnPointColor, fontSize: 11, fontWeight: FontWeight.bold)),
+        ],
       ),
     );
   }
