@@ -404,8 +404,7 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
       StoriesAuthorsModel.keyStoriesList,
     ]);
 
-    query.whereGreaterThan(
-        StoriesAuthorsModel.keyLastStoryExpiration, DateTime.now());
+    // لا يوجد فلتر انتهاء صلاحية — تظهر الحالة حتى يحذفها المستخدم يدوياً
     query.orderByAscending(StoriesAuthorsModel.keyLastStorySeen);
     query.whereNotContainedIn(StoriesAuthorsModel.keyAuthorId,
         widget.currentUser!.getBlockedUsersIDs!);
@@ -427,10 +426,7 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
     QueryBuilder<StoriesAuthorsModel> query =
         QueryBuilder<StoriesAuthorsModel>(StoriesAuthorsModel());
 
-    query.whereGreaterThan(
-      StoriesAuthorsModel.keyLastStoryExpiration,
-      DateTime.now(),
-    );
+    // لا يوجد فلتر انتهاء صلاحية — تظهر الحالة حتى يحذفها المستخدم يدوياً
     query.orderByAscending(StoriesAuthorsModel.keyLastStorySeen);
     query.whereNotContainedIn(StoriesAuthorsModel.keyAuthorId,
         widget.currentUser!.getBlockedUsersIDs!);
@@ -683,7 +679,10 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
             child: QuickHelp.showLoadingAnimation(),
           );
         } else if (snapshot.hasData) {
-          postsResults = snapshot.data! as List<PostsModel>;
+          // نعيّن البيانات مرة واحدة فقط حتى لا تُمحى التحديثات القادمة من LiveQuery
+          if (postsResults.isEmpty) {
+            postsResults = snapshot.data! as List<PostsModel>;
+          }
           if (shufflePosts) {
             postsResults.shuffle();
             shufflePosts = false;
@@ -777,7 +776,7 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
                                               marginLeft: 10,
                                               marginRight: 5,
                                             ),
-                                            if(post.getAuthor!.getCountryCode!.isNotEmpty)
+                                            if(post.getAuthor!.getCountryCode != null && post.getAuthor!.getCountryCode!.isNotEmpty)
                                               Image.asset(
                                                 QuickHelp.getCountryFlag(code: post.getAuthor!.getCountryCode!),
                                                 height: 12,
@@ -847,7 +846,7 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
                                 padding: const EdgeInsets.only(
                                     left: 10, right: 10, top: 20, bottom: 20),
                                 child: AutoSizeText(
-                                  post.getText!,
+                                  post.getText ?? '',
                                   style: GoogleFonts.nunito(
                                     fontSize: 30,
                                     color: QuickHelp.stringToColor(
@@ -885,7 +884,7 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
                                 ),
                               ),
                             ),
-                          if (post.getVideo != null)
+                          if (post.getVideo != null && post.getVideoThumbnail != null)
                             ContainerCorner(
                               width: size.width,
                               height: 350,
@@ -896,7 +895,7 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
                                 alignment: AlignmentDirectional.center,
                                 children: [
                                   QuickActions.photosWidget(
-                                    post.getVideoThumbnail!.url,
+                                    post.getVideoThumbnail?.url,
                                     fit: BoxFit.fitWidth,
                                   ),
                                   ContainerCorner(
@@ -917,10 +916,10 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
                         ],
                       ),
                       Visibility(
-                        visible: post.getText!.isNotEmpty &&
+                        visible: (post.getText?.isNotEmpty ?? false) &&
                             post.getBackgroundColor == null,
                         child: TextWithTap(
-                          post.getText!,
+                          post.getText ?? '',
                           textAlign: TextAlign.start,
                           marginTop: 10,
                           marginBottom: 5,
@@ -931,7 +930,7 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
                         height: 6,
                         color: kTransparentColor,
                       ),
-                      if (post.getTargetPeople!.isNotEmpty)
+                      if (post.getTargetPeople != null && post.getTargetPeople!.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(left: 10),
                           child: Wrap(
