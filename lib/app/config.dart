@@ -69,11 +69,11 @@ class Config {
   static final String userAgreementUrl = "https://trace-34749.web.app/user/";
 
   // Google Play and Apple Pay In-app Purchases IDs
-  static final String credit7000 = "7000.credits";
-  static final String credit15000 = "15000.credits";
-  static final String credit35000 = "35000.credits";
-  static final String credit70000 = "70000.credits";
-  static final String credit140100 = "140100.credits";
-  static final String credit352500 = "352500.credits";
-  static final String credit750500 = "750500.credits";
+  static final String credit100 = "trace.100.credits";
+  static final String credit200 = "trace.200.credits";
+  static final String credit500 = "trace.500.credits";
+  static final String credit1000 = "trace.1000.credits";
+  static final String credit2100 = "trace.2100.credits";
+  static final String credit5250 = "trace.5250.credits";
+  static final String credit10500 = "trace.10500.credits";
 }
