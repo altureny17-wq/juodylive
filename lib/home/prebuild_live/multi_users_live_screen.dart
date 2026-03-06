@@ -430,10 +430,8 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
                             padding: EdgeInsets.all( widget.liveStreaming!.getNumberOfChairs == 4 ? 70 : 40.0),
                             child: image.asset(
                                 'assets/images/room_boss_icon.webp',
-                              //colorFilter: ColorFilter.mode(
-                                  //Colors.white.withOpacity(0.3),
-                                  BlendMode.srcIn,
-                            ),
+                              
+                              ),
                               height: 25,
                               width: 25,
                             ),
