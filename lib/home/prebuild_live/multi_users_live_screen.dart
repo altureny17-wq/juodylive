@@ -158,7 +158,7 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
     )
       ..audioVideoView.foregroundBuilder = hostAudioVideoViewForegroundBuilder
       ..preview.showPreviewForHost = false
-      ..bottomMenuBar.hostExtendButtons = [shareMediaButton, privateLiveBtn]
+      ..bottomMenuBar.hostExtendButtons = [shareMediaButton, privateLiveBtn, giftButton]
       ..avatarBuilder = (BuildContext context, Size size, ZegoUIKitUser? user,
           Map extraInfo) {
         return user != null
@@ -1046,34 +1046,34 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
           onPressed: () {
             if(coHostsList.isNotEmpty) {
               openUserToReceiveCoins();
-              return ;
-            }
-            CoinsFlowPayment(
-              context: context,
-              currentUser: widget.currentUser!,
-              onCoinsPurchased: (coins) {
-                print(
-                    "onCoinsPurchased: $coins new: ${widget.currentUser!.getCredits}");
-              },
-              onGiftSelected: (gift) {
-                print("onGiftSelected called ${gift.getCoins}");
-                sendGift(gift, widget.liveStreaming!.getAuthor!);
+            } else {
+              CoinsFlowPayment(
+                context: context,
+                currentUser: widget.currentUser!,
+                onCoinsPurchased: (coins) {
+                  print(
+                      "onCoinsPurchased: $coins new: ${widget.currentUser!.getCredits}");
+                },
+                onGiftSelected: (gift) {
+                  print("onGiftSelected called ${gift.getCoins}");
+                  sendGift(gift, widget.liveStreaming!.getAuthor!);
 
-                //QuickHelp.goBackToPreviousPage(context);
-                QuickHelp.showAppNotificationAdvanced(
-                  context: context,
-                  user: widget.currentUser,
-                  title: "live_streaming.gift_sent_title".tr(),
-                  message:
-                  "live_streaming.gift_sent_explain".tr(
-                    namedArgs: {
-                      "name": widget.liveStreaming!.getAuthor!.getFirstName!
-                    },
-                  ),
-                  isError: false,
-                );
-              },
-            );
+                  //QuickHelp.goBackToPreviousPage(context);
+                  QuickHelp.showAppNotificationAdvanced(
+                    context: context,
+                    user: widget.currentUser,
+                    title: "live_streaming.gift_sent_title".tr(),
+                    message:
+                    "live_streaming.gift_sent_explain".tr(
+                      namedArgs: {
+                        "name": widget.liveStreaming!.getAuthor!.getFirstName!
+                      },
+                    ),
+                    isError: false,
+                  );
+                },
+              );
+            }
           },
           child: Padding(
             padding: const EdgeInsets.all(3.0),
@@ -1344,7 +1344,9 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
   }
 
   Widget _showUserToReceiveCoins() {
-    coHostsList.add(widget.liveStreaming!.getAuthorId);
+    if (!coHostsList.contains(widget.liveStreaming!.getAuthorId)) {
+      coHostsList.add(widget.liveStreaming!.getAuthorId);
+    }
     Size size = MediaQuery.sizeOf(context);
     QueryBuilder<UserModel> coHostQuery = QueryBuilder<UserModel>(UserModel.forQuery());
     coHostQuery.whereNotEqualTo(UserModel.keyObjectId, widget.currentUser!.objectId);
