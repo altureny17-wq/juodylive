@@ -111,6 +111,7 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
       addOrUpdateLiveViewers();
     }
     _animationController = AnimationController.unbounded(vsync: this);
+    _initRoomSettings();
   }
 
   @override
@@ -133,6 +134,382 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
   Timer? removeGiftTimer;
   final selectedGiftItemNotifier = ValueNotifier<GiftsModel?>(null);
   AnimationController? _animationController;
+
+  // ======= Room Settings State =======
+  int _numberOfChairs = 4;
+  String _roomBackground = "assets/images/audio_room_background.png";
+  List<bool> _lockedSeats = [];
+
+  final List<Map<String, String>> _roomBackgrounds = [
+    {"asset": "assets/images/audio_room_background.png", "label": "افتراضي"},
+    {"asset": "assets/images/audio_bg_start.png",        "label": "نجوم"},
+    {"asset": "assets/images/live_bg_1.png",             "label": "ألوان 1"},
+    {"asset": "assets/images/live_bg_2.png",             "label": "ألوان 2"},
+    {"asset": "assets/images/live_bg_3.png",             "label": "ألوان 3"},
+    {"asset": "assets/images/live_bg_4.png",             "label": "ألوان 4"},
+  ];
+
+  void _initRoomSettings() {
+    _numberOfChairs = widget.liveStreaming!.getNumberOfChairs ?? 4;
+    _lockedSeats = List<bool>.filled(_numberOfChairs, false);
+  }
+
+  void _updateChairsCount(int count) async {
+    setState(() {
+      _numberOfChairs = count;
+      _lockedSeats = List<bool>.filled(count, false);
+    });
+    widget.liveStreaming!.setNumberOfChairs = count;
+    await widget.liveStreaming!.save();
+  }
+
+  void _toggleSeat(int index, bool locked) {
+    setState(() {
+      _lockedSeats[index] = locked;
+    });
+  }
+
+  void _lockAllSeats(bool lock) {
+    setState(() {
+      _lockedSeats = List<bool>.filled(_numberOfChairs, lock);
+    });
+  }
+
+  void _changeBackground(String asset) {
+    setState(() {
+      _roomBackground = asset;
+    });
+    Navigator.pop(context);
+  }
+
+  void _openRoomSettings() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      enableDrag: true,
+      builder: (ctx) => _buildRoomSettingsSheet(),
+    );
+  }
+
+  Widget _buildRoomSettingsSheet() {
+    return StatefulBuilder(
+      builder: (context, setSheetState) {
+        return Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF1A1035),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            border: Border.all(color: Colors.white12),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: SafeArea(
+            top: false,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ---- Header ----
+                  Center(
+                    child: Container(
+                      width: 40, height: 4,
+                      margin: const EdgeInsets.only(bottom: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.white38,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      "إعدادات الغرفة",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // ---- Section 1: عدد المقاعد ----
+                  _sectionTitle("عدد المقاعد"),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [4, 6, 9].map((count) {
+                      final selected = _numberOfChairs == count;
+                      return GestureDetector(
+                        onTap: () {
+                          _updateChairsCount(count);
+                          setSheetState(() {});
+                          Navigator.pop(context);
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: 90,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            gradient: selected
+                                ? const LinearGradient(
+                                    colors: [Color(0xFF7B2FF7), Color(0xFFE040FB)],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  )
+                                : null,
+                            color: selected ? null : Colors.white12,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: selected ? Colors.purple : Colors.white24,
+                              width: selected ? 2 : 1,
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.people,
+                                color: selected ? Colors.white : Colors.white54,
+                                size: 20,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "$count مقعد",
+                                style: TextStyle(
+                                  color: selected ? Colors.white : Colors.white54,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // ---- Section 2: إدارة المقاعد ----
+                  _sectionTitle("إدارة المقاعد"),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _actionButton(
+                          label: "فتح الكل",
+                          icon: Icons.lock_open,
+                          color: Colors.green.shade700,
+                          onTap: () {
+                            _lockAllSeats(false);
+                            setSheetState(() {});
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _actionButton(
+                          label: "إغلاق الكل",
+                          icon: Icons.lock,
+                          color: Colors.red.shade700,
+                          onTap: () {
+                            _lockAllSeats(true);
+                            setSheetState(() {});
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 8,
+                      crossAxisSpacing: 8,
+                      childAspectRatio: 2.4,
+                    ),
+                    itemCount: _numberOfChairs,
+                    itemBuilder: (ctx, i) {
+                      final locked = _lockedSeats.length > i ? _lockedSeats[i] : false;
+                      return GestureDetector(
+                        onTap: () {
+                          _toggleSeat(i, !locked);
+                          setSheetState(() {});
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          decoration: BoxDecoration(
+                            color: locked ? Colors.red.shade900.withOpacity(0.7) : Colors.green.shade900.withOpacity(0.7),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: locked ? Colors.red.shade400 : Colors.green.shade400,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                locked ? Icons.lock : Icons.lock_open,
+                                size: 14,
+                                color: Colors.white70,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                "مقعد ${i + 1}",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 24),
+
+                  // ---- Section 3: خلفية الغرفة ----
+                  _sectionTitle("خلفية الغرفة"),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 90,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _roomBackgrounds.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 10),
+                      itemBuilder: (ctx, i) {
+                        final bg = _roomBackgrounds[i];
+                        final selected = _roomBackground == bg["asset"];
+                        return GestureDetector(
+                          onTap: () {
+                            _changeBackground(bg["asset"]!);
+                            setSheetState(() {});
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: 70,
+                            height: 90,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: selected ? Colors.purpleAccent : Colors.white24,
+                                width: selected ? 2.5 : 1,
+                              ),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(9),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  Image.asset(
+                                    bg["asset"]!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => Container(
+                                      color: Colors.purple.shade900,
+                                      child: const Icon(Icons.image, color: Colors.white38),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 0, left: 0, right: 0,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(vertical: 3),
+                                      color: Colors.black54,
+                                      child: Text(
+                                        bg["label"]!,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  if (selected)
+                                    Positioned(
+                                      top: 4, right: 4,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.purpleAccent,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(Icons.check, size: 12, color: Colors.white),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _sectionTitle(String title) {
+    return Row(
+      children: [
+        Container(
+          width: 4, height: 18,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF7B2FF7), Color(0xFFE040FB)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _actionButton({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 44,
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.8),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: 18),
+            const SizedBox(width: 6),
+            Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
+  // ======= End Room Settings =======
 
   void startRemovingGifts() {
     removeGiftTimer = Timer.periodic(Duration(seconds: 10), (timer) {
@@ -158,7 +535,7 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
     )
       ..audioVideoView.foregroundBuilder = hostAudioVideoViewForegroundBuilder
       ..preview.showPreviewForHost = false
-      ..bottomMenuBar.hostExtendButtons = [shareMediaButton, privateLiveBtn, giftButton]
+      ..bottomMenuBar.hostExtendButtons = [shareMediaButton, privateLiveBtn, giftButton, roomSettingsButton]
       ..avatarBuilder = (BuildContext context, Size size, ZegoUIKitUser? user,
           Map extraInfo) {
         return user != null
@@ -360,10 +737,11 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
                   padding: EdgeInsets.only(left: 10, right: 10, top: 120),
                   mainAxisSpacing: 10,
                   crossAxisSpacing: 10,
-                  crossAxisCount: widget.liveStreaming!.getNumberOfChairs! == 4 ? 2 : 3,
-                  childAspectRatio: widget.liveStreaming!.getNumberOfChairs! == 6 ? 0.8 : 1.0,
+                  crossAxisCount: _numberOfChairs == 4 ? 2 : 3,
+                  childAspectRatio: _numberOfChairs == 6 ? 0.8 : 1.0,
                   children: [
-                    ...List.generate(widget.liveStreaming!.getNumberOfChairs!, (seatIndex) {
+                    ...List.generate(_numberOfChairs, (seatIndex) {
+                      final bool isSeatLocked = _lockedSeats.length > seatIndex && _lockedSeats[seatIndex];
                       if(audioVideoUsers.length - 1 >= seatIndex){
                         return SizedBox(
                           width: double.infinity,
@@ -420,18 +798,39 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
                             ),
                           ),
                         );
-                      }else{
+                      } else if (isSeatLocked) {
+                        // مقعد مغلق
+                        return ContainerCorner(
+                          width: double.infinity,
+                          height: double.infinity,
+                          color: Colors.black54,
+                          borderRadius: 10,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.lock, color: Colors.red.shade300, size: _numberOfChairs == 4 ? 28 : 20),
+                              const SizedBox(height: 4),
+                              Text(
+                                "مغلق",
+                                style: TextStyle(
+                                  color: Colors.red.shade200,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      } else {
                         return ContainerCorner(
                           width: double.infinity,
                           height: double.infinity,
                           color: Colors.black26,
                           borderRadius: 10,
                           child: Padding(
-                            padding: EdgeInsets.all( widget.liveStreaming!.getNumberOfChairs == 4 ? 70 : 40.0),
+                            padding: EdgeInsets.all( _numberOfChairs == 4 ? 70 : 40.0),
                             child: Image.asset(
                                 'assets/images/room_boss_icon.webp',
-                              
-                              
                               height: 25,
                               width: 25,
                             ),
@@ -634,7 +1033,7 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
             ]
 
             ..background = Image.asset(
-                "assets/images/audio_room_background.png",
+                _roomBackground,
               fit: BoxFit.fill,
             )
 
@@ -1108,6 +1507,27 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
         }),
       );
 
+  ZegoLiveStreamingMenuBarExtendButton get roomSettingsButton =>
+      ZegoLiveStreamingMenuBarExtendButton(
+        index: 0,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            shape: const CircleBorder(),
+            backgroundColor: Colors.black26,
+            padding: EdgeInsets.zero,
+          ),
+          onPressed: () => _openRoomSettings(),
+          child: const Padding(
+            padding: EdgeInsets.all(6.0),
+            child: Icon(
+              Icons.settings,
+              color: Colors.white,
+              size: 22,
+            ),
+          ),
+        ),
+      );
+
   toggleSharingMedia() async{
     QuickHelp.showLoadingDialog(context);
     if(showGiftSendersController.shareMediaFiles.value) {
@@ -1142,6 +1562,15 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
     giftsSentModel.setGiftId = giftsModel.objectId!;
     giftsSentModel.setCounterDiamondsQuantity = giftsModel.getCoins!;
     await giftsSentModel.save();
+
+    // ✅ شغّل أنيميشن الهديه فوراً للمُرسِل
+    showGiftSendersController.giftSenderList.add(widget.currentUser!);
+    showGiftSendersController.giftReceiverList.add(mUser);
+    showGiftSendersController.receivedGiftList.add(giftsModel);
+    if (removeGiftTimer == null) {
+      startRemovingGifts();
+    }
+    ZegoGiftManager().playList.add(giftsModel);
 
     QuickHelp.saveReceivedGifts(
         receiver: mUser, author: widget.currentUser!, gift: giftsModel);
@@ -1306,28 +1735,21 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
         UserModel receiver = giftSent.getReceiver!;
         UserModel sender = giftSent.getAuthor!;
 
-        showGiftSendersController.giftSenderList.add(sender);
-        showGiftSendersController.giftReceiverList.add(receiver);
-        showGiftSendersController.receivedGiftList.add(receivedGift);
+        // ✅ لا تشغّل الأنيميشن مرتين للمُرسِل (هو شغّله مباشرة في sendGift)
+        if (sender.objectId != widget.currentUser!.objectId) {
+          showGiftSendersController.giftSenderList.add(sender);
+          showGiftSendersController.giftReceiverList.add(receiver);
+          showGiftSendersController.receivedGiftList.add(receivedGift);
 
-        if (removeGiftTimer == null) {
-          startRemovingGifts();
+          if (removeGiftTimer == null) {
+            startRemovingGifts();
+          }
+
+          // ✅ شغّل الأنيميشن للمستخدمين الآخرين داخل الغرفة
+          ZegoGiftManager().playList.add(receivedGift);
         }
 
         selectedGiftItemNotifier.value = receivedGift;
-
-        /// local play
-        ZegoGiftManager().playList.add(receivedGift);
-
-        ValueListenableBuilder<GiftsModel?>(
-          valueListenable: ZegoGiftManager().playList.playingDataNotifier,
-          builder: (context, playData, _) {
-            if (null == playData) {
-              return const SizedBox.shrink();
-            }
-            return svgaWidget(playData);
-          },
-        );
       },
     );
   }
@@ -1454,17 +1876,8 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
       return;
     }
 
-    /*ZegoGiftManager().playList.add(PlayData(
-          giftItem: giftData,
-          count: receivedGift.count,
-        ),
-    );*/
-
-    QuickHelp.showAppNotificationAdvanced(
-      title: "Gift Recebido",
-      context: context,
-      isError: false,
-    );
+    // ✅ شغّل أنيميشن الهديه داخل الغرفه
+    ZegoGiftManager().playList.add(giftData);
   }
 
   //All Custom UI components
