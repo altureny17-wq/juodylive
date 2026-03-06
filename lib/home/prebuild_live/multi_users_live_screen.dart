@@ -433,7 +433,7 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
                               //colorFilter: ColorFilter.mode(
                                   //Colors.white.withOpacity(0.3),
                                   BlendMode.srcIn,
-                                 ),
+                            ),
                               height: 25,
                               width: 25,
                             ),
