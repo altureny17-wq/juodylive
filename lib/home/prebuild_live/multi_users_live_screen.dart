@@ -1868,16 +1868,11 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
   }
 
   void onGiftReceived() {
+    // Parse LiveQuery في setupLiveGifts يتولى عرض الهدايا لجميع المستخدمين
+    // هذا المسار (Zego Signaling) للتسجيل فقط
     final receivedGift = ZegoGiftManager().service.recvNotifier.value ??
         ZegoGiftProtocolItem.empty();
-    final giftData = queryGiftInItemList(receivedGift.name);
-    if (null == giftData) {
-      debugPrint('not ${receivedGift.name} exist');
-      return;
-    }
-
-    // ✅ شغّل أنيميشن الهديه داخل الغرفه
-    ZegoGiftManager().playList.add(giftData);
+    debugPrint('Zego gift signaling received: ${receivedGift.name}');
   }
 
   //All Custom UI components
