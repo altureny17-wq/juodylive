@@ -117,6 +117,8 @@
 		<string>Trace need to access your microphone to start live broadcasting</string>
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>Trace need to access your photos, to change profile picture, make new post or reels</string>
+		<key>NSScreenCaptureUsageDescription</key>
+		<string>يحتاج التطبيق إذن مشاركة الشاشة لبث الألعاب مباشرة</string>
 		<key>NSUserTrackingUsageDescription</key>
 		<string>We need your identifier and it will be used to deliver personalized ads to you.</string>
 		<key>SKAdNetworkItems</key>
