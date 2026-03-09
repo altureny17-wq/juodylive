@@ -69,8 +69,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
   // ─── Controllers ─────────────────────────────────────────────────────────────
   late AnimationController _pulseController;
   late AnimationController _chatSlideController;
-  ShowGiftSendersController showGiftSendersController =
-      Get.put(ShowGiftSendersController());
+  Controller showGiftSendersController = Get.put(Controller());
 
   // ─── Live Query ───────────────────────────────────────────────────────────────
   final liveQuery = LiveQuery();
@@ -142,8 +141,8 @@ class GameLiveScreenState extends State<GameLiveScreen>
     ZegoGiftManager().service.init(
       appID: Setup.zegoLiveStreamAppID,
       liveID: widget.liveID,
-      userID: widget.currentUser!.objectId!,
-      userName: widget.currentUser!.getFullName!,
+      localUserID: widget.currentUser!.objectId!,
+      localUserName: widget.currentUser!.getFullName!,
     );
     _setupLiveGifts();
   }
@@ -153,7 +152,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
         ZegoGiftProtocolItem.empty();
     final giftData = queryGiftInItemList(received.name);
     if (giftData != null) {
-      ZegoGiftManager().playList.add(giftData);
+      ZegoGiftManager().playList.add(giftData.giftItem);
     }
   }
 
@@ -464,10 +463,10 @@ class GameLiveScreenState extends State<GameLiveScreen>
       ..bottomMenuBar.hostExtendButtons = [_privateLiveBtn, _giftBtn]
       ..inRoomMessage.visible = true
       ..inRoomMessage.showAvatar = true
-      ..inRoomMessage.attributes = _userLevelAttribs
+      ..inRoomMessage.attributes = () => _userLevelAttribs
       ..inRoomMessage.avatarLeadingBuilder = _levelBadgeBuilder
-      ..topMenuBar.isVisible = false  // we draw our own top bar
-      ..bottomMenuBar.isVisible = false  // we draw our own bottom bar
+      ..topMenuBar.showCloseButton = false
+      ..topMenuBar.buttons = []
       ..audioVideoView.useVideoViewAspectFill = true;
 
     final audienceConfig = ZegoUIKitPrebuiltLiveStreamingConfig.audience(
@@ -475,10 +474,10 @@ class GameLiveScreenState extends State<GameLiveScreen>
     )
       ..inRoomMessage.visible = true
       ..inRoomMessage.showAvatar = true
-      ..inRoomMessage.attributes = _userLevelAttribs
+      ..inRoomMessage.attributes = () => _userLevelAttribs
       ..inRoomMessage.avatarLeadingBuilder = _levelBadgeBuilder
-      ..topMenuBar.isVisible = false
-      ..bottomMenuBar.isVisible = false
+      ..topMenuBar.showCloseButton = false
+      ..topMenuBar.buttons = []
       ..audioVideoView.useVideoViewAspectFill = true;
 
     final hostEvents = ZegoUIKitPrebuiltLiveStreamingEvents(
