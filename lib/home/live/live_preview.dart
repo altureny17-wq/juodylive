@@ -23,6 +23,7 @@ import '../prebuild_live/multi_users_live_screen.dart';
 import '../prebuild_live/prebuild_audio_room_screen.dart';
 import '../prebuild_live/prebuild_live_screen.dart';
 import '../upload_live_photo/upload_live_photo_screen.dart';
+import '../game_live/game_live_preview_screen.dart';
 import 'package:flutter/cupertino.dart' as cupertino;
 
 class LivePreviewScreen extends StatefulWidget {
@@ -113,6 +114,7 @@ class _LivePreviewScreenState extends State<LivePreviewScreen>
     "go_live_options.video_stream".tr(),
     "go_live_options.live_party".tr(),
     "go_live_options.audio_stream".tr(),
+    "🎮 بث الألعاب",
   ];
 
   @override
@@ -252,8 +254,8 @@ class _LivePreviewScreenState extends State<LivePreviewScreen>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            liveTitleAndTags(),
-                            ContainerCorner(
+                            if (pagesIndex != 3) liveTitleAndTags(),
+                            if (pagesIndex != 3) ContainerCorner(
                               borderWidth: 0,
                               marginTop: 2,
                               color: Colors.black.withOpacity(0.2),
@@ -768,6 +770,75 @@ class _LivePreviewScreenState extends State<LivePreviewScreen>
           ),
         ],
       );
+    } else if (pagesIndex == 3) {
+      // 🎮 Game Live - ينقل لصفحة مخصصة
+      return ContainerCorner(
+        color: kTransparentColor,
+        borderWidth: 0,
+        marginBottom: 45,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ContainerCorner(
+              marginBottom: 15,
+              borderWidth: 0,
+              colors: [Color(0xFF7C3AED), Color(0xFFDB2777)],
+              borderRadius: 10,
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Row(
+                  children: [
+                    Text("🎮", style: TextStyle(fontSize: 28)),
+                    SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextWithTap(
+                          "بث الألعاب",
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                        TextWithTap(
+                          "PUBG • Free Fire • COD وغيرها",
+                          color: Colors.white70,
+                          fontSize: 11,
+                          marginTop: 3,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            ContainerCorner(
+              colors: [Color(0xFF7C3AED), Color(0xFFDB2777)],
+              borderWidth: 0,
+              height: 45,
+              borderRadius: 50,
+              width: size.width / 1.8,
+              onTap: () {
+                QuickHelp.goToNavigatorScreen(
+                  context,
+                  GameLivePreviewScreen(currentUser: widget.currentUser),
+                );
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("🎮 ", style: TextStyle(fontSize: 16)),
+                  TextWithTap(
+                    "ابدأ بث اللعبة",
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    alignment: Alignment.center,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
     }
   }
 
@@ -901,6 +972,19 @@ class _LivePreviewScreenState extends State<LivePreviewScreen>
         height: size.height,
         width: size.width,
         fit: BoxFit.fill,
+      );
+    } else {
+      // Game Live background
+      return Container(
+        width: size.width,
+        height: size.height,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF0A0A1A), Color(0xFF0D1B2A), Color(0xFF1A0A2E)],
+          ),
+        ),
       );
     }
   }
