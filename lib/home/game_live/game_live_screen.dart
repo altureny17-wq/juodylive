@@ -78,6 +78,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
 
   // Floating button & panel
   bool _panelVisible = false;
+  bool _showScreenShareGuide = false; // دليل بدء بث الشاشة
   Offset _floatingPos = const Offset(16, 140);
 
   final liveStateNotifier =
@@ -108,6 +109,13 @@ class GameLiveScreenState extends State<GameLiveScreen>
     _initGifts();
     _setupLiveQuery();
     if (!widget.isHost) _addViewerToLive();
+
+    // أظهر دليل بث الشاشة للمضيف بعد ثانية
+    if (widget.isHost) {
+      Future.delayed(const Duration(milliseconds: 1200), () {
+        if (mounted) setState(() => _showScreenShareGuide = true);
+      });
+    }
   }
 
   // ─── Gifts ─────────────────────────────────────────────────────────────────
@@ -203,6 +211,10 @@ class GameLiveScreenState extends State<GameLiveScreen>
 
   // ─── End stream ─────────────────────────────────────────────────────────────
   Future<void> _endStream() async {
+    // أوقف بث الشاشة أولاً لإيقاف الـ foreground service
+    try {
+      ZegoUIKitPrebuiltLiveStreamingController().screenSharing.stop();
+    } catch (_) {}
     QuickHelp.showLoadingDialog(context, isDismissible: false);
     widget.liveStreaming!.setStreaming = false;
     final r = await widget.liveStreaming!.save();
@@ -255,6 +267,10 @@ class GameLiveScreenState extends State<GameLiveScreen>
 
   @override
   void dispose() {
+    // أوقف بث الشاشة لإنهاء الـ foreground service وإخفاء الإشعار
+    try {
+      ZegoUIKitPrebuiltLiveStreamingController().screenSharing.stop();
+    } catch (_) {}
     WakelockPlus.disable();
     removeGiftTimer?.cancel();
     _pulseController.dispose();
@@ -303,6 +319,9 @@ class GameLiveScreenState extends State<GameLiveScreen>
           // 4. أيقونة التطبيق العائمة القابلة للسحب
           _buildDraggableIcon(size),
 
+          // 5. دليل بدء بث الشاشة (يظهر مرة واحدة)
+          if (_showScreenShareGuide) _buildScreenShareGuide(size),
+
           // 5. أنيميشن الهدايا
           ValueListenableBuilder<GiftsModel?>(
             valueListenable: ZegoGiftManager().playList.playingDataNotifier,
@@ -317,6 +336,120 @@ class GameLiveScreenState extends State<GameLiveScreen>
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // SCREEN SHARE GUIDE — دليل لمرة واحدة عند الدخول
+  // ═══════════════════════════════════════════════════════════════════════════
+  Widget _buildScreenShareGuide(Size size) {
+    return Positioned.fill(
+      child: GestureDetector(
+        onTap: () => setState(() => _showScreenShareGuide = false),
+        child: Container(
+          color: Colors.black.withOpacity(0.75),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              // بطاقة التوجيه
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.all(22),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A1A2E),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: kVioletColor.withOpacity(0.5)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: kVioletColor.withOpacity(0.3),
+                      blurRadius: 24,
+                      spreadRadius: 4,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // أيقونة
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: kVioletColor.withOpacity(0.2),
+                        border: Border.all(color: kVioletColor, width: 2),
+                      ),
+                      child: const Icon(Icons.screen_share_rounded,
+                          color: Colors.white, size: 32),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      "ابدأ بث الشاشة",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "اضغط على زر مشاركة الشاشة\nفي الشريط السفلي لبدء البث",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.white60,
+                          fontSize: 14,
+                          height: 1.5),
+                    ),
+                    const SizedBox(height: 20),
+                    // سهم يشير للأسفل
+                    Column(
+                      children: [
+                        ...List.generate(
+                          3,
+                          (i) => Padding(
+                            padding:
+                                const EdgeInsets.symmetric(vertical: 2),
+                            child: Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              color: kVioletColor
+                                  .withOpacity(0.4 + i * 0.2),
+                              size: 28,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    // زر فهمت
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: kVioletColor,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14)),
+                          padding:
+                              const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        onPressed: () =>
+                            setState(() => _showScreenShareGuide = false),
+                        child: const Text(
+                          "فهمت، سأضغط الزر ✓",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // مسافة فوق الشريط السفلي
+              const SizedBox(height: 110),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // ZEGO — ملء شاشة + بث الشاشة مباشرة
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildZegoLive(Size size) {
@@ -324,7 +457,11 @@ class GameLiveScreenState extends State<GameLiveScreen>
       plugins: [ZegoUIKitSignalingPlugin()],
     )
       ..preview.showPreviewForHost = false
-      // بث الشاشة يبدأ فور الدخول
+      ..layout = ZegoLayout.gallery(
+        showNewScreenSharingViewInFullscreenMode: true,
+        showScreenSharingFullscreenModeToggleButtonRules:
+            ZegoShowFullscreenModeToggleButtonRules.alwaysShow,
+      )
       ..bottomMenuBar.hostButtons = [
         ZegoLiveStreamingMenuBarButtonName.toggleScreenSharingButton,
         ZegoLiveStreamingMenuBarButtonName.toggleCameraButton,
@@ -342,6 +479,11 @@ class GameLiveScreenState extends State<GameLiveScreen>
     final audienceConfig = ZegoUIKitPrebuiltLiveStreamingConfig.audience(
       plugins: [ZegoUIKitSignalingPlugin()],
     )
+      ..layout = ZegoLayout.gallery(
+        showNewScreenSharingViewInFullscreenMode: true,
+        showScreenSharingFullscreenModeToggleButtonRules:
+            ZegoShowFullscreenModeToggleButtonRules.alwaysShow,
+      )
       ..inRoomMessage.visible = false
       ..topMenuBar.showCloseButton = false
       ..topMenuBar.buttons = []
@@ -602,7 +744,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                         Icon(Icons.chat_bubble_outline,
+                        Icon(Icons.chat_bubble_outline,
                             color: Colors.white.withOpacity(0.15), size: 36),
                         const SizedBox(height: 8),
                         Text(
@@ -792,6 +934,9 @@ class GameLiveScreenState extends State<GameLiveScreen>
 
   void _confirmEndStream() {
     if (!widget.isHost) {
+      try {
+        ZegoUIKitPrebuiltLiveStreamingController().screenSharing.stop();
+      } catch (_) {}
       _onViewerLeave();
       Navigator.of(context).pop();
       return;
