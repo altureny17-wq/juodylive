@@ -11,7 +11,6 @@ import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:zego_uikit_prebuilt_live_streaming/zego_uikit_prebuilt_live_streaming.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
-import 'package:zego_express_engine/zego_express_engine.dart';
 
 import '../../app/setup.dart';
 import '../../helpers/quick_actions.dart';
@@ -468,6 +467,14 @@ class GameLiveScreenState extends State<GameLiveScreen>
       plugins: [ZegoUIKitSignalingPlugin()],
     )
       ..preview.showPreviewForHost = false
+      ..layout = ZegoLayout.gallery(
+        showNewScreenSharingViewInFullscreenMode: true,
+        showScreenSharingFullscreenModeToggleButtonRules:
+            ZegoShowFullscreenModeToggleButtonRules.alwaysShow,
+      )
+      ..bottomMenuBar.hostButtons = [
+        ZegoLiveStreamingMenuBarButtonName.toggleScreenSharingButton,
+      ]
       ..bottomMenuBar.hostExtendButtons = [_privateLiveBtn, _giftBtn]
       ..inRoomMessage.visible = true
       ..inRoomMessage.showAvatar = true
@@ -480,6 +487,11 @@ class GameLiveScreenState extends State<GameLiveScreen>
     final audienceConfig = ZegoUIKitPrebuiltLiveStreamingConfig.audience(
       plugins: [ZegoUIKitSignalingPlugin()],
     )
+      ..layout = ZegoLayout.gallery(
+        showNewScreenSharingViewInFullscreenMode: true,
+        showScreenSharingFullscreenModeToggleButtonRules:
+            ZegoShowFullscreenModeToggleButtonRules.alwaysShow,
+      )
       ..inRoomMessage.visible = true
       ..inRoomMessage.showAvatar = true
       ..inRoomMessage.avatarLeadingBuilder = _levelBadgeBuilder
@@ -1082,18 +1094,6 @@ class GameLiveScreenState extends State<GameLiveScreen>
           ),
           const SizedBox(height: 10),
 
-          // Screen share
-          _iconBtn(
-            Icons.screen_share_rounded,
-            Colors.white,
-            isScreenSharing
-                ? const Color(0xFFF59E0B).withOpacity(0.8)
-                : Colors.black45,
-            () => _toggleScreenShare(),
-            label: isScreenSharing ? "إيقاف" : "شاشة",
-          ),
-          const SizedBox(height: 10),
-
           // Private
           _iconBtn(
             Icons.lock_outline_rounded,
@@ -1267,28 +1267,17 @@ class GameLiveScreenState extends State<GameLiveScreen>
 
   // ─── Screen share ─────────────────────────────────────────────────────────────
   // ─── Screen Share ─────────────────────────────────────────────────────────────
-  void _toggleScreenShare() async {
-    if (isScreenSharing) {
-      // العودة للكاميرا
-      await ZegoExpressEngine.instance
-          .setVideoSource(ZegoVideoSourceType.ZegoVideoSourceTypeCamera);
-      setState(() => isScreenSharing = false);
-      QuickHelp.showAppNotificationAdvanced(
-        context: context,
-        title: "تم إيقاف مشاركة الشاشة",
-        isError: false,
-      );
-    } else {
-      // التبديل لبث الشاشة
-      await ZegoExpressEngine.instance
-          .setVideoSource(ZegoVideoSourceType.ZegoVideoSourceTypeScreenCapture);
-      setState(() => isScreenSharing = true);
-      QuickHelp.showAppNotificationAdvanced(
-        context: context,
-        title: "مشاركة الشاشة مفعّلة 🎮",
-        isError: false,
-      );
-    }
+  void _toggleScreenShare() {
+    // بث الشاشة يتم تلقائياً عبر Zego UIKit عند البث
+    // ميزة مشاركة الشاشة ستكون متاحة في التحديث القادم
+    QuickHelp.showAppNotificationAdvanced(
+      context: context,
+      title: isScreenSharing
+          ? "تم إيقاف مشاركة الشاشة"
+          : "مشاركة الشاشة — قريباً 🎮",
+      isError: false,
+    );
+    setState(() => isScreenSharing = !isScreenSharing);
   }
 
   // ─── Private/Unlock ───────────────────────────────────────────────────────────
