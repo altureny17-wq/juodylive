@@ -1077,8 +1077,8 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
             ..foreground = customUiComponent()
 
           /// message attributes example
-          //..inRoomMessage.attributes = userLevelsAttributes
-          //..inRoomMessage.avatarLeadingBuilder = userLevelBuilder,
+          ..inRoomMessage.attributes = userLevelsAttributes
+          ..inRoomMessage.avatarLeadingBuilder = userLevelBuilder,
           ),
     );
   }
