@@ -153,7 +153,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
     final giftData = queryGiftInItemList(received.name);
     if (giftData != null) {
       // ✅ تم التعديل هنا: giftData.gift بدلاً من giftData.giftItem
-      ZegoGiftManager().playList.add(giftData.gift);
+      ZegoGiftManager().playList.add(giftData);
     }
   }
 
