@@ -692,7 +692,7 @@ class _LivePreviewScreenState extends State<LivePreviewScreen>
           ],
         ),
       );
-    } else {
+    } else if (pagesIndex == 2) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -966,7 +966,7 @@ class _LivePreviewScreenState extends State<LivePreviewScreen>
         width: size.width,
         fit: BoxFit.fill,
       );
-    } else {
+    } else if (pagesIndex == 2) {
       return Image.asset(
         "assets/images/audio_bg_start.png",
         height: size.height,
@@ -974,7 +974,7 @@ class _LivePreviewScreenState extends State<LivePreviewScreen>
         fit: BoxFit.fill,
       );
     } else {
-      // Game Live background
+      // Game Live background (pagesIndex == 3)
       return Container(
         width: size.width,
         height: size.height,
