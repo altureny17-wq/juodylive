@@ -152,7 +152,8 @@ class GameLiveScreenState extends State<GameLiveScreen>
         ZegoGiftProtocolItem.empty();
     final giftData = queryGiftInItemList(received.name);
     if (giftData != null) {
-      ZegoGiftManager().playList.add(giftData.giftItem);
+      // ✅ تم التعديل هنا: giftData.gift بدلاً من giftData.giftItem
+      ZegoGiftManager().playList.add(giftData.gift);
     }
   }
 
@@ -456,6 +457,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
 
   // ─── Zego Live widget ─────────────────────────────────────────────────────────
   Widget _buildZegoLive(Size size) {
+    // ✅ تم تعديل التكوين بشكل صحيح
     final hostConfig = ZegoUIKitPrebuiltLiveStreamingConfig.host(
       plugins: [ZegoUIKitSignalingPlugin()],
     )
@@ -463,8 +465,6 @@ class GameLiveScreenState extends State<GameLiveScreen>
       ..bottomMenuBar.hostExtendButtons = [_privateLiveBtn, _giftBtn]
       ..inRoomMessage.visible = true
       ..inRoomMessage.showAvatar = true
-      ..inRoomMessage.attributes = () => _userLevelAttribs
-      ..inRoomMessage.avatarLeadingBuilder = _levelBadgeBuilder
       ..topMenuBar.showCloseButton = false
       ..topMenuBar.buttons = []
       ..audioVideoView.useVideoViewAspectFill = true;
@@ -474,8 +474,6 @@ class GameLiveScreenState extends State<GameLiveScreen>
     )
       ..inRoomMessage.visible = true
       ..inRoomMessage.showAvatar = true
-      ..inRoomMessage.attributes = () => _userLevelAttribs
-      ..inRoomMessage.avatarLeadingBuilder = _levelBadgeBuilder
       ..topMenuBar.showCloseButton = false
       ..topMenuBar.buttons = []
       ..audioVideoView.useVideoViewAspectFill = true;
