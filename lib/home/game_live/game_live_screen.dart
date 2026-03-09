@@ -11,6 +11,7 @@ import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:zego_uikit_prebuilt_live_streaming/zego_uikit_prebuilt_live_streaming.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
+import 'package:zego_express_engine/zego_express_engine.dart';
 
 import '../../app/setup.dart';
 import '../../helpers/quick_actions.dart';
@@ -430,14 +431,19 @@ class GameLiveScreenState extends State<GameLiveScreen>
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
+        fit: StackFit.expand,
         children: [
-          // ── Zego Live Streaming Core ───────────────────────────────────────────
-          _buildZegoLive(size),
+          // ── Zego يملأ الشاشة كاملة ──────────────────────────────────────────
+          Positioned.fill(
+            child: _buildZegoLive(size),
+          ),
 
-          // ── Game Overlay UI ───────────────────────────────────────────────────
-          SafeArea(child: _buildGameOverlay(size)),
+          // ── Overlay فوق Zego ────────────────────────────────────────────────
+          Positioned.fill(
+            child: SafeArea(child: _buildGameOverlay(size)),
+          ),
 
-          // ── Gift animations ───────────────────────────────────────────────────
+          // ── أنيميشن الهدايا ─────────────────────────────────────────────────
           ValueListenableBuilder<GiftsModel?>(
             valueListenable: ZegoGiftManager().playList.playingDataNotifier,
             builder: (context, gift, _) {
@@ -446,10 +452,10 @@ class GameLiveScreenState extends State<GameLiveScreen>
             },
           ),
 
-          // ── Gift sender row ────────────────────────────────────────────────────
+          // ── صف المرسلين ─────────────────────────────────────────────────────
           _buildGiftSenderRow(),
 
-          // ── Like bubbles ───────────────────────────────────────────────────────
+          // ── فقاعات اللايك ───────────────────────────────────────────────────
           ..._buildLikeBubbles(size),
         ],
       ),
@@ -560,42 +566,48 @@ class GameLiveScreenState extends State<GameLiveScreen>
 
   // ─── Game Overlay ─────────────────────────────────────────────────────────────
   Widget _buildGameOverlay(Size size) {
-    return Column(
-      children: [
-        // TOP BAR
-        _buildTopBar(size),
+    return SizedBox(
+      width: size.width,
+      height: size.height,
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          // TOP BAR
+          _buildTopBar(size),
 
-        // MIDDLE AREA (flexible)
-        Expanded(
-          child: Stack(
-            children: [
-              // Left: chat + gift senders
-              Positioned(
-                left: 0,
-                bottom: 0,
-                width: size.width * 0.72,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (showChat) _buildChatOverlay(size),
-                    const SizedBox(height: 8),
-                    _buildChatInput(size),
-                    const SizedBox(height: 12),
-                  ],
+          // MIDDLE AREA
+          Expanded(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // Left: chat
+                Positioned(
+                  left: 0,
+                  bottom: 0,
+                  width: size.width * 0.72,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (showChat) _buildChatOverlay(size),
+                      const SizedBox(height: 8),
+                      _buildChatInput(size),
+                      const SizedBox(height: 12),
+                    ],
+                  ),
                 ),
-              ),
 
-              // Right: action buttons
-              Positioned(
-                right: 12,
-                bottom: 12,
-                child: _buildRightActions(),
-              ),
-            ],
+                // Right: action buttons
+                Positioned(
+                  right: 12,
+                  bottom: 12,
+                  child: _buildRightActions(),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -609,13 +621,12 @@ class GameLiveScreenState extends State<GameLiveScreen>
           Expanded(
             child: GestureDetector(
               onTap: () {
-                if (!widget.isHost) {
+                if (!widget.isHost && widget.liveStreaming?.getAuthorId != null)
                   showUserProfileBottomSheet(
                     currentUser: widget.currentUser!,
                     userId: widget.liveStreaming!.getAuthorId!,
                     context: context,
                   );
-                }
               },
               child: Container(
                 padding:
@@ -637,11 +648,17 @@ class GameLiveScreenState extends State<GameLiveScreen>
                             Border.all(color: const Color(0xFF7C3AED), width: 2),
                       ),
                       child: ClipOval(
-                        child: QuickActions.avatarWidget(
-                          widget.liveStreaming!.getAuthor!,
-                          width: 32,
-                          height: 32,
-                        ),
+                        child: widget.liveStreaming?.getAuthor != null
+                            ? QuickActions.avatarWidget(
+                                widget.liveStreaming!.getAuthor!,
+                                width: 32,
+                                height: 32,
+                              )
+                            : QuickActions.avatarWidget(
+                                widget.currentUser!,
+                                width: 32,
+                                height: 32,
+                              ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -650,7 +667,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.liveStreaming!.getAuthor?.getFullName ?? "",
+                            widget.liveStreaming?.getAuthor?.getFullName ?? widget.currentUser?.getFullName ?? "",
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 11,
@@ -1249,13 +1266,40 @@ class GameLiveScreenState extends State<GameLiveScreen>
   }
 
   // ─── Screen share ─────────────────────────────────────────────────────────────
-  void _toggleScreenShare() {
-    setState(() => isScreenSharing = !isScreenSharing);
-    QuickHelp.showAppNotificationAdvanced(
-      context: context,
-      title: isScreenSharing ? "مشاركة الشاشة مفعّلة 📱" : "إيقاف مشاركة الشاشة",
-      isError: false,
-    );
+  // ─── Screen Share ─────────────────────────────────────────────────────────────
+  void _toggleScreenShare() async {
+    if (isScreenSharing) {
+      // إيقاف مشاركة الشاشة
+      await ZegoExpressEngine.instance.stopScreenCaptureMobile();
+      setState(() => isScreenSharing = false);
+      QuickHelp.showAppNotificationAdvanced(
+        context: context,
+        title: "تم إيقاف مشاركة الشاشة",
+        isError: false,
+      );
+    } else {
+      // بدء مشاركة الشاشة
+      final config = ZegoScreenCaptureConfig()
+        ..captureVideo = true
+        ..captureAudio = false; // الصوت عبر الميك المدمج في Zego
+
+      final result =
+          await ZegoExpressEngine.instance.startScreenCaptureMobile(config);
+      if (result == 0) {
+        setState(() => isScreenSharing = true);
+        QuickHelp.showAppNotificationAdvanced(
+          context: context,
+          title: "مشاركة الشاشة مفعّلة 🎮",
+          isError: false,
+        );
+      } else {
+        QuickHelp.showAppNotificationAdvanced(
+          context: context,
+          title: "تعذّر تفعيل مشاركة الشاشة",
+          isError: true,
+        );
+      }
+    }
   }
 
   // ─── Private/Unlock ───────────────────────────────────────────────────────────
