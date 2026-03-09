@@ -148,23 +148,14 @@ class GameLiveScreenState extends State<GameLiveScreen>
   }
 
   void _onGiftReceived() {
-  final received = ZegoGiftManager().service.recvNotifier.value ??
-      ZegoGiftProtocolItem.empty();
-  final giftData = queryGiftInItemList(received.name);
-  if (giftData == null) {
-    debugPrint('❌ الهدية ${received.name} غير موجودة');
-    return;
-  }
-
-  // ✅ استخدام giftData.giftItem كما هو في الكود الأصلي
-  print("🎁 تم استلام هدية: ${giftData.giftItem.getName}");
-  ZegoGiftManager().playList.add(giftData.giftItem);
-
-  QuickHelp.showAppNotificationAdvanced(
-    title: "تم استلام هدية 🎁",
-    context: context,
-    isError: false,
-  );
+    final received = ZegoGiftManager().service.recvNotifier.value ??
+        ZegoGiftProtocolItem.empty();
+    final giftData = queryGiftInItemList(received.name);
+    if (giftData == null) {
+      debugPrint('gift not found: ${received.name}');
+      return;
+    }
+    // الأنيميشن يُشغَّل عبر LiveQuery في _setupLiveGifts
   }
 
   Future<void> _setupLiveGifts() async {
@@ -467,7 +458,6 @@ class GameLiveScreenState extends State<GameLiveScreen>
 
   // ─── Zego Live widget ─────────────────────────────────────────────────────────
   Widget _buildZegoLive(Size size) {
-    // ✅ تم تعديل التكوين بشكل صحيح
     final hostConfig = ZegoUIKitPrebuiltLiveStreamingConfig.host(
       plugins: [ZegoUIKitSignalingPlugin()],
     )
@@ -475,18 +465,22 @@ class GameLiveScreenState extends State<GameLiveScreen>
       ..bottomMenuBar.hostExtendButtons = [_privateLiveBtn, _giftBtn]
       ..inRoomMessage.visible = true
       ..inRoomMessage.showAvatar = true
+      ..inRoomMessage.avatarLeadingBuilder = _levelBadgeBuilder
       ..topMenuBar.showCloseButton = false
-      ..topMenuBar.buttons = []
+      ..topMenuBar.buttons = <ZegoLiveStreamingMenuBarButtonName>[]
       ..audioVideoView.useVideoViewAspectFill = true;
+    hostConfig.inRoomMessage.attributes = () => _userLevelAttribs;
 
     final audienceConfig = ZegoUIKitPrebuiltLiveStreamingConfig.audience(
       plugins: [ZegoUIKitSignalingPlugin()],
     )
       ..inRoomMessage.visible = true
       ..inRoomMessage.showAvatar = true
+      ..inRoomMessage.avatarLeadingBuilder = _levelBadgeBuilder
       ..topMenuBar.showCloseButton = false
-      ..topMenuBar.buttons = []
+      ..topMenuBar.buttons = <ZegoLiveStreamingMenuBarButtonName>[]
       ..audioVideoView.useVideoViewAspectFill = true;
+    audienceConfig.inRoomMessage.attributes = () => _userLevelAttribs;
 
     final hostEvents = ZegoUIKitPrebuiltLiveStreamingEvents(
       onStateUpdated: (state) {
