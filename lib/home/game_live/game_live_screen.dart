@@ -602,7 +602,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.chat_bubble_outline,
+                         Icon(Icons.chat_bubble_outline,
                             color: Colors.white.withOpacity(0.15), size: 36),
                         const SizedBox(height: 8),
                         Text(
