@@ -46,6 +46,10 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- Screen Sharing / Game Streaming -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION"/>
+
     <!--Account and Notifications-->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
@@ -191,6 +195,12 @@
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <!-- Zego Screen Capture Service for Game Streaming -->
+        <service
+            android:name="im.zego.zegoexpress.internal.ZegoScreenCaptureService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection"/>
 
     </application>
 </manifest>
