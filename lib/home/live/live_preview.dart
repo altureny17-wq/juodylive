@@ -588,6 +588,7 @@ class _LivePreviewScreenState extends State<LivePreviewScreen>
 
   Widget footer() {
     var size = MediaQuery.of(context).size;
+    
     if (pagesIndex == 0) {
       return ContainerCorner(
         color: kVioletColor,
@@ -837,6 +838,19 @@ class _LivePreviewScreenState extends State<LivePreviewScreen>
               ),
             ),
           ],
+        ),
+      );
+    } else {
+      // ✅ حالة افتراضية في حال كانت pagesIndex قيمة غير متوقعة
+      return ContainerCorner(
+        color: kTransparentColor,
+        borderWidth: 0,
+        height: 45,
+        marginBottom: 45,
+        child: TextWithTap(
+          "حدث خطأ",
+          color: Colors.white,
+          alignment: Alignment.center,
         ),
       );
     }
