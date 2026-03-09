@@ -675,7 +675,7 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
     )
 
       /// on host can control pk
-      ..foreground =
+      //..foreground =
       ..preview.showPreviewForHost = false
       ..bottomMenuBar.hostExtendButtons = [privateLiveBtn, giftButton]
       ..avatarBuilder = (BuildContext context, Size size, ZegoUIKitUser? user,
@@ -1113,8 +1113,8 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
             )
 
           /// message attributes example
-          ..inRoomMessage.attributes = userLevelsAttributes
-          ..inRoomMessage.avatarLeadingBuilder = userLevelBuilder,
+          //..inRoomMessage.attributes = userLevelsAttributes
+          //..inRoomMessage.avatarLeadingBuilder = userLevelBuilder,
           ),
     );
   }
@@ -1123,7 +1123,7 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
     QueryBuilder<LiveViewersModel> query =
         QueryBuilder<LiveViewersModel>(LiveViewersModel());
 
-    query.whereNotEqualTo(LiveViewersModel.keyAuthorId, widget.liveStreaming!.getAuthorId);
+    //query.whereNotEqualTo(LiveViewersModel.keyAuthorId, widget.liveStreaming!.getAuthorId);
     query.whereEqualTo(
         LiveViewersModel.keyLiveId, widget.liveStreaming!.objectId);
     query.whereEqualTo(LiveViewersModel.keyWatching, true);
@@ -2106,7 +2106,7 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
               currentUser: widget.currentUser,
               liveAuthor: widget.liveStreaming!.getAuthor,
             ));
-        onViewerLeave();
+        //onViewerLeave();
       }
     });
 
@@ -2303,7 +2303,7 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
 
     //Uncomment to play on receive
 
-    ZegoGiftManager().playList.add(giftData,);
+    //ZegoGiftManager().playList.add(giftData,);
 
     QuickHelp.showAppNotificationAdvanced(
       title: "Gift Recebido",
