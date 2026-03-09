@@ -148,13 +148,23 @@ class GameLiveScreenState extends State<GameLiveScreen>
   }
 
   void _onGiftReceived() {
-    final received = ZegoGiftManager().service.recvNotifier.value ??
-        ZegoGiftProtocolItem.empty();
-    final giftData = queryGiftInItemList(received.name);
-    if (giftData != null) {
-      // ✅ تم التعديل هنا: giftData.gift بدلاً من giftData.giftItem
-      ZegoGiftManager().playList.add(giftData);
-    }
+  final received = ZegoGiftManager().service.recvNotifier.value ??
+      ZegoGiftProtocolItem.empty();
+  final giftData = queryGiftInItemList(received.name);
+  if (giftData == null) {
+    debugPrint('❌ الهدية ${received.name} غير موجودة');
+    return;
+  }
+
+  // ✅ استخدام giftData.giftItem كما هو في الكود الأصلي
+  print("🎁 تم استلام هدية: ${giftData.giftItem.getName}");
+  ZegoGiftManager().playList.add(giftData.giftItem);
+
+  QuickHelp.showAppNotificationAdvanced(
+    title: "تم استلام هدية 🎁",
+    context: context,
+    isError: false,
+  );
   }
 
   Future<void> _setupLiveGifts() async {
