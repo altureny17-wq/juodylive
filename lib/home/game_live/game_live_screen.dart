@@ -1269,8 +1269,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
   // ─── Screen Share ─────────────────────────────────────────────────────────────
   void _toggleScreenShare() async {
     if (isScreenSharing) {
-      // إيقاف مشاركة الشاشة
-      await ZegoExpressEngine.instance.stopScreenCaptureMobile();
+      await ZegoExpressEngine.instance.stopScreenCapture();
       setState(() => isScreenSharing = false);
       QuickHelp.showAppNotificationAdvanced(
         context: context,
@@ -1278,27 +1277,15 @@ class GameLiveScreenState extends State<GameLiveScreen>
         isError: false,
       );
     } else {
-      // بدء مشاركة الشاشة
-      final config = ZegoScreenCaptureConfig()
-        ..captureVideo = true
-        ..captureAudio = false; // الصوت عبر الميك المدمج في Zego
-
-      final result =
-          await ZegoExpressEngine.instance.startScreenCaptureMobile(config);
-      if (result == 0) {
-        setState(() => isScreenSharing = true);
-        QuickHelp.showAppNotificationAdvanced(
-          context: context,
-          title: "مشاركة الشاشة مفعّلة 🎮",
-          isError: false,
-        );
-      } else {
-        QuickHelp.showAppNotificationAdvanced(
-          context: context,
-          title: "تعذّر تفعيل مشاركة الشاشة",
-          isError: true,
-        );
-      }
+      // captureVideo=true, captureAudio=false (positional)
+      final config = ZegoScreenCaptureConfig(true, false);
+      await ZegoExpressEngine.instance.startScreenCapture(config);
+      setState(() => isScreenSharing = true);
+      QuickHelp.showAppNotificationAdvanced(
+        context: context,
+        title: "مشاركة الشاشة مفعّلة 🎮",
+        isError: false,
+      );
     }
   }
 
