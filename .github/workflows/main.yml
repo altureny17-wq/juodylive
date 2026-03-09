@@ -46,6 +46,11 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Fix NDK (remove corrupted installation)
+        run: |
+          sudo rm -rf /usr/local/lib/android/sdk/ndk/27.0.12077973 || true
+          sudo rm -rf /usr/local/lib/android/sdk/ndk/ || true
+
       - name: Build APK (Release)
         run: flutter build apk --release --target-platform android-arm64
 
