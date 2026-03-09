@@ -1113,8 +1113,8 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
             )
 
           /// message attributes example
-          //..inRoomMessage.attributes = userLevelsAttributes
-          //..inRoomMessage.avatarLeadingBuilder = userLevelBuilder,
+          ..inRoomMessage.attributes = userLevelsAttributes
+          ..inRoomMessage.avatarLeadingBuilder = userLevelBuilder,
           ),
     );
   }
