@@ -603,7 +603,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(Icons.chat_bubble_outline,
-                            color: Colors.withOpacity(0.15), size: 36),
+                            color: Colors.white.withOpacity(0.15), size: 36),
                         const SizedBox(height: 8),
                         Text(
                           "لا توجد رسائل بعد",
