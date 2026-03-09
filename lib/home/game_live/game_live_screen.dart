@@ -1271,7 +1271,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
     if (isScreenSharing) {
       // العودة للكاميرا
       await ZegoExpressEngine.instance
-          .setVideoSource(ZegoVideoSourceType.camera);
+          .setVideoSource(ZegoVideoSourceType.ZegoVideoSourceTypeCamera);
       setState(() => isScreenSharing = false);
       QuickHelp.showAppNotificationAdvanced(
         context: context,
@@ -1281,7 +1281,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
     } else {
       // التبديل لبث الشاشة
       await ZegoExpressEngine.instance
-          .setVideoSource(ZegoVideoSourceType.screenCapture);
+          .setVideoSource(ZegoVideoSourceType.ZegoVideoSourceTypeScreenCapture);
       setState(() => isScreenSharing = true);
       QuickHelp.showAppNotificationAdvanced(
         context: context,
