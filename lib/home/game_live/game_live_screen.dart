@@ -74,7 +74,6 @@ class GameLiveScreenState extends State<GameLiveScreen>
 
   // State
   bool isMicOn = true;
-  bool isMicOn = true;
   int viewerCount = 0;
 
   // Floating button & panel
