@@ -72,7 +72,7 @@ class _AllLivesScreenState extends State<AllLivesScreen>
   late TabController tagsTabControl;
 
   late TabController generalTabControl;
-  int generalTabsLength = 5;
+  int generalTabsLength = 6;
   int generalTabsIndex = 0;
 
   var generalTabTitles = [
@@ -81,6 +81,7 @@ class _AllLivesScreenState extends State<AllLivesScreen>
     "go_live_options.live_party".tr(),
     "go_live_menu.pk_title".tr(),
     "audio_chat.audio_room".tr(),
+    "بث الألعاب 🎮",
   ];
 
   SharedPreferences? preference;
@@ -348,6 +349,9 @@ class _AllLivesScreenState extends State<AllLivesScreen>
           LiveStreamingModel.keyPartyType, LiveStreamingModel.liveAudio);
       queryBuilder.whereEqualTo(
           LiveStreamingModel.keyLiveType, LiveStreamingModel.liveAudio);
+    } else if (generalTabsIndex == 5) {
+      queryBuilder.whereEqualTo(
+          LiveStreamingModel.keyLiveSubType, LiveStreamingModel.liveSubGame);
     }
 
     queryBuilder.includeObject([
