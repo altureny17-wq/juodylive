@@ -41,8 +41,8 @@ class GameLiveScreen extends StatefulWidget {
   final String liveID;
   final bool isHost;
   final String selectedGame;
-  final bool showFaceCam;
   final bool enableMic;
+  final bool autoStartScreenShare;
 
   GameLiveScreen({
     Key? key,
@@ -51,8 +51,8 @@ class GameLiveScreen extends StatefulWidget {
     this.currentUser,
     this.liveStreaming,
     this.selectedGame = "PUBG Mobile",
-    this.showFaceCam = true,
     this.enableMic = true,
+    this.autoStartScreenShare = false,
   }) : super(key: key);
 
   static String route = "/game/live";
@@ -74,13 +74,14 @@ class GameLiveScreenState extends State<GameLiveScreen>
 
   // State
   bool isMicOn = true;
-  bool isCameraOn = true;
+  bool isMicOn = true;
   int viewerCount = 0;
 
   // Floating button & panel
   bool _panelVisible = false;
   bool _showScreenShareGuide = false;
-  bool _screenSharingActive = false; // بث الشاشة نشط — اذهب للعبة
+  bool _screenSharingActive = false;
+  bool _showGoToAppBtn = true; // تلميح الانتقال لأي تطبيق
   Offset _floatingPos = const Offset(16, 140);
 
   final liveStateNotifier =
@@ -103,7 +104,6 @@ class GameLiveScreenState extends State<GameLiveScreen>
     )..repeat(reverse: true);
 
     isMicOn = widget.enableMic;
-    isCameraOn = widget.showFaceCam;
 
     showGiftSendersController.diamondsCounter.value =
         widget.liveStreaming?.getDiamonds?.toString() ?? "0";
@@ -114,9 +114,23 @@ class GameLiveScreenState extends State<GameLiveScreen>
 
     // أظهر دليل بث الشاشة للمضيف بعد ثانية
     if (widget.isHost) {
-      Future.delayed(const Duration(milliseconds: 1200), () {
-        if (mounted) setState(() => _showScreenShareGuide = true);
-      });
+      if (widget.autoStartScreenShare) {
+        // بث الشاشة التلقائي — ابدأ الزر مباشرة بعد تحميل Zego
+        Future.delayed(const Duration(milliseconds: 1500), () {
+          if (mounted) {
+            // اضغط زر بث الشاشة في Zego تلقائياً
+            ZegoUIKitPrebuiltLiveStreamingController()
+                .screenSharing
+                .showViewInFullscreenMode(
+                    ZegoUIKit().getAllUsers().first.id, true);
+            // التطبيق سيذهب للخلفية تلقائياً عبر MainActivity بعد موافقة المستخدم
+          }
+        });
+      } else {
+        Future.delayed(const Duration(milliseconds: 1200), () {
+          if (mounted) setState(() => _showScreenShareGuide = true);
+        });
+      }
     }
   }
 
@@ -315,11 +329,11 @@ class GameLiveScreenState extends State<GameLiveScreen>
           // 4. أيقونة التطبيق العائمة القابلة للسحب
           _buildDraggableIcon(size),
 
-          // 5. دليل بدء بث الشاشة (يظهر مرة واحدة)
-          if (_showScreenShareGuide) _buildScreenShareGuide(size),
+          // 5. زر "افتح اللعبة" ثابت في الأسفل — مرئي دائماً للمضيف
+          if (widget.isHost) _buildGoToGameBtn(),
 
-          // 6. overlay "اذهب للعبة" عند بدء بث الشاشة
-          if (_screenSharingActive) _buildGoToGameOverlay(size),
+          // 6. دليل بدء بث الشاشة (يظهر مرة واحدة)
+          if (_showScreenShareGuide) _buildScreenShareGuide(size),
 
           // 5. أنيميشن الهدايا
           ValueListenableBuilder<GiftsModel?>(
@@ -332,6 +346,64 @@ class GameLiveScreenState extends State<GameLiveScreen>
         ],
       ),
     );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // شريط تلميح بسيط
+  // ═══════════════════════════════════════════════════════════════════════════
+  Widget _buildGoToGameBtn() {
+    if (!_showGoToAppBtn) return const SizedBox.shrink();
+    return Positioned(
+      bottom: 90,
+      left: 16,
+      right: 16,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.75),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white.withOpacity(0.1)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.info_outline, color: Colors.white54, size: 16),
+            const SizedBox(width: 8),
+            const Expanded(
+              child: Text(
+                "اضغط ⬆️ ثم وافق → سينتقل التطبيق للخلفية تلقائياً وتبدأ البث",
+                style: TextStyle(color: Colors.white70, fontSize: 11),
+              ),
+            ),
+            GestureDetector(
+              onTap: () => setState(() => _showGoToAppBtn = false),
+              child: const Icon(Icons.close, color: Colors.white38, size: 16),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // تحريك التطبيق للخلفية
+  Future<void> _moveAppToBackground() async {
+    try {
+      await const MethodChannel('com.juodylive.app/background')
+          .invokeMethod('moveToBackground');
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              '👆 اضغط زر الهوم الآن وافتح لعبتك',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            backgroundColor: Color(0xFF1A1A2E),
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -409,30 +481,9 @@ class GameLiveScreenState extends State<GameLiveScreen>
               // زر الهوم — يخرج للخلفية
               GestureDetector(
                 onTap: () async {
-                  // إغلاق الـ panel أولاً
                   setState(() => _panelVisible = false);
-                  // انتظر قليلاً ثم اذهب للخلفية
                   await Future.delayed(const Duration(milliseconds: 200));
-                  // الذهاب للخلفية عبر الـ platform channel
-                  try {
-                    await const MethodChannel('com.juodylive.app/background')
-                        .invokeMethod('moveToBackground');
-                  } catch (_) {
-                    // إذا فشل الـ channel — أظهر تعليمات للمستخدم
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            '👆 اضغط زر الهوم الآن وافتح لعبتك',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          backgroundColor: Color(0xFF1A1A2E),
-                          duration: Duration(seconds: 4),
-                        ),
-                      );
-                    }
-                  }
+                  _moveAppToBackground();
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(
@@ -593,6 +644,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
       plugins: [ZegoUIKitSignalingPlugin()],
     )
       ..preview.showPreviewForHost = false
+      ..turnOnCameraWhenJoining = false   // الكاميرا مغلقة تماماً
       ..layout = ZegoLayout.gallery(
         showNewScreenSharingViewInFullscreenMode: true,
         showScreenSharingFullscreenModeToggleButtonRules:
@@ -600,7 +652,6 @@ class GameLiveScreenState extends State<GameLiveScreen>
       )
       ..bottomMenuBar.hostButtons = [
         ZegoLiveStreamingMenuBarButtonName.toggleScreenSharingButton,
-        ZegoLiveStreamingMenuBarButtonName.toggleCameraButton,
         ZegoLiveStreamingMenuBarButtonName.toggleMicrophoneButton,
       ]
       ..bottomMenuBar.hostExtendButtons = [_privateLiveBtn, _giftBtn]
