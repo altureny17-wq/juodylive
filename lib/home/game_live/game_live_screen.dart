@@ -62,7 +62,6 @@ class GameLiveScreen extends StatefulWidget {
 
 class GameLiveScreenState extends State<GameLiveScreen>
     with TickerProviderStateMixin {
-
   // Controllers
   late AnimationController _pulseController;
   Controller showGiftSendersController = Get.put(Controller());
@@ -70,15 +69,17 @@ class GameLiveScreenState extends State<GameLiveScreen>
   // Live Query
   final liveQuery = LiveQuery();
   Subscription? subscription;
+  Subscription? giftSubscription;
 
   // State
   bool isMicOn = true;
   bool isCameraOn = true;
   int viewerCount = 0;
+  bool isScreenSharingActive = false;
 
   // Floating button & panel
   bool _panelVisible = false;
-  bool _showScreenShareGuide = false; // دليل بدء بث الشاشة
+  bool _showScreenShareGuide = false;
   Offset _floatingPos = const Offset(16, 140);
 
   final liveStateNotifier =
@@ -108,17 +109,69 @@ class GameLiveScreenState extends State<GameLiveScreen>
 
     _initGifts();
     _setupLiveQuery();
-    if (!widget.isHost) _addViewerToLive();
-
-    // أظهر دليل بث الشاشة للمضيف بعد ثانية
-    if (widget.isHost) {
+    
+    if (!widget.isHost) {
+      _addViewerToLive();
+    } else {
+      // للمضيف: بدء بث الشاشة تلقائياً بعد تجهيز البث
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _autoStartScreenSharing();
+      });
+      
+      // إظهار دليل بث الشاشة للمضيف بعد ثانية
       Future.delayed(const Duration(milliseconds: 1200), () {
-        if (mounted) setState(() => _showScreenShareGuide = true);
+        if (mounted && !isScreenSharingActive) {
+          setState(() => _showScreenShareGuide = true);
+        }
       });
     }
   }
 
-  // ─── Gifts ─────────────────────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+  // بدء بث الشاشة تلقائياً
+  // ═══════════════════════════════════════════════════════════════════════════
+  Future<void> _autoStartScreenSharing() async {
+    try {
+      // تأخير قصير للتأكد من تهيئة Zego
+      await Future.delayed(const Duration(seconds: 2));
+      
+      if (!mounted) return;
+      
+      final permission = await ZegoUIKitPrebuiltLiveStreamingController()
+          .screenSharing
+          .requestPermission();
+      
+      if (permission) {
+        await ZegoUIKitPrebuiltLiveStreamingController()
+            .screenSharing
+            .start();
+        
+        setState(() {
+          isScreenSharingActive = true;
+          _showScreenShareGuide = false;
+        });
+        
+        print('✅ تم بدء بث الشاشة تلقائياً');
+        
+        QuickHelp.showAppNotificationAdvanced(
+          context: context,
+          title: "تم بدء بث الشاشة",
+          message: "يمكنك الآن مشاركة شاشة لعبتك",
+          isError: false,
+        );
+      } else {
+        print('❌ لم يتم منح إذن تسجيل الشاشة');
+        setState(() => _showScreenShareGuide = true);
+      }
+    } catch (e) {
+      print('❌ فشل بدء بث الشاشة: $e');
+      setState(() => _showScreenShareGuide = true);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Gifts
+  // ═══════════════════════════════════════════════════════════════════════════
   Future<void> _initGifts() async {
     await loadGiftsFromServer();
     ZegoGiftManager().cache.cacheAllFiles(giftItemList);
@@ -142,16 +195,21 @@ class GameLiveScreenState extends State<GameLiveScreen>
     final query = QueryBuilder<GiftsSentModel>(GiftsSentModel());
     query.whereEqualTo(GiftsSentModel.keyLiveId, widget.liveStreaming!.objectId);
     query.includeObject([GiftsSentModel.keyGift]);
-    subscription = await liveQuery.client.subscribe(query);
-    subscription!.on(LiveQueryEvent.create, (GiftsSentModel giftSent) async {
+    
+    giftSubscription = await liveQuery.client.subscribe(query);
+    giftSubscription!.on(LiveQueryEvent.create, (GiftsSentModel giftSent) async {
       await giftSent.getGift!.fetch();
       await giftSent.getReceiver!.fetch();
       await giftSent.getAuthor!.fetch();
+      
       final receivedGift = giftSent.getGift!;
+      
       showGiftSendersController.giftSenderList.add(giftSent.getAuthor!);
       showGiftSendersController.giftReceiverList.add(giftSent.getReceiver!);
       showGiftSendersController.receivedGiftList.add(receivedGift);
+      
       ZegoGiftManager().playList.add(receivedGift);
+      
       final coins = receivedGift.getCoins ?? 0;
       final current = int.tryParse(showGiftSendersController.diamondsCounter.value) ?? 0;
       showGiftSendersController.diamondsCounter.value =
@@ -159,126 +217,214 @@ class GameLiveScreenState extends State<GameLiveScreen>
     });
   }
 
-  // ─── Live Query ─────────────────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Live Query
+  // ═══════════════════════════════════════════════════════════════════════════
   Future<void> _setupLiveQuery() async {
     final query = QueryBuilder<LiveStreamingModel>(LiveStreamingModel());
     query.whereEqualTo(LiveStreamingModel.keyObjectId, widget.liveStreaming!.objectId);
+    
     subscription = await liveQuery.client.subscribe(query);
     subscription!.on(LiveQueryEvent.update, (LiveStreamingModel updatedLive) async {
       await updatedLive.getAuthor!.fetch();
+      
       widget.liveStreaming = updatedLive;
+      
       if (!mounted) return;
-      setState(() => viewerCount = updatedLive.getViewersCount ?? 0);
-      showGiftSendersController.diamondsCounter.value = updatedLive.getDiamonds.toString();
+      
+      setState(() {
+        viewerCount = updatedLive.getViewersCount ?? 0;
+      });
+      
+      showGiftSendersController.diamondsCounter.value = 
+          updatedLive.getDiamonds.toString();
+      
       if (!updatedLive.getStreaming! && !widget.isHost) {
         QuickHelp.goToNavigatorScreen(context,
-            LiveEndScreen(currentUser: widget.currentUser, liveAuthor: widget.liveStreaming!.getAuthor));
+            LiveEndScreen(
+              currentUser: widget.currentUser, 
+              liveAuthor: widget.liveStreaming!.getAuthor
+            ));
       }
     });
   }
 
-  // ─── Viewer management ──────────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Viewer management
+  // ═══════════════════════════════════════════════════════════════════════════
   Future<void> _addViewerToLive() async {
-    final q = QueryBuilder<LiveViewersModel>(LiveViewersModel());
-    q.whereEqualTo(LiveViewersModel.keyLiveId, widget.liveStreaming!.objectId);
-    q.whereEqualTo(LiveViewersModel.keyAuthorId, widget.currentUser!.objectId);
-    final r = await q.query();
-    if (r.success && r.results == null) {
-      final v = LiveViewersModel()
-        ..setAuthor = widget.currentUser!
-        ..setAuthorId = widget.currentUser!.objectId!
-        ..setLiveId = widget.liveStreaming!.objectId!
-        ..setLiveAuthorId = widget.liveStreaming!.getAuthorId!;
-      await v.save();
-      widget.liveStreaming!.addViewersCount = 1;
-      await widget.liveStreaming!.save();
+    try {
+      final q = QueryBuilder<LiveViewersModel>(LiveViewersModel());
+      q.whereEqualTo(LiveViewersModel.keyLiveId, widget.liveStreaming!.objectId);
+      q.whereEqualTo(LiveViewersModel.keyAuthorId, widget.currentUser!.objectId);
+      
+      final r = await q.query();
+      
+      if (r.success && (r.results == null || r.results!.isEmpty)) {
+        final v = LiveViewersModel()
+          ..setAuthor = widget.currentUser!
+          ..setAuthorId = widget.currentUser!.objectId!
+          ..setLiveId = widget.liveStreaming!.objectId!
+          ..setLiveAuthorId = widget.liveStreaming!.getAuthorId!;
+        
+        await v.save();
+        
+        widget.liveStreaming!.addViewersCount = 1;
+        await widget.liveStreaming!.save();
+      }
+    } catch (e) {
+      print('خطأ في إضافة المشاهد: $e');
     }
   }
 
   Future<void> _onViewerLeave() async {
-    final q = QueryBuilder<LiveViewersModel>(LiveViewersModel());
-    q.whereEqualTo(LiveViewersModel.keyLiveId, widget.liveStreaming!.objectId);
-    q.whereEqualTo(LiveViewersModel.keyAuthorId, widget.currentUser!.objectId);
-    final r = await q.query();
-    if (r.success && r.results != null) {
-      await (r.results!.first as LiveViewersModel).delete();
-    }
-    if ((widget.liveStreaming!.getViewersCount ?? 0) > 0) {
-      widget.liveStreaming!.addViewersCount = -1;
-      await widget.liveStreaming!.save();
-    }
-  }
-
-  // ─── End stream ─────────────────────────────────────────────────────────────
-  Future<void> _endStream() async {
-    // أوقف بث الشاشة أولاً لإيقاف الـ foreground service
     try {
-      ZegoUIKitPrebuiltLiveStreamingController().screenSharing.stop();
-    } catch (_) {}
-    QuickHelp.showLoadingDialog(context, isDismissible: false);
-    widget.liveStreaming!.setStreaming = false;
-    final r = await widget.liveStreaming!.save();
-    QuickHelp.hideLoadingDialog(context);
-    if (r.success) {
-      QuickHelp.goToNavigatorScreen(context,
-          LiveEndReportScreen(currentUser: widget.currentUser, live: widget.liveStreaming));
+      final q = QueryBuilder<LiveViewersModel>(LiveViewersModel());
+      q.whereEqualTo(LiveViewersModel.keyLiveId, widget.liveStreaming!.objectId);
+      q.whereEqualTo(LiveViewersModel.keyAuthorId, widget.currentUser!.objectId);
+      
+      final r = await q.query();
+      
+      if (r.success && r.results != null && r.results!.isNotEmpty) {
+        await (r.results!.first as LiveViewersModel).delete();
+        
+        if ((widget.liveStreaming!.getViewersCount ?? 0) > 0) {
+          widget.liveStreaming!.addViewersCount = -1;
+          await widget.liveStreaming!.save();
+        }
+      }
+    } catch (e) {
+      print('خطأ في مغادرة المشاهد: $e');
     }
   }
 
-  // ─── Send gift ───────────────────────────────────────────────────────────────
-  Future<void> _sendGift(GiftsModel gift, UserModel receiver) async {
-    ZegoGiftManager().playList.add(gift);
-    final giftSent = GiftsSentModel()
-      ..setAuthor = widget.currentUser!
-      ..setAuthorId = widget.currentUser!.objectId!
-      ..setReceiver = receiver
-      ..setReceiverId = receiver.objectId!
-      ..setLiveId = widget.liveStreaming!.objectId!
-      ..setGift = gift
-      ..setGiftId = gift.objectId!
-      ..setCounterDiamondsQuantity = gift.getCoins!;
-    await giftSent.save();
-    QuickHelp.saveReceivedGifts(receiver: receiver, author: widget.currentUser!, gift: gift);
-    QuickHelp.saveCoinTransaction(receiver: receiver, author: widget.currentUser!, amountTransacted: gift.getCoins!);
-    final lQ = QueryBuilder<LeadersModel>(LeadersModel());
-    lQ.whereEqualTo(LeadersModel.keyAuthorId, widget.currentUser!.objectId!);
-    final lR = await lQ.query();
-    if (lR.success) {
-      if (lR.results != null) {
-        final l = lR.results!.first as LeadersModel;
-        l.incrementDiamondsQuantity = giftSent.getDiamondsQuantity!;
-        l.setGiftsSent = giftSent;
-        await l.save();
-      } else {
-        final l = LeadersModel()
-          ..setAuthor = widget.currentUser!
-          ..setAuthorId = widget.currentUser!.objectId!
-          ..incrementDiamondsQuantity = giftSent.getDiamondsQuantity!
-          ..setGiftsSent = giftSent;
-        await l.save();
+  // ═══════════════════════════════════════════════════════════════════════════
+  // End stream
+  // ═══════════════════════════════════════════════════════════════════════════
+  Future<void> _endStream() async {
+    try {
+      // إيقاف بث الشاشة أولاً
+      await ZegoUIKitPrebuiltLiveStreamingController().screenSharing.stop();
+      
+      QuickHelp.showLoadingDialog(context, isDismissible: false);
+      
+      widget.liveStreaming!.setStreaming = false;
+      final r = await widget.liveStreaming!.save();
+      
+      QuickHelp.hideLoadingDialog(context);
+      
+      if (r.success && mounted) {
+        QuickHelp.goToNavigatorScreen(context,
+            LiveEndReportScreen(
+              currentUser: widget.currentUser, 
+              live: widget.liveStreaming
+            ));
       }
+    } catch (e) {
+      print('خطأ في إنهاء البث: $e');
+      QuickHelp.hideLoadingDialog(context);
     }
-    await QuickCloudCode.sendGift(author: receiver, credits: gift.getCoins!);
-    widget.liveStreaming!.addDiamonds = QuickHelp.getDiamondsForReceiver(gift.getCoins!);
-    await widget.liveStreaming!.save();
-    widget.currentUser!.removeCredit = gift.getCoins!;
-    await widget.currentUser!.save();
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Send gift
+  // ═══════════════════════════════════════════════════════════════════════════
+  Future<void> _sendGift(GiftsModel gift, UserModel receiver) async {
+    try {
+      QuickHelp.showLoadingDialog(context);
+      
+      ZegoGiftManager().playList.add(gift);
+      
+      final giftSent = GiftsSentModel()
+        ..setAuthor = widget.currentUser!
+        ..setAuthorId = widget.currentUser!.objectId!
+        ..setReceiver = receiver
+        ..setReceiverId = receiver.objectId!
+        ..setLiveId = widget.liveStreaming!.objectId!
+        ..setGift = gift
+        ..setGiftId = gift.objectId!
+        ..setCounterDiamondsQuantity = gift.getCoins!;
+      
+      await giftSent.save();
+      
+      await QuickHelp.saveReceivedGifts(
+        receiver: receiver, 
+        author: widget.currentUser!, 
+        gift: gift
+      );
+      
+      await QuickHelp.saveCoinTransaction(
+        receiver: receiver, 
+        author: widget.currentUser!, 
+        amountTransacted: gift.getCoins!
+      );
+      
+      // تحديث قادة الهدايا
+      final lQ = QueryBuilder<LeadersModel>(LeadersModel());
+      lQ.whereEqualTo(LeadersModel.keyAuthorId, widget.currentUser!.objectId!);
+      final lR = await lQ.query();
+      
+      if (lR.success) {
+        if (lR.results != null && lR.results!.isNotEmpty) {
+          final l = lR.results!.first as LeadersModel;
+          l.incrementDiamondsQuantity = giftSent.getDiamondsQuantity!;
+          l.setGiftsSent = giftSent;
+          await l.save();
+        } else {
+          final l = LeadersModel()
+            ..setAuthor = widget.currentUser!
+            ..setAuthorId = widget.currentUser!.objectId!
+            ..incrementDiamondsQuantity = giftSent.getDiamondsQuantity!
+            ..setGiftsSent = giftSent;
+          await l.save();
+        }
+      }
+      
+      await QuickCloudCode.sendGift(author: receiver, credits: gift.getCoins!);
+      
+      widget.liveStreaming!.addDiamonds = QuickHelp.getDiamondsForReceiver(gift.getCoins!);
+      await widget.liveStreaming!.save();
+      
+      widget.currentUser!.removeCredit = gift.getCoins!;
+      await widget.currentUser!.save();
+      
+      QuickHelp.hideLoadingDialog(context);
+      
+      QuickHelp.showAppNotificationAdvanced(
+        context: context,
+        title: "تم إرسال الهدية",
+        message: "شكراً لك على كرمك!",
+        isError: false,
+      );
+    } catch (e) {
+      QuickHelp.hideLoadingDialog(context);
+      print('خطأ في إرسال الهدية: $e');
+    }
   }
 
   @override
   void dispose() {
-    // أوقف بث الشاشة لإنهاء الـ foreground service وإخفاء الإشعار
+    // إيقاف بث الشاشة عند الخروج
     try {
       ZegoUIKitPrebuiltLiveStreamingController().screenSharing.stop();
     } catch (_) {}
+    
     WakelockPlus.disable();
     removeGiftTimer?.cancel();
     _pulseController.dispose();
     _chatController.dispose();
     _chatScrollController.dispose();
-    liveQuery.client.unSubscribe(subscription!);
+    
+    if (subscription != null) {
+      liveQuery.client.unSubscribe(subscription!);
+    }
+    if (giftSubscription != null) {
+      liveQuery.client.unSubscribe(giftSubscription!);
+    }
+    
     ZegoGiftManager().service.recvNotifier.removeListener(_onGiftReceived);
     ZegoGiftManager().service.uninit();
+    
     super.dispose();
   }
 
@@ -294,7 +440,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // 1. Zego يملأ الشاشة كاملة — بث الشاشة تلقائي
+          // 1. Zego يملأ الشاشة كاملة
           Positioned.fill(child: _buildZegoLive(size)),
 
           // 2. طبقة داكنة عند فتح الـ panel
@@ -319,10 +465,10 @@ class GameLiveScreenState extends State<GameLiveScreen>
           // 4. أيقونة التطبيق العائمة القابلة للسحب
           _buildDraggableIcon(size),
 
-          // 5. دليل بدء بث الشاشة (يظهر مرة واحدة)
+          // 5. دليل بدء بث الشاشة
           if (_showScreenShareGuide) _buildScreenShareGuide(size),
 
-          // 5. أنيميشن الهدايا
+          // 6. أنيميشن الهدايا
           ValueListenableBuilder<GiftsModel?>(
             valueListenable: ZegoGiftManager().playList.playingDataNotifier,
             builder: (context, gift, _) {
@@ -330,13 +476,39 @@ class GameLiveScreenState extends State<GameLiveScreen>
               return _giftAnimationWidget(gift);
             },
           ),
+          
+          // 7. مؤشر بث الشاشة النشط
+          if (isScreenSharingActive && widget.isHost)
+            Positioned(
+              top: 40,
+              right: 16,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white, width: 1),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.screen_share_rounded, color: Colors.white, size: 16),
+                    SizedBox(width: 5),
+                    Text(
+                      "بث الشاشة نشط",
+                      style: TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ).animate().shimmer(duration: 1500.ms).then().shake(),
+            ),
         ],
       ),
     );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // SCREEN SHARE GUIDE — دليل لمرة واحدة عند الدخول
+  // SCREEN SHARE GUIDE
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildScreenShareGuide(Size size) {
     return Positioned.fill(
@@ -347,7 +519,6 @@ class GameLiveScreenState extends State<GameLiveScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              // بطاقة التوجيه
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 24),
                 padding: const EdgeInsets.all(22),
@@ -366,7 +537,6 @@ class GameLiveScreenState extends State<GameLiveScreen>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // أيقونة
                     Container(
                       width: 64,
                       height: 64,
@@ -396,26 +566,20 @@ class GameLiveScreenState extends State<GameLiveScreen>
                           height: 1.5),
                     ),
                     const SizedBox(height: 20),
-                    // سهم يشير للأسفل
                     Column(
-                      children: [
-                        ...List.generate(
-                          3,
-                          (i) => Padding(
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 2),
-                            child: Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              color: kVioletColor
-                                  .withOpacity(0.4 + i * 0.2),
-                              size: 28,
-                            ),
+                      children: List.generate(
+                        3,
+                        (i) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2),
+                          child: Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: kVioletColor.withOpacity(0.4 + i * 0.2),
+                            size: 28,
                           ),
                         ),
-                      ],
+                      ),
                     ),
                     const SizedBox(height: 12),
-                    // زر فهمت
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -423,13 +587,11 @@ class GameLiveScreenState extends State<GameLiveScreen>
                           backgroundColor: kVioletColor,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14)),
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 14),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
-                        onPressed: () =>
-                            setState(() => _showScreenShareGuide = false),
+                        onPressed: () => _autoStartScreenSharing(),
                         child: const Text(
-                          "فهمت، سأضغط الزر ✓",
+                          "بدء بث الشاشة الآن",
                           style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -437,10 +599,17 @@ class GameLiveScreenState extends State<GameLiveScreen>
                         ),
                       ),
                     ),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: () => setState(() => _showScreenShareGuide = false),
+                      child: const Text(
+                        "تخطي",
+                        style: TextStyle(color: Colors.white54),
+                      ),
+                    ),
                   ],
                 ),
               ),
-              // مسافة فوق الشريط السفلي
               const SizedBox(height: 110),
             ],
           ),
@@ -450,9 +619,10 @@ class GameLiveScreenState extends State<GameLiveScreen>
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // ZEGO — ملء شاشة + بث الشاشة مباشرة
+  // ZEGO المعدل بالكامل
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildZegoLive(Size size) {
+    // تكوين المضيف
     final hostConfig = ZegoUIKitPrebuiltLiveStreamingConfig.host(
       plugins: [ZegoUIKitSignalingPlugin()],
     )
@@ -461,6 +631,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
         showNewScreenSharingViewInFullscreenMode: true,
         showScreenSharingFullscreenModeToggleButtonRules:
             ZegoShowFullscreenModeToggleButtonRules.alwaysShow,
+        addScreenSharingViewToMainView: true, // ✅ الأهم: إضافة بث الشاشة للعرض الرئيسي
       )
       ..bottomMenuBar.hostButtons = [
         ZegoLiveStreamingMenuBarButtonName.toggleScreenSharingButton,
@@ -468,14 +639,25 @@ class GameLiveScreenState extends State<GameLiveScreen>
         ZegoLiveStreamingMenuBarButtonName.toggleMicrophoneButton,
       ]
       ..bottomMenuBar.hostExtendButtons = [_privateLiveBtn, _giftBtn]
-      ..inRoomMessage.visible = false   // الرسائل في الـ panel المخصص
+      ..inRoomMessage.visible = false
       ..topMenuBar.showCloseButton = false
       ..topMenuBar.buttons = []
       ..audioVideoView.useVideoViewAspectFill = true
-      ..audioVideoView.containerRect = () =>
-          Rect.fromLTWH(0, 0, size.width, size.height);
+      ..audioVideoView.containerRect = () => 
+          Rect.fromLTWH(0, 0, size.width, size.height - 60) // ترك مساحة للشريط
+      ..screenSharing = ZegoScreenSharingConfig()
+        ..enable = true
+        ..soundLevel = true
+        ..foregroundService = ZegoForegroundServiceConfig()
+          ..enable = true
+          ..channelName = "بث الشاشة"
+          ..contentTitle = "مشاركة الشاشة نشطة"
+          ..contentText = "يتم بث شاشتك الآن"
+          ..smallIcon = "ic_notification"; // تأكد من وجود هذا الأيقونة
+
     hostConfig.inRoomMessage.attributes = () => _userLevelAttribs;
 
+    // تكوين المشاهد
     final audienceConfig = ZegoUIKitPrebuiltLiveStreamingConfig.audience(
       plugins: [ZegoUIKitSignalingPlugin()],
     )
@@ -483,14 +665,71 @@ class GameLiveScreenState extends State<GameLiveScreen>
         showNewScreenSharingViewInFullscreenMode: true,
         showScreenSharingFullscreenModeToggleButtonRules:
             ZegoShowFullscreenModeToggleButtonRules.alwaysShow,
+        addScreenSharingViewToMainView: true,
       )
       ..inRoomMessage.visible = false
       ..topMenuBar.showCloseButton = false
       ..topMenuBar.buttons = []
       ..audioVideoView.useVideoViewAspectFill = true
-      ..audioVideoView.containerRect = () =>
-          Rect.fromLTWH(0, 0, size.width, size.height);
+      ..audioVideoView.containerRect = () => 
+          Rect.fromLTWH(0, 0, size.width, size.height - 60);
+
     audienceConfig.inRoomMessage.attributes = () => _userLevelAttribs;
+
+    // أحداث المضيف
+    final hostEvents = ZegoUIKitPrebuiltLiveStreamingEvents(
+      onStateUpdated: (state) {
+        liveStateNotifier.value = state;
+        if (state == ZegoLiveStreamingState.playing) {
+          print('✅ البث نشط');
+        }
+      },
+      onError: (error) {
+        print('❌ خطأ Zego: $error');
+        if (error.code == 1000001) {
+          // خطأ في بث الشاشة - حاول مرة أخرى
+          _autoStartScreenSharing();
+        }
+      },
+      screenSharing: ZegoLiveStreamingScreenSharingEvents(
+        onStart: () {
+          setState(() => isScreenSharingActive = true);
+          print('✅ بدأ بث الشاشة');
+        },
+        onStop: () {
+          setState(() => isScreenSharingActive = false);
+          print('⏹️ توقف بث الشاشة');
+        },
+        onError: (error) {
+          print('❌ خطأ في بث الشاشة: $error');
+          setState(() => isScreenSharingActive = false);
+        },
+      ),
+      user: ZegoLiveStreamingUserEvents(
+        onEnter: (_) {},
+        onLeave: (_) {},
+      ),
+    );
+
+    // أحداث المشاهد
+    final audienceEvents = ZegoUIKitPrebuiltLiveStreamingEvents(
+      onError: (error) => print('❌ خطأ Zego: $error'),
+      inRoomMessage: ZegoLiveStreamingInRoomMessageEvents(
+        onClicked: (msg) {
+          if (msg.user.id != widget.currentUser!.objectId) {
+            showUserProfileBottomSheet(
+              currentUser: widget.currentUser!,
+              userId: msg.user.id,
+              context: context,
+            );
+          }
+        },
+      ),
+      user: ZegoLiveStreamingUserEvents(
+        onEnter: (_) => _addViewerToLive(),
+        onLeave: (_) => _onViewerLeave(),
+      ),
+    );
 
     return ZegoUIKitPrebuiltLiveStreaming(
       appID: Setup.zegoLiveStreamAppID,
@@ -498,43 +737,19 @@ class GameLiveScreenState extends State<GameLiveScreen>
       userID: widget.currentUser!.objectId!,
       userName: widget.currentUser!.getFullName!,
       liveID: widget.liveID,
-      events: widget.isHost
-          ? ZegoUIKitPrebuiltLiveStreamingEvents(
-              onStateUpdated: (s) => liveStateNotifier.value = s,
-              onError: (e) => debugPrint('Zego: $e'),
-              user: ZegoLiveStreamingUserEvents(onEnter: (_) {}, onLeave: (_) {}),
-            )
-          : ZegoUIKitPrebuiltLiveStreamingEvents(
-              onError: (e) => debugPrint('Zego: $e'),
-              inRoomMessage: ZegoLiveStreamingInRoomMessageEvents(
-                onClicked: (msg) {
-                  if (msg.user.id != widget.currentUser!.objectId) {
-                    showUserProfileBottomSheet(
-                      currentUser: widget.currentUser!,
-                      userId: msg.user.id,
-                      context: context,
-                    );
-                  }
-                },
-              ),
-              user: ZegoLiveStreamingUserEvents(
-                onEnter: (_) => _addViewerToLive(),
-                onLeave: (_) => _onViewerLeave(),
-              ),
-            ),
+      events: widget.isHost ? hostEvents : audienceEvents,
       config: widget.isHost ? hostConfig : audienceConfig,
     );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // FLOATING DRAGGABLE ICON — أيقونة التطبيق الشفافة القابلة للسحب
+  // FLOATING DRAGGABLE ICON
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildDraggableIcon(Size size) {
     return Positioned(
       left: _floatingPos.dx,
       top: _floatingPos.dy,
       child: GestureDetector(
-        // السحب
         onPanUpdate: (d) {
           setState(() {
             _floatingPos = Offset(
@@ -543,7 +758,6 @@ class GameLiveScreenState extends State<GameLiveScreen>
             );
           });
         },
-        // الضغط → فتح / إغلاق الـ panel
         onTap: () => setState(() => _panelVisible = !_panelVisible),
         child: Opacity(
           opacity: 0.78,
@@ -575,7 +789,6 @@ class GameLiveScreenState extends State<GameLiveScreen>
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // شعار التطبيق
                 ClipOval(
                   child: Image.asset(
                     'assets/images/juody_logo.png',
@@ -589,7 +802,6 @@ class GameLiveScreenState extends State<GameLiveScreen>
                     ),
                   ),
                 ),
-                // نبضة LIVE
                 Positioned(
                   bottom: 4,
                   right: 4,
@@ -612,16 +824,15 @@ class GameLiveScreenState extends State<GameLiveScreen>
                 ),
               ],
             ),
-          ),
-        )
-            .animate(onPlay: (c) => c.repeat(reverse: true))
-            .scaleXY(begin: 1.0, end: 1.04, duration: 2000.ms),
+          ).animate(onPlay: (c) => c.repeat(reverse: true))
+              .scaleXY(begin: 1.0, end: 1.04, duration: 2000.ms),
+        ),
       ),
     );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // SLIDE PANEL — المشاهدون + الرسائل + زر الإنهاء
+  // SLIDE PANEL
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildSlidePanel(Size size) {
     return Container(
@@ -644,12 +855,11 @@ class GameLiveScreenState extends State<GameLiveScreen>
             ),
           ),
 
-          // ── Header: عنوان + إحصائيات ────────────────────────────────────────
+          // Header
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
             child: Row(
               children: [
-                // شارة اللعبة
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
@@ -673,17 +883,14 @@ class GameLiveScreenState extends State<GameLiveScreen>
                   ),
                 ),
                 const Spacer(),
-                // مشاهدون
                 _statBadge(Icons.remove_red_eye_outlined,
                     QuickHelp.convertToK(viewerCount), Colors.white54),
                 const SizedBox(width: 8),
-                // ألماس
                 Obx(() => _statBadge(Icons.diamond,
                     QuickHelp.checkFundsWithString(
                         amount: showGiftSendersController.diamondsCounter.value),
                     const Color(0xFFF59E0B))),
                 const SizedBox(width: 10),
-                // زر إغلاق الـ panel
                 GestureDetector(
                   onTap: () => setState(() => _panelVisible = false),
                   child: Container(
@@ -701,7 +908,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
             ),
           ),
 
-          // ── Viewers row ──────────────────────────────────────────────────────
+          // Viewers
           if (showGiftSendersController.giftSenderList.isNotEmpty) ...[
             SizedBox(
               height: 56,
@@ -710,8 +917,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     itemCount: showGiftSendersController.giftSenderList.length,
                     itemBuilder: (ctx, i) {
-                      final user =
-                          showGiftSendersController.giftSenderList[i];
+                      final user = showGiftSendersController.giftSenderList[i];
                       return Padding(
                         padding: const EdgeInsets.only(right: 10),
                         child: Column(
@@ -737,7 +943,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
             const Divider(color: Colors.white10, height: 1),
           ],
 
-          // ── Chat messages ────────────────────────────────────────────────────
+          // Chat messages
           Expanded(
             child: chatMessages.isEmpty
                 ? Center(
@@ -769,7 +975,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
 
           const Divider(color: Colors.white10, height: 1),
 
-          // ── Chat input ───────────────────────────────────────────────────────
+          // Chat input
           Padding(
             padding: EdgeInsets.fromLTRB(
                 12, 8, 12, MediaQuery.of(context).viewInsets.bottom + 6),
@@ -800,7 +1006,6 @@ class GameLiveScreenState extends State<GameLiveScreen>
                   ),
                 ),
                 const SizedBox(width: 8),
-                // إرسال
                 _roundBtn(
                   color: kVioletColor,
                   icon: Icons.send_rounded,
@@ -808,7 +1013,6 @@ class GameLiveScreenState extends State<GameLiveScreen>
                 ),
                 if (!widget.isHost) ...[
                   const SizedBox(width: 6),
-                  // هدية
                   GestureDetector(
                     onTap: _openGiftSheet,
                     child: Container(
@@ -829,7 +1033,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
             ),
           ),
 
-          // ── زر إنهاء / مغادرة البث ───────────────────────────────────────────
+          // End stream button
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 0, 14, 16),
             child: SizedBox(
@@ -865,7 +1069,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
     );
   }
 
-  // ─── Helpers ─────────────────────────────────────────────────────────────────
+  // Helper widgets
   Widget _statBadge(IconData icon, String value, Color color) => Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -875,10 +1079,11 @@ class GameLiveScreenState extends State<GameLiveScreen>
         ],
       );
 
-  Widget _roundBtn(
-          {required Color color,
-          required IconData icon,
-          required VoidCallback onTap}) =>
+  Widget _roundBtn({
+    required Color color,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) =>
       GestureDetector(
         onTap: onTap,
         child: Container(
@@ -918,16 +1123,25 @@ class GameLiveScreenState extends State<GameLiveScreen>
   void _sendChatMessage() {
     final text = _chatController.text.trim();
     if (text.isEmpty) return;
+    
     ZegoUIKitPrebuiltLiveStreamingController().message.send(text);
-    setState(() => chatMessages.add({
-          'name': widget.currentUser?.getFirstName ?? 'أنت',
-          'text': text,
-        }));
+    
+    setState(() {
+      chatMessages.add({
+        'name': widget.currentUser?.getFirstName ?? 'أنت',
+        'text': text,
+      });
+    });
+    
     _chatController.clear();
+    
     Future.delayed(const Duration(milliseconds: 100), () {
       if (_chatScrollController.hasClients) {
-        _chatScrollController.jumpTo(
-            _chatScrollController.position.maxScrollExtent);
+        _chatScrollController.animateTo(
+          _chatScrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
       }
     });
   }
@@ -941,6 +1155,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
       Navigator.of(context).pop();
       return;
     }
+
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -953,8 +1168,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child:
-                const Text("إلغاء", style: TextStyle(color: Color(0xFF9CA3AF))),
+            child: const Text("إلغاء", style: TextStyle(color: Color(0xFF9CA3AF))),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -974,10 +1188,11 @@ class GameLiveScreenState extends State<GameLiveScreen>
     );
   }
 
-  // ─── Gift animation ──────────────────────────────────────────────────────────
+  // Gift animation
   Widget _giftAnimationWidget(GiftsModel gift) {
     final url = gift.getFile?.url ?? '';
     final name = gift.getFile?.name ?? '';
+    
     if (name.toLowerCase().endsWith('.svga') || url.contains('.svga')) {
       return Positioned(
         bottom: 120,
@@ -1004,6 +1219,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
         ),
       );
     }
+    
     return Positioned(
       bottom: 160,
       left: 0,
@@ -1040,7 +1256,7 @@ class GameLiveScreenState extends State<GameLiveScreen>
     );
   }
 
-  // ─── Zego helpers ─────────────────────────────────────────────────────────────
+  // Zego helpers
   Map<String, String> get _userLevelAttribs {
     final level = QuickHelp.wealthLevelNumber(
         creditSent: widget.currentUser?.getCreditsSent ?? 0);
