@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
@@ -56,7 +57,6 @@ class _GameLivePreviewScreenState extends State<GameLivePreviewScreen>
   // ─── State ──────────────────────────────────────────────────────────────────
   int selectedGameIndex = 0;
   int selectedQualityIndex = 0;
-  bool showFaceCam = true;
   bool enableMic = true;
   bool privateLive = false;
   GiftsModel? privateLiveGiftPrice;
@@ -91,7 +91,7 @@ class _GameLivePreviewScreenState extends State<GameLivePreviewScreen>
   }
 
   // ─── Start stream ───────────────────────────────────────────────────────────
-  void startGameStream() async {
+  void startGameStream({bool isScreenShare = false, bool isLandscape = false}) async {
     if (titleController.text.trim().isEmpty) {
       QuickHelp.showAppNotificationAdvanced(
         title: "يرجى إدخال عنوان البث",
@@ -156,6 +156,20 @@ class _GameLivePreviewScreenState extends State<GameLivePreviewScreen>
       QuickHelp.hideLoadingDialog(context);
       setState(() => isStarting = false);
 
+      // ضبط اتجاه الشاشة قبل الانتقال
+      if (isScreenShare) {
+        if (isLandscape) {
+          await SystemChrome.setPreferredOrientations([
+            DeviceOrientation.landscapeLeft,
+            DeviceOrientation.landscapeRight,
+          ]);
+        } else {
+          await SystemChrome.setPreferredOrientations([
+            DeviceOrientation.portraitUp,
+          ]);
+        }
+      }
+
       QuickHelp.goToNavigatorScreen(
         context,
         GameLiveScreen(
@@ -164,8 +178,8 @@ class _GameLivePreviewScreenState extends State<GameLivePreviewScreen>
           liveID: createdLive.getStreamingChannel!,
           isHost: true,
           selectedGame: gameCategories[selectedGameIndex]['name'],
-          showFaceCam: showFaceCam,
           enableMic: enableMic,
+          autoStartScreenShare: isScreenShare,
         ),
       );
     } else {
@@ -233,6 +247,9 @@ class _GameLivePreviewScreenState extends State<GameLivePreviewScreen>
                         _buildTitleField(),
                         const SizedBox(height: 20),
                         _buildGameSelector(),
+                        const SizedBox(height: 20),
+                        // ─── قسم بث الشاشة ───────────────────────────────
+                        _buildScreenShareSection(),
                         const SizedBox(height: 20),
                         _buildQualitySelector(),
                         const SizedBox(height: 20),
@@ -594,6 +611,207 @@ class _GameLivePreviewScreenState extends State<GameLivePreviewScreen>
     );
   }
 
+  // ─── Screen Share Section ────────────────────────────────────────────────────
+  Widget _buildScreenShareSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "بث الشاشة 📱",
+          style: TextStyle(
+            color: Color(0xFF9CA3AF),
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            // ─ خيار طولي Portrait ─────────────────────────────────────────
+            Expanded(
+              child: GestureDetector(
+                onTap: isStarting
+                    ? null
+                    : () => startGameStream(
+                        isScreenShare: true, isLandscape: false),
+                child: Container(
+                  height: 110,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        const Color(0xFF1D4ED8).withOpacity(0.9),
+                        const Color(0xFF3B82F6).withOpacity(0.7),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFF3B82F6).withOpacity(0.5),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF3B82F6).withOpacity(0.25),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // أيقونة الهاتف الطولي
+                      Container(
+                        width: 28,
+                        height: 46,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.6),
+                            width: 2,
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 3),
+                              width: 8,
+                              height: 2,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.7),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        "طولي",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        "Portrait",
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.6),
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // ─ خيار عرضي Landscape ────────────────────────────────────────
+            Expanded(
+              child: GestureDetector(
+                onTap: isStarting
+                    ? null
+                    : () => startGameStream(
+                        isScreenShare: true, isLandscape: true),
+                child: Container(
+                  height: 110,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        const Color(0xFF065F46).withOpacity(0.9),
+                        const Color(0xFF10B981).withOpacity(0.7),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFF10B981).withOpacity(0.5),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF10B981).withOpacity(0.25),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // أيقونة الهاتف العرضي
+                      Container(
+                        width: 46,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.6),
+                            width: 2,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(right: 3),
+                              width: 2,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.7),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        "عرضي",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        "Landscape",
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.6),
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        // تلميح
+        Row(
+          children: [
+            Icon(Icons.touch_app_outlined,
+                color: Colors.white.withOpacity(0.35), size: 13),
+            const SizedBox(width: 5),
+            Text(
+              "اضغط على أحدهما → سيبدأ البث ويذهب التطبيق للخلفية تلقائياً",
+              style: TextStyle(
+                  color: Colors.white.withOpacity(0.35), fontSize: 10),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   // ─── Stream options ──────────────────────────────────────────────────────────
   Widget _buildStreamOptions() {
     return Column(
@@ -613,15 +831,6 @@ class _GameLivePreviewScreenState extends State<GameLivePreviewScreen>
           ),
           child: Column(
             children: [
-              _buildToggleRow(
-                icon: Icons.videocam_outlined,
-                iconColor: const Color(0xFF3B82F6),
-                title: "كاميرا الوجه (Face Cam)",
-                subtitle: "اعرض وجهك أثناء البث",
-                value: showFaceCam,
-                onChanged: (v) => setState(() => showFaceCam = v),
-              ),
-              Divider(height: 1, color: Colors.white.withOpacity(0.06)),
               _buildToggleRow(
                 icon: Icons.mic_outlined,
                 iconColor: const Color(0xFF10B981),
