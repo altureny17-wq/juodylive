@@ -560,7 +560,10 @@ class GameLiveScreenState extends State<GameLiveScreen>
                               const EdgeInsets.symmetric(vertical: 14),
                         ),
                         onPressed: () =>
-                            setState(() => _showScreenShareGuide = false),
+                            setState(() {
+                              _showScreenShareGuide = false;
+                              // المستخدم فهم — ينتظر بدء بث الشاشة
+                            }),
                         child: const Text(
                           "فهمت، سأضغط الزر ✓",
                           style: TextStyle(
@@ -633,17 +636,19 @@ class GameLiveScreenState extends State<GameLiveScreen>
       liveID: widget.liveID,
       events: widget.isHost
           ? ZegoUIKitPrebuiltLiveStreamingEvents(
-              onStateUpdated: (s) => liveStateNotifier.value = s,
+              onStateUpdated: (s) {
+                liveStateNotifier.value = s;
+                // كشف بث الشاشة عبر الحالة
+                if (mounted) {
+                  setState(() {
+                    _screenSharingActive =
+                        s == ZegoLiveStreamingState.living &&
+                        _screenSharingActive;
+                  });
+                }
+              },
               onError: (e) => debugPrint('Zego: $e'),
               user: ZegoLiveStreamingUserEvents(onEnter: (_) {}, onLeave: (_) {}),
-              screenSharing: ZegoLiveStreamingScreenSharingEvents(
-                onStart: () {
-                  if (mounted) setState(() => _screenSharingActive = true);
-                },
-                onStop: () {
-                  if (mounted) setState(() => _screenSharingActive = false);
-                },
-              ),
             )
           : ZegoUIKitPrebuiltLiveStreamingEvents(
               onError: (e) => debugPrint('Zego: $e'),
