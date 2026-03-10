@@ -1,5 +1,6 @@
 // ignore_for_file: must_be_immutable, use_build_context_synchronously
 import 'dart:async';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -78,7 +79,8 @@ class GameLiveScreenState extends State<GameLiveScreen>
 
   // Floating button & panel
   bool _panelVisible = false;
-  bool _showScreenShareGuide = false; // دليل بدء بث الشاشة
+  bool _showScreenShareGuide = false;
+  bool _screenSharingActive = false; // بث الشاشة نشط — اذهب للعبة
   Offset _floatingPos = const Offset(16, 140);
 
   final liveStateNotifier =
@@ -316,6 +318,9 @@ class GameLiveScreenState extends State<GameLiveScreen>
           // 5. دليل بدء بث الشاشة (يظهر مرة واحدة)
           if (_showScreenShareGuide) _buildScreenShareGuide(size),
 
+          // 6. overlay "اذهب للعبة" عند بدء بث الشاشة
+          if (_screenSharingActive) _buildGoToGameOverlay(size),
+
           // 5. أنيميشن الهدايا
           ValueListenableBuilder<GiftsModel?>(
             valueListenable: ZegoGiftManager().playList.playingDataNotifier,
@@ -327,6 +332,140 @@ class GameLiveScreenState extends State<GameLiveScreen>
         ],
       ),
     );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // GO TO GAME OVERLAY — يظهر عند بدء بث الشاشة
+  // ═══════════════════════════════════════════════════════════════════════════
+  Widget _buildGoToGameOverlay(Size size) {
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                const Color(0xFF1A1A2E).withOpacity(0.97),
+                kVioletColor.withOpacity(0.85),
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: kVioletColor.withOpacity(0.6)),
+            boxShadow: [
+              BoxShadow(
+                color: kVioletColor.withOpacity(0.4),
+                blurRadius: 20,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              // أيقونة البث النشط
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.green.withOpacity(0.2),
+                  border: Border.all(color: Colors.greenAccent, width: 2),
+                ),
+                child: const Icon(Icons.screen_share_rounded,
+                    color: Colors.greenAccent, size: 22),
+              ),
+              const SizedBox(width: 12),
+              // النص
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      "🎮 البث نشط الآن!",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      "اضغط الهوم ثم افتح لعبتك",
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.75),
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              // زر الهوم — يخرج للخلفية
+              GestureDetector(
+                onTap: () async {
+                  // إغلاق الـ panel أولاً
+                  setState(() => _panelVisible = false);
+                  // انتظر قليلاً ثم اذهب للخلفية
+                  await Future.delayed(const Duration(milliseconds: 200));
+                  // الذهاب للخلفية عبر الـ platform channel
+                  try {
+                    await const MethodChannel('com.juodylive.app/background')
+                        .invokeMethod('moveToBackground');
+                  } catch (_) {
+                    // إذا فشل الـ channel — أظهر تعليمات للمستخدم
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            '👆 اضغط زر الهوم الآن وافتح لعبتك',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          backgroundColor: Color(0xFF1A1A2E),
+                          duration: Duration(seconds: 4),
+                        ),
+                      );
+                    }
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.greenAccent.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                        color: Colors.greenAccent.withOpacity(0.5)),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.sports_esports_rounded,
+                          color: Colors.greenAccent, size: 16),
+                      SizedBox(width: 5),
+                      Text(
+                        "افتح اللعبة",
+                        style: TextStyle(
+                          color: Colors.greenAccent,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ).animate().slideY(begin: -1, end: 0, duration: 400.ms, curve: Curves.easeOut);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -497,6 +636,14 @@ class GameLiveScreenState extends State<GameLiveScreen>
               onStateUpdated: (s) => liveStateNotifier.value = s,
               onError: (e) => debugPrint('Zego: $e'),
               user: ZegoLiveStreamingUserEvents(onEnter: (_) {}, onLeave: (_) {}),
+              screenSharing: ZegoLiveStreamingScreenSharingEvents(
+                onStart: () {
+                  if (mounted) setState(() => _screenSharingActive = true);
+                },
+                onStop: () {
+                  if (mounted) setState(() => _screenSharingActive = false);
+                },
+              ),
             )
           : ZegoUIKitPrebuiltLiveStreamingEvents(
               onError: (e) => debugPrint('Zego: $e'),
