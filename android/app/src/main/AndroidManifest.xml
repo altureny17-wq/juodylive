@@ -200,6 +200,7 @@
         <service
             android:name="im.zego.zegoexpress.internal.ZegoScreenCaptureService"
             android:exported="false"
+            android:stopWithTask="true"
             android:foregroundServiceType="mediaProjection"/>
 
     </application>
