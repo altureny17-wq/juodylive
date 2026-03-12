@@ -863,11 +863,11 @@ class _AllLivesScreenState extends State<AllLivesScreen>
                                                       ),
                                                     ],
                                                   ),
-                                                  /*Lottie.asset(
+                                                  Lottie.asset(
                                                   "assets/lotties/ic_video_tab.json",
                                                 height: 39,
                                                 width: 40,
-                                              )*/
+                                              )
                                                 ],
                                               ),
                                             ),
