@@ -19,6 +19,7 @@ import 'package:juodylive/home/controller/controller.dart';
 import 'package:juodylive/home/live_end/live_end_report_screen.dart';
 import 'package:juodylive/home/prebuild_live/timer_controller.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:zego_uikit_prebuilt_live_streaming/zego_uikit_prebuilt_live_streaming.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
@@ -138,6 +139,13 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
 
   sendMessage(String msg) {
     ZegoUIKitPrebuiltLiveStreamingController().message.send(msg);
+  }
+
+  // ─── مستوى المشاهد في الدردشة ──────────────────────────────────────────────
+  Map<String, String> get userLevelsAttributes {
+    int points = widget.currentUser?.getUserPoints ?? 0;
+    int lv = QuickHelp.levelPositionIndex(pointsInApp: points);
+    return {'lv': lv.toString()};
   }
 
   @override
@@ -1113,8 +1121,8 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
             )
 
           /// message attributes example
-          //..inRoomMessage.attributes = userLevelsAttributes
-          //..inRoomMessage.avatarLeadingBuilder = userLevelBuilder,
+          ..inRoomMessage.attributes = userLevelsAttributes
+          ..inRoomMessage.avatarLeadingBuilder = userLevelBuilder,
           ),
     );
   }
@@ -1289,13 +1297,41 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
                   child: Positioned(
                     right: 15,
                     top: 37,
-                    child: ContainerCorner(
-                      borderRadius: 50,
-                      marginRight: 5,
-                      color: earnCashColor,
-                      height: 30,
-                      width: 30,
-                      marginLeft: 5,
+                    child: Row(
+                      children: [
+                        // زر مشاركة البث
+                        ContainerCorner(
+                          borderRadius: 50,
+                          marginRight: 5,
+                          color: kVioletColor.withOpacity(0.7),
+                          height: 30,
+                          width: 30,
+                          onTap: () {
+                            final liveId = widget.liveStreaming?.objectId ?? '';
+                            final hostName = widget.currentUser?.getFullName ?? '';
+                            Share.share(
+                              "settings_screen.share_app_url".tr(
+                                namedArgs: {"app_name": Config.appName, "url": liveId},
+                              ),
+                              subject: "live_streaming.live_room_title".tr(
+                                namedArgs: {"name": hostName},
+                              ),
+                            );
+                          },
+                          child: Lottie.asset(
+                            "assets/lotties/ic_share_live.json",
+                            height: 22,
+                            width: 22,
+                          ),
+                        ),
+                        SizedBox(width: 4),
+                        ContainerCorner(
+                          borderRadius: 50,
+                          marginRight: 5,
+                          color: earnCashColor,
+                          height: 30,
+                          width: 30,
+                          marginLeft: 5,
                       child: IconButton(
                         onPressed: () {
                           showDialog(
@@ -1371,6 +1407,8 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
                           size: 14,
                         ),
                       ),
+                    ),
+                      ],
                     ),
                   ),
                 ),
@@ -2089,11 +2127,10 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
       showGiftSendersController.myBattleVictories.value = newUpdatedLive.getMyBattleVictory!;
       showGiftSendersController.hisBattleVictories.value = newUpdatedLive.getHisBattleVictory!;
 
-      /*if(widget.isHost) {
+      if(widget.isHost) {
         widget.currentUser!.addBattlePoints = QuickHelp.getDiamondsForReceiver(giftsModel.getCoins!, widget.preferences!);
         widget.currentUser!.save();
       }
-      */
       if(newUpdatedLive.getRepeatBattleTimes! > 0 && newUpdatedLive.getRepeatBattleTimes! > repeatPkTimes) {
         repeatPkTimes = newUpdatedLive.getRepeatBattleTimes!;
         initiateBattleTimer();
@@ -2317,26 +2354,46 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
     ZegoInRoomMessage message,
     Map<String, dynamic> extraInfo,
   ) {
-    return Container(
-      alignment: Alignment.center,
-      height: 15,
-      width: 30,
-      padding: const EdgeInsets.all(2),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Colors.purple.shade300, Colors.purple.shade400],
+    // فحص هل المستخدم MVP
+    bool isMvp = widget.currentUser?.getMVPMember != null &&
+        widget.currentUser!.getMVPMember!.isAfter(DateTime.now());
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // شارة MVP إن وُجدت
+        if (isMvp)
+          Container(
+            margin: const EdgeInsets.only(right: 3),
+            height: 15,
+            child: Image.asset(
+              "assets/images/live_chat_user_label_mvp_icon.png",
+              fit: BoxFit.contain,
+            ),
+          ),
+        // مستوى المشاهد
+        Container(
+          alignment: Alignment.center,
+          height: 15,
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Colors.purple.shade300, Colors.purple.shade400],
+            ),
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+          ),
+          child: Text(
+            "LV ${message.attributes['lv'] ?? '1'}",
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 10,
+              color: Colors.white,
+            ),
+          ),
         ),
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-      ),
-      child: Text(
-        "LV ${message.attributes['lv']}",
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          fontSize: 10,
-        ),
-      ),
+      ],
     );
   }
 
@@ -3198,7 +3255,7 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
                             isError: false);
                         QuickHelp.hideLoadingDialog(context);
                       });
-                      /*if (!invitedUsers.contains(live.getAuthorId!)) {
+                      if (!invitedUsers.contains(live.getAuthorId!)) {
                         ZegoUIKitPrebuiltLiveStreamingController()
                             .pk
                             .sendRequest(
@@ -3206,7 +3263,7 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
                         );
                         invitedUsers.add(live.getAuthorId!);
                         setState(() {});
-                      }*/
+                      }
                     },
                     child: TextWithTap(
                       invitedUsers.contains(live.getAuthorId!)
