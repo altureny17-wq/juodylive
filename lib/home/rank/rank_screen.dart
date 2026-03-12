@@ -158,7 +158,7 @@ class _RankingScreenState extends State<RankingScreen>
     query.includeObject([LeadersModel.keyAuthor]);
     query.orderByDescending(LeadersModel.keyDiamondsQuantity);
     final from = _getTimeFilter();
-    if (from != null) query.whereGreaterThanOrEqualTo('createdAt', from);
+    if (from != null) query.whereGreaterThanOrEqualsTo('createdAt', from);
 
     query.setLimit(50);
     ParseResponse response = await query.query();
