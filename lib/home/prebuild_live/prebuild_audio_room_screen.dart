@@ -118,6 +118,9 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
       numberOfSeats = (widget.liveStreaming!.getNumberOfChairs! ~/ 5) + 1;
     }else if(widget.liveStreaming!.getNumberOfChairs == 24) {
       numberOfSeats = (widget.liveStreaming!.getNumberOfChairs! ~/ 6) + 1;
+    }else if(widget.liveStreaming!.getRoomLayout == "featured") {
+      // شكل مميز: صفوف من 3 مقاعد
+      numberOfSeats = (widget.liveStreaming!.getNumberOfChairs! ~/ 3) + 1;
     }else{
       numberOfSeats = (widget.liveStreaming!.getNumberOfChairs! ~/ 4) + 1;
     }
@@ -256,7 +259,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
                   onViewerLeave();
                 }
               ),
-              /*onEnded: (event, defaultAction,) {
+              onEnded: (event, defaultAction,) {
               QuickHelp.goToNavigatorScreen(
                   context,
                   LiveEndScreen(
@@ -265,7 +268,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
                     liveAuthor: widget.liveStreaming!.getAuthor,
                   ),
               );
-            }*/),
+            }),
             config: widget.isHost!
                 ? (ZegoUIKitPrebuiltLiveAudioRoomConfig.host()
                   ..confirmDialogInfo = ZegoLiveAudioRoomDialogInfo(
@@ -304,8 +307,45 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
                   },
                 );
               }
-            ..seat.layout.rowConfigs = List.generate(numberOfSeats, (index){
-              if(index == 0){
+            // ─── أنيميشن المايك على المقعد ────────────────────────────
+            ..seat.foregroundBuilder = (BuildContext context, Size size, ZegoUIKitUser? user, Map extraInfo) {
+                if (user == null) return const SizedBox();
+                bool isMicOn = extraInfo['isMicrophoneEnabled'] as bool? ?? true;
+                return Positioned(
+                  bottom: 2,
+                  right: 2,
+                  child: Container(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: isMicOn ? Colors.transparent : Colors.black54,
+                      shape: BoxShape.circle,
+                    ),
+                    child: isMicOn
+                        ? Lottie.asset("assets/lotties/ic_activated_mic.json", fit: BoxFit.cover)
+                        : Lottie.asset("assets/lotties/ic_disabled_mic.json", fit: BoxFit.cover),
+                  ),
+                );
+              }
+            ..seat.layout.rowConfigs = List.generate(numberOfSeats, (index) {
+
+              // ─── شكل مميز: مقعد كبير يسار + شبكة يمين ───────────────
+              if (widget.liveStreaming!.getRoomLayout == "featured") {
+                // نستخدم صفوف من 3: المضيف (index 0) ثم صفوف ثلاثية
+                if (index == 0) {
+                  return ZegoLiveAudioRoomLayoutRowConfig(
+                    count: 1,
+                    alignment: ZegoLiveAudioRoomLayoutAlignment.center,
+                  );
+                }
+                return ZegoLiveAudioRoomLayoutRowConfig(
+                  count: 3,
+                  alignment: ZegoLiveAudioRoomLayoutAlignment.spaceEvenly,
+                );
+              }
+
+              // ─── شكل كلاسيكي ─────────────────────────────────────────
+              if (index == 0) {
                 return ZegoLiveAudioRoomLayoutRowConfig(count: 1, alignment: ZegoLiveAudioRoomLayoutAlignment.center);
               }
 
@@ -1193,6 +1233,23 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
                 canControl: widget.isHost!,
               ),);
         }),
+
+        // ─── أنيميشن موجة الصوت في أسفل الشاشة ─────────────────────────
+        Positioned(
+          bottom: 100,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: SizedBox(
+              width: 80,
+              height: 40,
+              child: Lottie.asset(
+                "assets/lotties/sound_animation.json",
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
