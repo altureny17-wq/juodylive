@@ -19,6 +19,7 @@ import '../privilege/vip_privilege_details_screen.dart';
 import '../profile/user_profile_screen.dart';
 import '../vip_rules/vip_rules.dart';
 import '../wallet/wallet_screen.dart';
+import '../choose_guardian/choose_guardian_screen.dart';
 
 class GuardianAndVipStoreScreen extends StatefulWidget {
   UserModel? currentUser;
@@ -38,16 +39,43 @@ class _GuardianAndVipStoreScreenState extends State<GuardianAndVipStoreScreen>
 
   final ScrollController memberSystemController = ScrollController();
 
-  /* int selectedVipTypeAmount() {
-    if (vipTabsIndex == 0) {
-      return normalVipPricePerMonth;
-    } else if (vipTabsIndex == 1) {
-      return superVipPricePerMonth;
-    } else if (vipTabsIndex == 2) {
-      return diamondVipPricePerMonth;
-    }
+  // ─── متغيرات الـ VIP / Guardian ──────────────────────────────────────────
+  late TabController _mainTabController;          // تبويب VIP | Guardian
+  int _mainTabIndex = 0;
+
+  int vipTabsIndex     = 0;  // 0=Normal, 1=Super, 2=Diamond
+  int guardianTextIndex = 0; // 0=Silver, 1=Gold, 2=King
+
+  // أسعار VIP (بالكريدت / شهر)
+  static const int normalVipPricePerMonth  = 1000;
+  static const int superVipPricePerMonth   = 3000;
+  static const int diamondVipPricePerMonth = 5000;
+
+  // أسعار Guardian (بالكريدت / شهر)
+  static const int silverGuardianPrice = 500;
+  static const int goldGuardianPrice   = 1000;
+  static const int kingGuardianPrice   = 2000;
+
+  int selectedVipTypeAmount() {
+    if (vipTabsIndex == 0) return normalVipPricePerMonth;
+    if (vipTabsIndex == 1) return superVipPricePerMonth;
+    if (vipTabsIndex == 2) return diamondVipPricePerMonth;
     return 0;
-  }*/
+  }
+
+  String selectedVipTypeText() {
+    if (vipTabsIndex == 0) return "guardian_and_vip_screen.normal_vip".tr();
+    if (vipTabsIndex == 1) return "guardian_and_vip_screen.super_vip".tr();
+    if (vipTabsIndex == 2) return "guardian_and_vip_screen.diamond_vip".tr();
+    return "";
+  }
+
+  int selectedGuardianPrice() {
+    if (guardianTextIndex == 0) return silverGuardianPrice;
+    if (guardianTextIndex == 1) return goldGuardianPrice;
+    if (guardianTextIndex == 2) return kingGuardianPrice;
+    return silverGuardianPrice;
+  }
 
   UserModel? userToGuard;
 
@@ -387,6 +415,15 @@ class _GuardianAndVipStoreScreenState extends State<GuardianAndVipStoreScreen>
     _maxCredit(QuickHelp.levelUserPage(widget.currentUser!.getCredits! + 0.0));
     rankUpCalc();
     _scrollController.addListener(_scrollListener);
+    _mainTabController = TabController(
+      vsync: this,
+      length: 2,
+      initialIndex: widget.initialIndex ?? 0,
+    )..addListener(() {
+        if (!_mainTabController.indexIsChanging) {
+          setState(() => _mainTabIndex = _mainTabController.index);
+        }
+      });
   }
 
   @override
@@ -394,6 +431,7 @@ class _GuardianAndVipStoreScreenState extends State<GuardianAndVipStoreScreen>
     super.dispose();
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
+    _mainTabController.dispose();
   }
 
   @override
@@ -414,7 +452,7 @@ class _GuardianAndVipStoreScreenState extends State<GuardianAndVipStoreScreen>
             backgroundColor: isDark ? kContentColorLightTheme : kDisabledColor100,
             extendBodyBehindAppBar: true,
             appBar: PreferredSize(
-              preferredSize: Size.fromHeight(35),
+              preferredSize: Size.fromHeight(90),
               child: AppBar(
                 backgroundColor: _appBarColor,
                 automaticallyImplyLeading: false,
@@ -450,9 +488,42 @@ class _GuardianAndVipStoreScreenState extends State<GuardianAndVipStoreScreen>
                     ),
                   ),
                 ],
+                bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(44),
+                  child: TabBar(
+                    controller: _mainTabController,
+                    indicatorColor: kRoseVip400,
+                    labelColor: kRoseVip400,
+                    unselectedLabelColor: kGrayColor,
+                    indicatorWeight: 3,
+                    labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    unselectedLabelStyle: const TextStyle(fontSize: 14),
+                    tabs: [
+                      Tab(text: "guardian_and_vip_screen.vip_tab".tr()),
+                      Tab(text: "guardian_and_vip_screen.guardian_tab".tr()),
+                    ],
+                  ),
+                ),
               ),
             ),
-            body: ListView(
+            body: TabBarView(
+              controller: _mainTabController,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                _buildVipTab(size, isDark),
+                _buildGuardianTab(size, isDark),
+              ],
+            ),
+            bottomNavigationBar: buttons(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ─── تبويب VIP ─────────────────────────────────────────────────────────────
+  Widget _buildVipTab(Size size, bool isDark) {
+    return ListView(
               controller: _scrollController,
               padding: EdgeInsets.symmetric(vertical: 0),
               children: [
@@ -827,10 +898,158 @@ class _GuardianAndVipStoreScreenState extends State<GuardianAndVipStoreScreen>
                   ),
                 ),
               ],
+            );
+  }  // نهاية _buildVipTab
+
+  // ─── تبويب Guardian ────────────────────────────────────────────────────────
+  Widget _buildGuardianTab(Size size, bool isDark) {
+    return ListView(
+      padding: const EdgeInsets.only(top: 100, bottom: 20),
+      children: [
+        // ── اختيار المستخدم المحمي ───────────────────────────────────────────
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: ContainerCorner(
+            borderRadius: 14,
+            color: isDark ? kContentDarkShadow : Colors.white,
+            shadowColor: isDark ? Colors.transparent : kRoseVip200,
+            setShadowToBottom: true,
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextWithTap(
+                    "guardian_and_vip_screen.guard_user".tr(),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      final result = await QuickHelp.goToNavigatorScreenForResult(
+                        context,
+                        ChooseGuardianScreen(currentUser: widget.currentUser),
+                      );
+                      if (result != null && result is UserModel) {
+                        setState(() => userToGuard = result);
+                      }
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        showUserToGuard(),
+                        const SizedBox(width: 6),
+                        Icon(Icons.arrow_forward_ios, size: 14, color: kGrayColor),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-            bottomNavigationBar: buttons(),
           ),
         ),
+        const SizedBox(height: 16),
+
+        // ── نوع Guardian ──────────────────────────────────────────────────────
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: TextWithTap(
+            "guardian_and_vip_screen.guardian_type".tr(),
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+            marginBottom: 10,
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            guardianTypes(
+              imageUrl: "assets/images/ic_silver_rank.png",
+              text: "guardian_and_vip_screen.silver_guardian".tr(),
+              color: kSilverColor,
+              index: 0,
+            ),
+            guardianTypes(
+              imageUrl: "assets/images/ic_gold_rank.png",
+              text: "guardian_and_vip_screen.gold_guardian".tr(),
+              color: kGoldenColor,
+              index: 1,
+            ),
+            guardianTypes(
+              imageUrl: "assets/images/ic_king_rank.png",
+              text: "guardian_and_vip_screen.king_guardian".tr(),
+              color: kVioletColor,
+              index: 2,
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // ── مدة الاشتراك ──────────────────────────────────────────────────────
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: TextWithTap(
+            "guardian_and_vip_screen.subscription_period".tr(),
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+            marginBottom: 4,
+          ),
+        ),
+        guardianPeriods(),
+        const SizedBox(height: 16),
+
+        // ── تكلفة الاشتراك ────────────────────────────────────────────────────
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: ContainerCorner(
+            borderRadius: 12,
+            color: isDark ? kContentDarkShadow : Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextWithTap("guardian_and_vip_screen.total_cost".tr(), color: kGrayColor, fontSize: 13),
+                  Row(
+                    children: [
+                      Image.asset("assets/images/icon_jinbi.png", height: 18, width: 18),
+                      TextWithTap(
+                        " ${selectedGuardianPeriod[0] * selectedGuardianPrice()}",
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        marginLeft: 4,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // ── قائمة الحراس ──────────────────────────────────────────────────────
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: TextWithTap(
+            "guardian_and_vip_screen.my_guardians".tr(),
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+            marginBottom: 8,
+          ),
+        ),
+        peopleGuardingMe(),
+        const SizedBox(height: 12),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: TextWithTap(
+            "guardian_and_vip_screen.people_i_guard".tr(),
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+            marginBottom: 8,
+          ),
+        ),
+        peopleIGuard(),
       ],
     );
   }
@@ -1242,6 +1461,7 @@ class _GuardianAndVipStoreScreenState extends State<GuardianAndVipStoreScreen>
 
   Widget buttons() {
     Size size = MediaQuery.of(context).size;
+    final bool isVipTab = _mainTabIndex == 0;
     return ContainerCorner(
       width: size.width,
       marginBottom: 20,
@@ -1254,33 +1474,39 @@ class _GuardianAndVipStoreScreenState extends State<GuardianAndVipStoreScreen>
       begin: Alignment.centerLeft,
       end: Alignment.centerRight,
       onTap: () {
-        QuickHelp.goToNavigatorScreenForResult(
-          context,
-          WalletScreen(
-            currentUser: widget.currentUser,
-          ),
-        );
-        /*if (userToGuard == null) {
-          QuickHelp.showAppNotificationAdvanced(
-            title: "error".tr(),
-            message: "choose_guardian_screen.choose_guardian".tr(),
-            context: context,
-          );
-        } else if (widget.currentUser!.getCredits! <
-            selectedGuardianPeriod[0] * selectedGuardianPrice()) {
-          QuickHelp.showAppNotificationAdvanced(
-            title: "error".tr(),
-            message: "guardian_and_vip_screen.coins_not_enough".tr(),
-            context: context,
-          );
+        if (isVipTab) {
+          // ─── منطق VIP ──────────────────────────────────────────────────
+          if (widget.currentUser!.getCredits! < selectedVipTypeAmount()) {
+            QuickHelp.goToNavigatorScreenForResult(
+              context, WalletScreen(currentUser: widget.currentUser));
+          } else {
+            confirmVipTypeJoining();
+          }
         } else {
-          activateGuardian();
-        }*/
+          // ─── منطق Guardian ─────────────────────────────────────────────
+          if (userToGuard == null) {
+            QuickHelp.showAppNotificationAdvanced(
+              title: "error".tr(),
+              message: "choose_guardian_screen.choose_guardian".tr(),
+              context: context,
+            );
+          } else if (widget.currentUser!.getCredits! <
+              selectedGuardianPeriod[0] * selectedGuardianPrice()) {
+            QuickHelp.goToNavigatorScreenForResult(
+              context, WalletScreen(currentUser: widget.currentUser));
+          } else {
+            activateGuardian();
+          }
+        }
       },
       child: Center(
         child: TextWithTap(
-          "guardian_and_vip_screen.recharge_unlock_vip".tr(),
+          isVipTab
+              ? "guardian_and_vip_screen.subscribe_vip".tr(
+                  namedArgs: {"amount": "${selectedVipTypeAmount()}"})
+              : "guardian_and_vip_screen.activate_guardian".tr(),
           color: Colors.black,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );
@@ -1369,6 +1595,7 @@ class _GuardianAndVipStoreScreenState extends State<GuardianAndVipStoreScreen>
         setState(() {
           selectedGuardianType.clear();
           selectedGuardianType.add(index);
+          guardianTextIndex = index;
         });
       },
       child: Column(
@@ -1400,7 +1627,7 @@ class _GuardianAndVipStoreScreenState extends State<GuardianAndVipStoreScreen>
     );
   }
 
-/* confirmVipTypeJoining() {
+  confirmVipTypeJoining() {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -1443,17 +1670,8 @@ class _GuardianAndVipStoreScreenState extends State<GuardianAndVipStoreScreen>
                           fontWeight: FontWeight.bold,
                         ),
                         onPressed: () {
-                          if (widget.currentUser!.getCredits! <
-                              selectedVipTypeAmount()) {
-                            CoinsFlowPayment(
-                              context: context,
-                              showOnlyCoinsPurchase: true,
-                              currentUser: widget.currentUser!,
-                              onCoinsPurchased: (coins) {},
-                            );
-                          } else {
-                            activateVipPlan();
-                          }
+                          QuickHelp.goBackToPreviousPage(context);
+                          activateVipPlan();
                         },
                       ),
                     ],
@@ -1463,9 +1681,9 @@ class _GuardianAndVipStoreScreenState extends State<GuardianAndVipStoreScreen>
             );
           });
         });
-  }*/
+  }
 
-/*activateVipPlan() async {
+  activateVipPlan() async {
     QuickHelp.showLoadingDialog(context);
     widget.currentUser!.removeCredit = selectedVipTypeAmount();
     if (vipTabsIndex == 0) {
@@ -1476,29 +1694,28 @@ class _GuardianAndVipStoreScreenState extends State<GuardianAndVipStoreScreen>
       widget.currentUser!.setDiamondVip = QuickHelp.getUntilDateFromDays(30);
     }
     ParseResponse response = await widget.currentUser!.save();
-    if (response.success && response.results != null) {
-      QuickHelp.hideLoadingDialog(context);
+    QuickHelp.hideLoadingDialog(context);
+    if (response.success) {
       QuickHelp.showAppNotificationAdvanced(
         title: "done".tr(),
         context: context,
         isError: false,
         message: "main_activated".tr(),
       );
+      setState(() {});
     } else {
-      QuickHelp.hideLoadingDialog(context);
       QuickHelp.showAppNotificationAdvanced(
         title: "error".tr(),
         context: context,
         message: "report_screen.report_failed_explain".tr(),
       );
     }
-  }*/
+  }
 
-/*activateGuardian() async {
+  activateGuardian() async {
     QuickHelp.showLoadingDialog(context);
     widget.currentUser!.removeCredit =
         selectedGuardianPeriod[0] * selectedGuardianPrice();
-    widget.currentUser!.removeMyGuardians = userToGuard!.objectId!;
     widget.currentUser!.removeMyGuardians = userToGuard!.objectId!;
 
     if (guardianTextIndex == 0) {
@@ -1513,21 +1730,21 @@ class _GuardianAndVipStoreScreenState extends State<GuardianAndVipStoreScreen>
     }
 
     ParseResponse response = await widget.currentUser!.save();
-    if (response.success && response.results != null) {
-      QuickHelp.hideLoadingDialog(context);
+    QuickHelp.hideLoadingDialog(context);
+    if (response.success) {
       QuickHelp.showAppNotificationAdvanced(
         title: "done".tr(),
         context: context,
         isError: false,
         message: "main_activated".tr(),
       );
+      setState(() { userToGuard = null; });
     } else {
-      QuickHelp.hideLoadingDialog(context);
       QuickHelp.showAppNotificationAdvanced(
         title: "error".tr(),
         context: context,
         message: "report_screen.report_failed_explain".tr(),
       );
     }
-  }*/
+  }
 }
