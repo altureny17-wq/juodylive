@@ -63,9 +63,9 @@ class _ZegoGiftSheetState extends State<ZegoGiftSheet>
 
     _animationController = AnimationController.unbounded(vsync: this);
 
-    /*widget.itemDataList.sort((l, r) {
+    widget.itemDataList.sort((l, r) {
       return l.weight.compareTo(r.weight);
-    });*/
+    });
   }
 
   @override
