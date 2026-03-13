@@ -132,6 +132,7 @@ class LiveStreamingModel extends ParseObject implements ParseCloneable {
   static final String keyPartyType = "party_type";
 
   static final String keyNumberOfChairs = "number_of_chairs";
+  static final String keyRoomLayout = "room_layout"; // classic | featured
 
   static final String keyPartyTheme = "party_theme";
   static final String keyShareMedia = "share_media";
@@ -269,6 +270,9 @@ class LiveStreamingModel extends ParseObject implements ParseCloneable {
     }
   }
   set setNumberOfChairs(int partyType) => set<int>(keyNumberOfChairs, partyType);
+
+  String get getRoomLayout => get<String>(keyRoomLayout) ?? "classic";
+  set setRoomLayout(String layout) => set<String>(keyRoomLayout, layout);
 
   String? get getPartyType => get<String>(keyPartyType);
   set setPartyType(String partyType) => set<String>(keyPartyType, partyType);
