@@ -121,8 +121,11 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
     }else if(widget.liveStreaming!.getRoomLayout == "featured") {
       // شكل مميز: صفوف من 3 مقاعد
       numberOfSeats = (widget.liveStreaming!.getNumberOfChairs! ~/ 3) + 1;
-    }else{
+    }else if((widget.liveStreaming!.getNumberOfChairs ?? 0) > 0){
       numberOfSeats = (widget.liveStreaming!.getNumberOfChairs! ~/ 4) + 1;
+    }else{
+      // قيمة افتراضية: 3 صفوف (مضيف + 8 مقاعد)
+      numberOfSeats = 3;
     }
     if (widget.isHost!) {
       addOrUpdateLiveViewers();
