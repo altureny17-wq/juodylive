@@ -362,6 +362,8 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
               ..foreground = customUiComponents()
               ..inRoomMessage.visible = true
               ..inRoomMessage.showAvatar = true
+              ..inRoomMessage.attributes = _audioRoomUserAttributes()
+              ..inRoomMessage.avatarLeadingBuilder = _audioRoomLevelBuilder
               ..bottomMenuBar.hostExtendButtons = [Obx((){
                 return ContainerCorner(
                   color: Colors.white,
@@ -1557,6 +1559,67 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
           ),)
         ],
       ),
+    );
+  }
+
+  // ── attributes للـ inRoomMessage ─────────────────────────────────────────
+  Map<String, String> _audioRoomUserAttributes() {
+    int points = widget.currentUser?.getUserPoints ?? 0;
+    int lv = QuickHelp.levelPositionIndex(pointsInApp: points);
+    int credits = widget.currentUser?.getCredits ?? 0;
+    bool isMvp = widget.currentUser?.getMVPMember != null &&
+        widget.currentUser!.getMVPMember!.isAfter(DateTime.now());
+    String vipBanner =
+        credits > 0 ? QuickHelp.levelVipBanner(currentCredit: credits.toDouble()) : '';
+    return {'lv': lv.toString(), 'vip': vipBanner, 'mvp': isMvp ? '1' : '0'};
+  }
+
+  // ── builder لشارة VIP/MVP/LV بجانب كل رسالة ─────────────────────────────
+  Widget _audioRoomLevelBuilder(
+    BuildContext context,
+    ZegoInRoomMessage message,
+    Map<String, dynamic> extraInfo,
+  ) {
+    final bool isMvp = (message.attributes['mvp'] ?? '0') == '1';
+    final String vipBanner = message.attributes['vip'] ?? '';
+    final String lv = message.attributes['lv'] ?? '1';
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (isMvp)
+          Container(
+            margin: const EdgeInsets.only(right: 3),
+            height: 15,
+            child: Image.asset(
+              "assets/images/live_chat_user_label_mvp_icon.png",
+              fit: BoxFit.contain,
+            ),
+          ),
+        if (vipBanner.isNotEmpty)
+          Container(
+            margin: const EdgeInsets.only(right: 3),
+            height: 15,
+            child: Image.asset(vipBanner, fit: BoxFit.contain),
+          ),
+        Container(
+          alignment: Alignment.center,
+          height: 15,
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Colors.purple.shade300, Colors.purple.shade400],
+            ),
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+          ),
+          child: Text(
+            "LV $lv",
+            style: const TextStyle(fontSize: 10, color: Colors.white),
+          ),
+        ),
+      ],
     );
   }
 }
