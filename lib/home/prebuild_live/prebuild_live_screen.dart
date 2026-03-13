@@ -22,7 +22,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:zego_uikit_prebuilt_live_streaming/zego_uikit_prebuilt_live_streaming.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
-import '../../app/Config.dart';
+
 import '../../app/constants.dart';
 import '../../helpers/quick_actions.dart';
 import '../../helpers/quick_cloud.dart';
@@ -1131,13 +1131,13 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
             )
 
           /// message attributes example
-          ..inRoomMessage.attributes = () => userLevelsAttributes
+         // ..inRoomMessage.attributes = () => userLevelsAttributes
           ..inRoomMessage.avatarLeadingBuilder = userLevelBuilder,
           ),
     );
   }
 
-  Widget getTopGifters() {
+  //Widget getTopGifters() {
     QueryBuilder<LiveViewersModel> query =
         QueryBuilder<LiveViewersModel>(LiveViewersModel());
 
@@ -1321,7 +1321,8 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
                             final hostName = widget.currentUser?.getFullName ?? '';
                             Share.share(
                               "settings_screen.share_app_url".tr(
-                                namedArgs: {"app_name": Config.appName, "url": liveId},
+                                namedArgs: {"app_name": "Juodylive", "url": liveId},
+                                
                               ),
                               subject: "live_streaming.live_room_title".tr(
                                 namedArgs: {"name": hostName},
