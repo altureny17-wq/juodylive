@@ -283,7 +283,23 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
               ..bottomMenuBar.audienceExtendButtons = [giftButton]
               ..bottomMenuBar.speakerExtendButtons = [giftButton]
               ..seat.avatarBuilder = (BuildContext context, Size size, ZegoUIKitUser? user, Map extraInfo) {
-                if (user == null) return const SizedBox();
+                // ── مقعد فارغ: أيقونة مخصصة بدلاً من الأبيض الافتراضي ──
+                if (user == null) {
+                  return Container(
+                    width: size.width,
+                    height: size.height,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.08),
+                      border: Border.all(color: Colors.white.withOpacity(0.25), width: 1.5),
+                    ),
+                    child: Icon(
+                      Icons.mic_none_rounded,
+                      color: Colors.white.withOpacity(0.4),
+                      size: size.width * 0.45,
+                    ),
+                  );
+                }
                 userAvatar = avatarService.fetchUserAvatar(user.id);
                 return FutureBuilder<String?>(
                   future: avatarService.fetchUserAvatar(user.id),
@@ -313,20 +329,24 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
             ..seat.foregroundBuilder = (BuildContext context, Size size, ZegoUIKitUser? user, Map extraInfo) {
                 if (user == null) return const SizedBox();
                 bool isMicOn = extraInfo['isMicrophoneEnabled'] as bool? ?? true;
-                return Positioned(
-                  bottom: 2,
-                  right: 2,
-                  child: Container(
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: isMicOn ? Colors.transparent : Colors.black54,
-                      shape: BoxShape.circle,
+                return Stack(
+                  children: [
+                    Positioned(
+                      bottom: 2,
+                      right: 2,
+                      child: Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: isMicOn ? Colors.transparent : Colors.black54,
+                          shape: BoxShape.circle,
+                        ),
+                        child: isMicOn
+                            ? Lottie.asset("assets/lotties/ic_activated_mic.json", fit: BoxFit.cover)
+                            : Lottie.asset("assets/lotties/ic_disabled_mic.json", fit: BoxFit.cover),
+                      ),
                     ),
-                    child: isMicOn
-                        ? Lottie.asset("assets/lotties/ic_activated_mic.json", fit: BoxFit.cover)
-                        : Lottie.asset("assets/lotties/ic_disabled_mic.json", fit: BoxFit.cover),
-                  ),
+                  ],
                 );
               }
             ..seat.layout.rowConfigs = List.generate(numberOfSeats, (index) {
