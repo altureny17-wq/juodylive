@@ -8,6 +8,7 @@ import '../../models/UserModel.dart';
 import '../../ui/container_with_corner.dart';
 import '../../ui/text_with_tap.dart';
 import '../../utils/colors.dart';
+import '../guardian_vip/guardian_and_vip_store_screen.dart';
 
 class VipPrivilegeDetailsScreen extends StatefulWidget {
   UserModel? currentUser;
@@ -382,27 +383,19 @@ class _VipPrivilegeDetailsScreenState extends State<VipPrivilegeDetailsScreen>
       begin: Alignment.centerLeft,
       end: Alignment.centerRight,
       onTap: () {
-        /*if (userToGuard == null) {
-          QuickHelp.showAppNotificationAdvanced(
-            title: "error".tr(),
-            message: "choose_guardian_screen.choose_guardian".tr(),
-            context: context,
-          );
-        } else if (widget.currentUser!.getCredits! <
-            selectedGuardianPeriod[0] * selectedGuardianPrice()) {
-          QuickHelp.showAppNotificationAdvanced(
-            title: "error".tr(),
-            message: "guardian_and_vip_screen.coins_not_enough".tr(),
-            context: context,
-          );
-        } else {
-          activateGuardian();
-        }*/
+        QuickHelp.goToNavigatorScreen(
+          context,
+          GuardianAndVipStoreScreen(
+            currentUser: widget.currentUser,
+            initialIndex: 0,
+          ),
+        );
       },
       child: Center(
         child: TextWithTap(
           "guardian_and_vip_screen.recharge_unlock_vip".tr(),
           color: Colors.black,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );
