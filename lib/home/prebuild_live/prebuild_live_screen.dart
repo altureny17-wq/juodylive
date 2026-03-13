@@ -145,7 +145,17 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
   Map<String, String> get userLevelsAttributes {
     int points = widget.currentUser?.getUserPoints ?? 0;
     int lv = QuickHelp.levelPositionIndex(pointsInApp: points);
-    return {'lv': lv.toString()};
+    int credits = widget.currentUser?.getCredits ?? 0;
+    bool isMvp = widget.currentUser?.getMVPMember != null &&
+        widget.currentUser!.getMVPMember!.isAfter(DateTime.now());
+    String vipBanner = credits > 0
+        ? QuickHelp.levelVipBanner(currentCredit: credits.toDouble())
+        : '';
+    return {
+      'lv': lv.toString(),
+      'vip': vipBanner,
+      'mvp': isMvp ? '1' : '0',
+    };
   }
 
   @override
@@ -2354,14 +2364,14 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
     ZegoInRoomMessage message,
     Map<String, dynamic> extraInfo,
   ) {
-    // فحص هل المستخدم MVP
-    bool isMvp = widget.currentUser?.getMVPMember != null &&
-        widget.currentUser!.getMVPMember!.isAfter(DateTime.now());
+    final bool isMvp = (message.attributes['mvp'] ?? '0') == '1';
+    final String vipBanner = message.attributes['vip'] ?? '';
+    final String lv = message.attributes['lv'] ?? '1';
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // شارة MVP إن وُجدت
+        // ── شارة MVP ─────────────────────────────────────────────────────────
         if (isMvp)
           Container(
             margin: const EdgeInsets.only(right: 3),
@@ -2371,7 +2381,17 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
               fit: BoxFit.contain,
             ),
           ),
-        // مستوى المشاهد
+        // ── أيقونة VIP (ic_vip_1 .. ic_vip_10) ─────────────────────────────
+        if (vipBanner.isNotEmpty)
+          Container(
+            margin: const EdgeInsets.only(right: 3),
+            height: 15,
+            child: Image.asset(
+              vipBanner,
+              fit: BoxFit.contain,
+            ),
+          ),
+        // ── مستوى LV ─────────────────────────────────────────────────────────
         Container(
           alignment: Alignment.center,
           height: 15,
@@ -2385,7 +2405,7 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
             borderRadius: const BorderRadius.all(Radius.circular(10)),
           ),
           child: Text(
-            "LV ${message.attributes['lv'] ?? '1'}",
+            "LV $lv",
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 10,
