@@ -22,7 +22,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:zego_uikit_prebuilt_live_streaming/zego_uikit_prebuilt_live_streaming.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
-
+import '../../app/Config.dart';
 import '../../app/constants.dart';
 import '../../helpers/quick_actions.dart';
 import '../../helpers/quick_cloud.dart';
@@ -2138,7 +2138,7 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
       showGiftSendersController.hisBattleVictories.value = newUpdatedLive.getHisBattleVictory!;
 
       if(widget.isHost) {
-        widget.currentUser!.addBattlePoints = QuickHelp.getDiamondsForReceiver(giftsModel.getCoins!);
+        widget.currentUser!.addBattlePoints = QuickHelp.getDiamondsForReceiver(giftData.getCoins!);
         widget.currentUser!.save();
       }
       if(newUpdatedLive.getRepeatBattleTimes! > 0 && newUpdatedLive.getRepeatBattleTimes! > repeatPkTimes) {
