@@ -41,6 +41,7 @@ import '../../utils/colors.dart';
 import '../coins/coins_payment_widget.dart';
 import '../live_end/live_end_screen.dart';
 import '../pk_battle/pk_widgets/config.dart';
+import '../../app/config.dart' as AppConfig;
 import '../pk_battle/pk_widgets/events.dart';
 import '../pk_battle/pk_widgets/surface.dart';
 import '../pk_battle/pk_widgets/widgets/mute_button.dart';
@@ -720,6 +721,12 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
       ..bottomMenuBar.coHostExtendButtons = [giftButton]
       ..bottomMenuBar.audienceExtendButtons = [giftButton];
 
+    // ── VIP/MVP/LV attributes على الـ configs ────────────────────────────
+    hostConfig.inRoomMessage.attributes = () => userLevelsAttributes;
+    hostConfig.inRoomMessage.avatarLeadingBuilder = userLevelBuilder;
+    audienceConfig.inRoomMessage.attributes = () => userLevelsAttributes;
+    audienceConfig.inRoomMessage.avatarLeadingBuilder = userLevelBuilder;
+
     final audienceEvents = ZegoUIKitPrebuiltLiveStreamingEvents(
       inRoomMessage: ZegoLiveStreamingInRoomMessageEvents(
         onClicked: (message){
@@ -1128,16 +1135,12 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
             ..background = Image.asset(
               "assets/images/audio_room_background.png",
               fit: BoxFit.fill,
-            )
-
-          /// message attributes example
-         // ..inRoomMessage.attributes = () => userLevelsAttributes
-          ..inRoomMessage.avatarLeadingBuilder = userLevelBuilder,
+            ),
           ),
     );
   }
 
-  //Widget getTopGifters() {
+  Widget getTopGifters() {
     QueryBuilder<LiveViewersModel> query =
         QueryBuilder<LiveViewersModel>(LiveViewersModel());
 
@@ -1321,8 +1324,7 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
                             final hostName = widget.currentUser?.getFullName ?? '';
                             Share.share(
                               "settings_screen.share_app_url".tr(
-                                namedArgs: {"app_name": "Juodylive", "url": liveId},
-                                
+                                namedArgs: {"app_name": AppConfig.Config.appName, "url": liveId},
                               ),
                               subject: "live_streaming.live_room_title".tr(
                                 namedArgs: {"name": hostName},
@@ -2139,7 +2141,7 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
       showGiftSendersController.hisBattleVictories.value = newUpdatedLive.getHisBattleVictory!;
 
       if(widget.isHost) {
-        widget.currentUser!.addBattlePoints = QuickHelp.getDiamondsForReceiver(giftData.getCoins!);
+        // battle points يُحسب في sendGift عند استقبال الهدية
         widget.currentUser!.save();
       }
       if(newUpdatedLive.getRepeatBattleTimes! > 0 && newUpdatedLive.getRepeatBattleTimes! > repeatPkTimes) {
