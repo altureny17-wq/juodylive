@@ -1131,7 +1131,7 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
             )
 
           /// message attributes example
-          ..inRoomMessage.attributes = userLevelsAttributes
+          ..inRoomMessage.attributes = () => userLevelsAttributes
           ..inRoomMessage.avatarLeadingBuilder = userLevelBuilder,
           ),
     );
@@ -2138,7 +2138,7 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
       showGiftSendersController.hisBattleVictories.value = newUpdatedLive.getHisBattleVictory!;
 
       if(widget.isHost) {
-        widget.currentUser!.addBattlePoints = QuickHelp.getDiamondsForReceiver(giftsModel.getCoins!, widget.preferences!);
+        widget.currentUser!.addBattlePoints = QuickHelp.getDiamondsForReceiver(giftsModel.getCoins!);
         widget.currentUser!.save();
       }
       if(newUpdatedLive.getRepeatBattleTimes! > 0 && newUpdatedLive.getRepeatBattleTimes! > repeatPkTimes) {
