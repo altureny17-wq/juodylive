@@ -824,11 +824,28 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    TextWithTap(
-                                      widget.mUser!.getFullName!,
-                                      fontSize: size.width / 20,
-                                      fontWeight: FontWeight.bold,
-                                      marginBottom: 10,
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        TextWithTap(
+                                          widget.mUser!.getFullName!,
+                                          fontSize: size.width / 20,
+                                          fontWeight: FontWeight.bold,
+                                          marginBottom: 10,
+                                          marginRight: 6,
+                                        ),
+                                        // ── أيقونة VIP ──────────────────────
+                                        if (QuickHelp.levelVipBanner(currentCredit: widget.mUser!.getCredits!.toDouble()).isNotEmpty)
+                                          Padding(
+                                            padding: const EdgeInsets.only(bottom: 10),
+                                            child: Image.asset(
+                                              QuickHelp.levelVipBanner(currentCredit: widget.mUser!.getCredits!.toDouble()),
+                                              height: 18,
+                                              fit: BoxFit.contain,
+                                            ),
+                                          ),
+                                      ],
                                     ),
                                     QuickHelp.usersMoreInfo(
                                       context,
