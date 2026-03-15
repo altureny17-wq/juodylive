@@ -28,10 +28,10 @@ class Setup {
 
 
   //Zego Cloud Credentials
-  static final int zegoLiveStreamAppID = 475466083;
-  static final String zegoLiveStreamAppSign = "f316e780bb7846909daadaa32f62c5fe183eaaf0323e381c20960a16b645e8ed";
-  static final String zegoLiveStreamServerSecret = "a420410cf873bd075a8eaaa6e99193fd";
-  static final String zegoPushResourceID = "juodyliveResource";
+  static final int zegoLiveStreamAppID = 1621841553;
+  static final String zegoLiveStreamAppSign = "e08f51993cdbd3ace808f3846c69ce38951d6ff1d74e56fd741f41c474ffed17";
+  static final String zegoLiveStreamServerSecret = "374792fb6eecd5165185590ce76127af";
+  static final String zegoPushResourceID = "";
 
 
   static const String licenseToken = "";
