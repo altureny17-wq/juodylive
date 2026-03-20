@@ -89,10 +89,34 @@ class _CoinsFlowWidget extends StatefulWidget {
   State<_CoinsFlowWidget> createState() => _CoinsFlowWidgetState();
 }
 
+// ✅ نموذج تصنيف الهدايا
+class _GiftCategory {
+  final String key;
+  final String label;
+  _GiftCategory(this.key, this.label);
+}
+
 class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
     with TickerProviderStateMixin {
   AnimationController? _animationController;
   int bottomSheetCurrentIndex = 0;
+
+  // ✅ تصنيفات الهدايا فقط (بدون منتجات المتجر)
+  final List<_GiftCategory> _giftCategories = [
+    _GiftCategory(GiftsModel.giftCategoryTypeClassic, 'كلاسيك'),
+    _GiftCategory(GiftsModel.giftCategoryType3D, '3D'),
+    _GiftCategory(GiftsModel.giftCategoryTypeVIP, 'VIP'),
+    _GiftCategory(GiftsModel.giftCategoryTypeLove, 'حب'),
+    _GiftCategory(GiftsModel.giftCategoryTypeMoods, 'مزاج'),
+    _GiftCategory(GiftsModel.giftCategoryTypeArtists, 'فنون'),
+    _GiftCategory(GiftsModel.giftCategoryTypeCollectibles, 'مجموعة'),
+    _GiftCategory(GiftsModel.giftCategoryTypeGames, 'ألعاب'),
+    _GiftCategory(GiftsModel.giftCategoryTypeFamily, 'عائلة'),
+    _GiftCategory(GiftsModel.categorySvgaGifts, 'SVGA'),
+  ];
+
+  int _selectedCategoryIndex = 0;
+  late TabController _giftTabController;
 
   late Offerings offerings;
   bool _isAvailable = false;
@@ -238,7 +262,23 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
   void initState() {
     super.initState();
     _animationController = AnimationController.unbounded(vsync: this);
+    _giftTabController = TabController(
+      length: _giftCategories.length,
+      vsync: this,
+    )..addListener(() {
+        if (!_giftTabController.indexIsChanging) {
+          setState(() {
+            _selectedCategoryIndex = _giftTabController.index;
+          });
+        }
+      });
     initProducts();
+  }
+
+  @override
+  void dispose() {
+    _giftTabController.dispose();
+    super.dispose();
   }
 
   initProducts() async {
@@ -257,11 +297,6 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
         _loading = false;
       });
     }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override
@@ -419,194 +454,179 @@ class _CoinsFlowWidgetState extends State<_CoinsFlowWidget>
     });
   }
 
-  // ✅ قائمة هدايا مبسطة - تعرض جميع الهدايا بدون تبويبات
+  // ✅ قائمة الهدايا مع تبويبات التصنيفات
   Widget _buildSimpleGiftList(StateSetter setState) {
-    return FutureBuilder<ParseResponse>(
-      future: _fetchAllGifts(),
-      builder: (context, snapshot) {
-        // حالة التحميل
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.purple),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  "جاري تحميل الهدايا...",
-                  style: TextStyle(color: Colors.white70),
-                ),
-              ],
+    return Column(
+      children: [
+        // ✅ شريط التبويبات (التصنيفات)
+        Container(
+          height: 40,
+          color: Colors.transparent,
+          child: TabBar(
+            controller: _giftTabController,
+            isScrollable: true,
+            indicatorColor: Colors.purple,
+            indicatorWeight: 2,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white54,
+            labelStyle: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
             ),
-          );
-        }
+            unselectedLabelStyle: const TextStyle(fontSize: 11),
+            tabs: _giftCategories
+                .map((cat) => Tab(text: cat.label))
+                .toList(),
+          ),
+        ),
 
-        // حالة الخطأ
-        if (snapshot.hasError) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.error_outline, color: Colors.red, size: 50),
-                SizedBox(height: 10),
-                Text(
-                  "حدث خطأ في تحميل الهدايا",
-                  style: TextStyle(color: Colors.white70),
-                ),
-              ],
-            ),
-          );
-        }
-
-        // التحقق من وجود بيانات
-        ParseResponse? response = snapshot.data;
-        if (response == null || 
-            !response.success || 
-            response.results == null || 
-            response.results!.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.card_giftcard,
-                  size: 80,
-                  color: Colors.grey,
-                ),
-                SizedBox(height: 20),
-                Text(
-                  "لا توجد هدايا متاحة حالياً",
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 16,
+        // ✅ محتوى التصنيف المختار
+        Expanded(
+          child: FutureBuilder<ParseResponse>(
+            future: _fetchGiftsByCategory(
+                _giftCategories[_selectedCategoryIndex].key),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Colors.purple),
                   ),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  "يمكنك إضافة هدايا من لوحة التحكم",
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
+                );
+              }
 
-        // عرض الهدايا في شبكة
-        List<GiftsModel> gifts = response.results!.cast<GiftsModel>();
-        
-        return Column(
-          children: [
-            // ✅ إظهار عدد الهدايا
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              alignment: Alignment.centerRight,
-              child: Text(
-                "إجمالي الهدايا: ${gifts.length}",
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-            
-            // ✅ شبكة الهدايا
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'حدث خطأ في التحميل',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                );
+              }
+
+              final response = snapshot.data;
+              if (response == null ||
+                  !response.success ||
+                  response.results == null ||
+                  response.results!.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.card_giftcard,
+                          size: 60, color: Colors.grey),
+                      const SizedBox(height: 12),
+                      Text(
+                        'لا توجد هدايا في هذا التصنيف',
+                        style: TextStyle(color: Colors.white54),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              final gifts = response.results!.cast<GiftsModel>();
+
+              return GridView.builder(
+                padding: const EdgeInsets.all(10),
+                gridDelegate:
+                    const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 4,
                   crossAxisSpacing: 8,
                   mainAxisSpacing: 8,
-                  childAspectRatio: 0.8,
+                  childAspectRatio: 0.78,
                 ),
                 itemCount: gifts.length,
-                padding: EdgeInsets.all(12),
                 itemBuilder: (context, index) {
-                  GiftsModel gift = gifts[index];
+                  final gift = gifts[index];
                   return GestureDetector(
                     onTap: () => _checkCredits(gift, setState),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: Colors.white24,
-                          width: 1,
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // صورة الهدية
-                          Expanded(
-                            child: Container(
-                              width: 50,
-                              height: 50,
-                              margin: EdgeInsets.only(top: 8),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: _buildGiftImageSimple(gift),
-                              ),
+                    child: ValueListenableBuilder<GiftsModel?>(
+                      valueListenable: selectedGiftItemNotifier,
+                      builder: (context, selectedGift, _) {
+                        final isSelected =
+                            selectedGift?.objectId == gift.objectId;
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? Colors.purple.withOpacity(0.3)
+                                : Colors.white.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isSelected
+                                  ? Colors.purple
+                                  : Colors.white24,
+                              width: isSelected ? 1.5 : 1,
                             ),
                           ),
-                          SizedBox(height: 4),
-                          
-                          // اسم الهدية
-                          Text(
-                            gift.getName ?? 'هدية',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 9,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                          ),
-                          
-                          // سعر الهدية
-                          Row(
+                          child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SvgPicture.asset(
-                                "assets/svg/ic_coin_with_star.svg",
-                                width: 10,
-                                height: 10,
-                              ),
-                              SizedBox(width: 2),
-                              Text(
-                                gift.getCoins.toString(),
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.bold,
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      6, 8, 6, 2),
+                                  child: ClipRRect(
+                                    borderRadius:
+                                        BorderRadius.circular(6),
+                                    child: _buildGiftImageSimple(gift),
+                                  ),
                                 ),
                               ),
+                              const SizedBox(height: 2),
+                              Text(
+                                gift.getName ?? '',
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 9,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.center,
+                                children: [
+                                  SvgPicture.asset(
+                                    "assets/svg/ic_coin_with_star.svg",
+                                    width: 9,
+                                    height: 9,
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    gift.getCoins.toString(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
                             ],
                           ),
-                          SizedBox(height: 4),
-                        ],
-                      ),
+                        );
+                      },
                     ),
                   );
                 },
-              ),
-            ),
-          ],
-        );
-      },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
-  // ✅ دالة لجلب جميع الهدايا من قاعدة البيانات
-  Future<ParseResponse> _fetchAllGifts() async {
+  // ✅ جلب الهدايا حسب التصنيف فقط — يُستثنى منتجات المتجر تلقائياً
+  Future<ParseResponse> _fetchGiftsByCategory(String category) async {
     QueryBuilder<GiftsModel> query = QueryBuilder<GiftsModel>(GiftsModel());
-    query.orderByAscending(GiftsModel.keyCoins); // ترتيب حسب السعر
-    query.setLimit(100); // حد أقصى 100 هدية
+    query.whereEqualTo(GiftsModel.keyGiftCategories, category);
+    query.orderByAscending(GiftsModel.keyCoins);
+    query.setLimit(100);
     return await query.query();
   }
 
