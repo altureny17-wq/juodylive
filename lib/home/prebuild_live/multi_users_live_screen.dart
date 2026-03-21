@@ -43,8 +43,9 @@ import 'gift/components/svga_player_widget.dart';
 import 'gift/gift_data.dart';
 import 'gift/gift_manager/defines.dart';
 import 'gift/gift_manager/gift_manager.dart';
-import 'gift/gift_manager/gift_protocol.dart';
+import 'gift/gift_manager/gift_extras.dart';
 import 'gift/components/entrance_effect_widget.dart';
+import 'gift/components/float_message_overlay.dart';
 import 'global_private_live_price_sheet.dart';
 import 'global_user_profil_sheet.dart';
 
@@ -2155,6 +2156,8 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
         ),
         // ✅ تأثير الدخول
         const EntranceEffectOverlay(),
+        // ✅ الرسائل العائمة
+        const FloatMessageOverlay(),
         Obx(() {
   return Visibility(
     visible: showGiftSendersController.shareMediaFiles.value,
