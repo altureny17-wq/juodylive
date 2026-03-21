@@ -267,8 +267,11 @@ class _AudioRoomEntryState extends State<AudioRoomEntry> {
       streamingModel.setImage = widget.currentUser!.getAvatar!;
     }
 
-    if(widget.currentUser!.getPartyTheme != null) {
+    // ✅ خلفية الحفلة — تُطبَّق فقط إذا كان السويتش مفعَّلاً
+    if (widget.currentUser!.getPartyTheme != null &&
+        widget.currentUser!.getCanUsePartyTheme == true) {
       streamingModel.setPartyTheme = widget.currentUser!.getPartyTheme!;
+    }
     }
     streamingModel.setPartyType = LiveStreamingModel.liveAudio;
     streamingModel.setLiveType = LiveStreamingModel.liveAudio;
