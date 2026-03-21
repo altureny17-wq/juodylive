@@ -1387,9 +1387,9 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
         ),
 
         // ✅ تأثير الدخول — يظهر لجميع أعضاء الغرفة
-        const EntranceEffectOverlay(),
+        EntranceEffectOverlay(),
         // ✅ الرسائل العائمة
-        const FloatMessageOverlay(),
+        FloatMessageOverlay(),
         
         Obx((){
           return Visibility(
