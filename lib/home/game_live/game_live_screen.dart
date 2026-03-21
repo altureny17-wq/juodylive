@@ -32,8 +32,9 @@ import '../prebuild_live/gift/components/mp4_player_widget.dart';
 import '../prebuild_live/gift/gift_data.dart';
 import '../prebuild_live/gift/gift_manager/defines.dart';
 import '../prebuild_live/gift/gift_manager/gift_manager.dart';
-import '../prebuild_live/gift/gift_manager/gift_protocol.dart';
+import '../prebuild_live/gift/gift_manager/gift_extras.dart';
 import '../prebuild_live/gift/components/entrance_effect_widget.dart';
+import '../prebuild_live/gift/components/float_message_overlay.dart';
 import '../prebuild_live/global_private_live_price_sheet.dart';
 import '../prebuild_live/global_user_profil_sheet.dart';
 
@@ -348,6 +349,8 @@ class GameLiveScreenState extends State<GameLiveScreen>
           ),
           // ✅ تأثير الدخول
           const EntranceEffectOverlay(),
+          // ✅ الرسائل العائمة
+          const FloatMessageOverlay(),
         ],
       ),
     );
