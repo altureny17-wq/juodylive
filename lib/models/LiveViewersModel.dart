@@ -23,6 +23,7 @@ class LiveViewersModel extends ParseObject implements ParseCloneable {
   static String keyLiveAuthorId = "live_author_id";
 
   static String keyWatching = "watching";
+  static String keyIsInvisible = "is_invisible";   // ✅ الوضع المخفي
 
   String? get getLiveAuthorId => get<String>(keyLiveAuthorId);
   set setLiveAuthorId(String liveAuthorID) => set<String>(keyLiveAuthorId, liveAuthorID);
@@ -36,6 +37,9 @@ class LiveViewersModel extends ParseObject implements ParseCloneable {
     }
   }
   set setWatching(bool isWatching) => set<bool>(keyWatching, isWatching);
+
+  bool get getIsInvisible => get<bool>(keyIsInvisible) ?? false;
+  set setIsInvisible(bool val) => set<bool>(keyIsInvisible, val);
 
   UserModel? get getAuthor => get<UserModel>(keyAuthor);
   set setAuthor(UserModel author) => set<UserModel>(keyAuthor, author);
