@@ -40,6 +40,7 @@ import '../level/level_screen.dart';
 import '../mvp/mvp_screen.dart';
 import '../my_moments/my_moments_screen.dart';
 import '../my_obtained_items/my_obtained_items.dart';
+import '../vip_features/vip_features_screen.dart';
 import '../relations/followers_screen.dart';
 import '../relations/visits_screen.dart';
 import '../report/report_screen.dart';
@@ -277,7 +278,7 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
     "profile_list_menu.view_record".tr(),
     "profile_list_menu.customer_service".tr(),
     "profile_list_menu.help_center".tr(),
-    "profile_list_menu.auth".tr(),
+    "auth".tr(),
     "profile_list_menu.contact_us".tr(),
   ];
 
@@ -1075,10 +1076,49 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
                                             fontSize: size.width / 40,
                                             color: kRoseVipClair,
                                           ),
+                                          // ✅ زر إدارة مميزات VIP
+                                          GestureDetector(
+                                            onTap: () async {
+                                              final updated = await QuickHelp
+                                                  .goToNavigatorScreenForResult(
+                                                context,
+                                                VipFeaturesScreen(
+                                                  currentUser:
+                                                      widget.currentUser,
+                                                ),
+                                              );
+                                              if (updated != null &&
+                                                  updated is UserModel) {
+                                                setState(() {
+                                                  widget.currentUser = updated;
+                                                });
+                                              }
+                                            },
+                                            child: ContainerCorner(
+                                              borderRadius: 50,
+                                              marginRight: 5,
+                                              marginLeft: 5,
+                                              marginTop: 10,
+                                              marginBottom: 10,
+                                              color: kPrimaryColor
+                                                  .withOpacity(0.85),
+                                              child: Center(
+                                                child: TextWithTap(
+                                                  "vip_features_screen.title"
+                                                      .tr(),
+                                                  fontSize: size.width / 42,
+                                                  marginRight: 10,
+                                                  marginLeft: 10,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
                                           ContainerCorner(
                                             borderRadius: 50,
                                             marginRight: 15,
-                                            marginLeft: 10,
+                                            marginLeft: 5,
                                             marginTop: 10,
                                             marginBottom: 10,
                                             colors: [kRoseVip, kRoseVipClair],
