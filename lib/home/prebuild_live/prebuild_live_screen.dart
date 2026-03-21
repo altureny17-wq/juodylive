@@ -50,6 +50,8 @@ import 'gift/components/svga_player_widget.dart';
 import 'gift/gift_data.dart';
 import 'gift/gift_manager/defines.dart';
 import 'gift/gift_manager/gift_manager.dart';
+import 'gift/gift_manager/gift_protocol.dart';
+import 'gift/components/entrance_effect_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 
@@ -754,7 +756,7 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
       onError: (ZegoUIKitError error) {
         debugPrint('onError:$error');
       },
-      user: ZegoLiveStreamingUserEvents(onEnter: (zegoUser) {
+      user: ZegoLiveStreamingUserEvents(onEnter: (zegoUser) async {
         Future.delayed(Duration(seconds: 1)).then((value){
           showGiftSendersController.hisBattlePoints.value = widget.liveStreaming!.getHisBattlePoints!;
           showGiftSendersController.myBattlePoints.value = widget.liveStreaming!.getMyBattlePoints!;
@@ -762,6 +764,23 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
           showGiftSendersController.myBattleVictories.value = widget.liveStreaming!.getMyBattleVictory!;
         });
         addOrUpdateLiveViewers();
+        // ✅ تأثير الدخول
+        if (zegoUser.id == widget.currentUser!.objectId &&
+            widget.currentUser!.getCanUseEntranceEffect == true &&
+            widget.currentUser!.getEntranceEffect != null) {
+          final fileUrl = widget.currentUser!.getEntranceEffect!.url!;
+          await ZegoGiftManager().service.sendEntranceEffect(
+            fileUrl: fileUrl,
+            senderUserID: widget.currentUser!.objectId!,
+            senderUserName: widget.currentUser!.getFullName ?? '',
+          );
+          ZegoGiftManager().service.entranceEffectNotifier.value =
+              ZegoEntranceEffectItem(
+                fileUrl: fileUrl,
+                senderUserID: widget.currentUser!.objectId!,
+                senderUserName: widget.currentUser!.getFullName ?? '',
+              );
+        }
       }, onLeave: (zegoUser) {
         onViewerLeave();
       }),
@@ -1148,6 +1167,8 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
     query.whereEqualTo(
         LiveViewersModel.keyLiveId, widget.liveStreaming!.objectId);
     query.whereEqualTo(LiveViewersModel.keyWatching, true);
+    // ✅ إخفاء المستخدمين ذوي الوضع المخفي
+    query.whereNotEqualTo(LiveViewersModel.keyIsInvisible, true);
     query.orderByDescending(LiveViewersModel.keyUpdatedAt);
     query.includeObject([
       LiveViewersModel.keyAuthor,
@@ -1251,6 +1272,9 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
         liveViewersModel.setAuthorId = widget.currentUser!.objectId!;
 
         liveViewersModel.setWatching = true;
+        // ✅ الوضع المخفي — يُخفي المستخدم من قائمة المشاهدين
+        liveViewersModel.setIsInvisible =
+            widget.currentUser!.getVipInvisibleMode == true;
 
         liveViewersModel.setLiveAuthorId = widget.liveStreaming!.getAuthorId!;
         liveViewersModel.setLiveId = widget.liveStreaming!.objectId!;
@@ -1626,6 +1650,8 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
             return svgaWidget(playData);
           },
         ),
+        // ✅ تأثير الدخول
+        const EntranceEffectOverlay(),
       ],
     );
   }
