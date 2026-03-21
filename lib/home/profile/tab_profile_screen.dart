@@ -278,7 +278,7 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
     "profile_list_menu.view_record".tr(),
     "profile_list_menu.customer_service".tr(),
     "profile_list_menu.help_center".tr(),
-    "auth".tr(),
+    "profile_list_menu.auth".tr(),
     "profile_list_menu.contact_us".tr(),
   ];
 
