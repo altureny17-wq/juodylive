@@ -15,6 +15,35 @@ class GiftProtocolImpll {
 
   final recvNotifier = ValueNotifier<ZegoGiftProtocolItem?>(null);
 
+  // ── تأثير الدخول ──────────────────────────────────────────────────────────
+  final entranceEffectNotifier = ValueNotifier<ZegoEntranceEffectItem?>(null);
+
+  /// يُرسَل فور دخول المستخدم الغرفة إذا كان لديه تأثير دخول مفعَّل
+  Future<bool> sendEntranceEffect({
+    required String fileUrl,
+    required String senderUserID,
+    required String senderUserName,
+  }) async {
+    final data = json.encode({
+      'msg_type': 'entrance_effect',
+      'room_id': _liveID,
+      'user_id': senderUserID,
+      'user_name': senderUserName,
+      'file_url': fileUrl,
+      'timestamp': DateTime.now().millisecondsSinceEpoch,
+    });
+    ZegoUIKit()
+        .getSignalingPlugin()
+        .sendInRoomCommandMessage(
+          roomID: _liveID,
+          message: _stringToUint8List(data),
+        )
+        .then((result) {
+      debugPrint('sendEntranceEffect result:$result');
+    });
+    return true;
+  }
+
   void init({required int appID, required String liveID, required String localUserID, required String localUserName}) {
     _appID = appID;
     _liveID = liveID;
@@ -83,15 +112,29 @@ class GiftProtocolImpll {
 
   void onInRoomCommandMessageReceived(ZegoSignalingPluginInRoomCommandMessageReceivedEvent event) {
     final messages = event.messages;
-
-    // You can display different animations according to gift-type
     for (final commandMessage in messages) {
       final senderUserID = commandMessage.senderUserID;
       final message = utf8.decode(commandMessage.message);
       debugPrint('onInRoomCommandMessageReceived: $message');
-      if (senderUserID != _localUserID) {
-        final gift = ZegoGiftProtocol.fromJson(message);
-        recvNotifier.value = gift.giftItem;
+
+      Map<String, dynamic> parsed = {};
+      try { parsed = jsonDecode(message) as Map<String, dynamic>? ?? {}; } catch (_) {}
+
+      final msgType = parsed['msg_type'] as String?;
+
+      if (msgType == 'entrance_effect') {
+        // تأثير دخول — يُعرض لجميع أعضاء الغرفة بما فيهم المرسل
+        entranceEffectNotifier.value = ZegoEntranceEffectItem(
+          fileUrl: parsed['file_url'] ?? '',
+          senderUserID: parsed['user_id'] ?? '',
+          senderUserName: parsed['user_name'] ?? '',
+        );
+      } else {
+        // هدية عادية
+        if (senderUserID != _localUserID) {
+          final gift = ZegoGiftProtocol.fromJson(message);
+          recvNotifier.value = gift.giftItem;
+        }
       }
     }
   }
@@ -148,4 +191,17 @@ class ZegoGiftProtocol {
       ),
     );
   }
+}
+
+/// بيانات تأثير الدخول المستقبَل
+class ZegoEntranceEffectItem {
+  final String fileUrl;
+  final String senderUserID;
+  final String senderUserName;
+
+  ZegoEntranceEffectItem({
+    required this.fileUrl,
+    required this.senderUserID,
+    required this.senderUserName,
+  });
 }
