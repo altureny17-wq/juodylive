@@ -43,6 +43,8 @@ import 'gift/components/svga_player_widget.dart';
 import 'gift/gift_data.dart';
 import 'gift/gift_manager/defines.dart';
 import 'gift/gift_manager/gift_manager.dart';
+import 'gift/gift_manager/gift_protocol.dart';
+import 'gift/components/entrance_effect_widget.dart';
 import 'global_private_live_price_sheet.dart';
 import 'global_user_profil_sheet.dart';
 
@@ -586,8 +588,25 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
           debugPrint('onError:$error');
         },
         user: ZegoLiveStreamingUserEvents(
-          onEnter: (zegoUser){
+          onEnter: (zegoUser) async {
             addOrUpdateLiveViewers();
+            // ✅ تأثير الدخول
+            if (zegoUser.id == widget.currentUser!.objectId &&
+                widget.currentUser!.getCanUseEntranceEffect == true &&
+                widget.currentUser!.getEntranceEffect != null) {
+              final fileUrl = widget.currentUser!.getEntranceEffect!.url!;
+              await ZegoGiftManager().service.sendEntranceEffect(
+                fileUrl: fileUrl,
+                senderUserID: widget.currentUser!.objectId!,
+                senderUserName: widget.currentUser!.getFullName ?? '',
+              );
+              ZegoGiftManager().service.entranceEffectNotifier.value =
+                  ZegoEntranceEffectItem(
+                    fileUrl: fileUrl,
+                    senderUserID: widget.currentUser!.objectId!,
+                    senderUserName: widget.currentUser!.getFullName ?? '',
+                  );
+            }
           },
           onLeave: (zegoUser) {
             onViewerLeave();
@@ -1166,6 +1185,8 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
     //query.whereNotEqualTo(LiveViewersModel.keyAuthorId, widget.liveStreaming!.getAuthorId);
     query.whereEqualTo(LiveViewersModel.keyLiveId, widget.liveStreaming!.objectId);
     query.whereEqualTo(LiveViewersModel.keyWatching, true);
+    // ✅ إخفاء المستخدمين ذوي الوضع المخفي
+    query.whereNotEqualTo(LiveViewersModel.keyIsInvisible, true);
     query.orderByDescending(LiveViewersModel.keyUpdatedAt);
     query.includeObject([
       LiveViewersModel.keyAuthor,
@@ -1269,6 +1290,9 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
         liveViewersModel.setAuthorId = widget.currentUser!.objectId!;
 
         liveViewersModel.setWatching = true;
+        // ✅ الوضع المخفي — يُخفي المستخدم من قائمة المشاهدين
+        liveViewersModel.setIsInvisible =
+            widget.currentUser!.getVipInvisibleMode == true;
 
         liveViewersModel.setLiveAuthorId = widget.liveStreaming!.getAuthorId!;
         liveViewersModel.setLiveId = widget.liveStreaming!.objectId!;
@@ -2129,6 +2153,8 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
             return svgaWidget(playData);
           },
         ),
+        // ✅ تأثير الدخول
+        const EntranceEffectOverlay(),
         Obx(() {
   return Visibility(
     visible: showGiftSendersController.shareMediaFiles.value,
