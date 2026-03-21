@@ -50,8 +50,9 @@ import 'gift/components/svga_player_widget.dart';
 import 'gift/gift_data.dart';
 import 'gift/gift_manager/defines.dart';
 import 'gift/gift_manager/gift_manager.dart';
-import 'gift/gift_manager/gift_protocol.dart';
+import 'gift/gift_manager/gift_extras.dart';
 import 'gift/components/entrance_effect_widget.dart';
+import 'gift/components/float_message_overlay.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 
@@ -698,7 +699,7 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
       /// on host can control pk
       //..foreground =
       ..preview.showPreviewForHost = false
-      ..bottomMenuBar.hostExtendButtons = [privateLiveBtn, giftButton]
+      ..bottomMenuBar.hostExtendButtons = [privateLiveBtn, giftButton, floatMsgButton]
       ..avatarBuilder = (BuildContext context, Size size, ZegoUIKitUser? user,
           Map extraInfo) {
         return user != null
@@ -720,8 +721,8 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
       plugins: [ZegoUIKitSignalingPlugin()],
     )
       ..audioVideoView.foregroundBuilder = hostAudioVideoViewForegroundBuilder
-      ..bottomMenuBar.coHostExtendButtons = [giftButton]
-      ..bottomMenuBar.audienceExtendButtons = [giftButton];
+      ..bottomMenuBar.coHostExtendButtons = [giftButton, floatMsgButton]
+      ..bottomMenuBar.audienceExtendButtons = [giftButton, floatMsgButton];
 
     // ── VIP/MVP/LV attributes على الـ configs ────────────────────────────
     hostConfig.inRoomMessage.attributes = () => userLevelsAttributes;
@@ -1652,6 +1653,8 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
         ),
         // ✅ تأثير الدخول
         const EntranceEffectOverlay(),
+        // ✅ الرسائل العائمة
+        const FloatMessageOverlay(),
       ],
     );
   }
@@ -2002,6 +2005,15 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
       );
     }
   }
+
+  ZegoLiveStreamingMenuBarExtendButton get floatMsgButton =>
+      ZegoLiveStreamingMenuBarExtendButton(
+        index: 1,
+        child: FloatMessageButton(
+          currentUser: widget.currentUser!,
+          liveID: widget.liveID,
+        ),
+      );
 
   ZegoLiveStreamingMenuBarExtendButton get giftButton =>
       ZegoLiveStreamingMenuBarExtendButton(
