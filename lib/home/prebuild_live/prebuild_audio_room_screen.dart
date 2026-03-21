@@ -40,9 +40,11 @@ import '../live_end/live_end_report_screen.dart';
 import '../live_end/live_end_screen.dart';
 import 'gift/components/mp4_player_widget.dart';
 import 'gift/components/svga_player_widget.dart';
+import 'gift/components/entrance_effect_widget.dart';
 import 'gift/gift_data.dart';
 import 'gift/gift_manager/defines.dart';
 import 'gift/gift_manager/gift_manager.dart';
+import 'gift/gift_manager/gift_protocol.dart';
 import 'global_private_live_price_sheet.dart';
 import 'global_user_profil_sheet.dart';
 
@@ -251,10 +253,28 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
               }
             },
               user: ZegoLiveAudioRoomUserEvents(
-                onEnter: (user){
-                  if(user.id != widget.liveStreaming!.getAuthorId) {
+                onEnter: (user) async {
+                  if (user.id != widget.liveStreaming!.getAuthorId) {
                     addOrUpdateLiveViewers();
                     sendMessage("has_entered_the_room".tr());
+                  }
+                  // ✅ إذا كان المستخدم الداخل هو المستخدم الحالي → أرسل تأثير دخوله
+                  if (user.id == widget.currentUser!.objectId &&
+                      widget.currentUser!.getCanUseEntranceEffect == true &&
+                      widget.currentUser!.getEntranceEffect != null) {
+                    final fileUrl = widget.currentUser!.getEntranceEffect!.url!;
+                    await ZegoGiftManager().service.sendEntranceEffect(
+                      fileUrl: fileUrl,
+                      senderUserID: widget.currentUser!.objectId!,
+                      senderUserName: widget.currentUser!.getFullName ?? '',
+                    );
+                    // ✅ شغّله محلياً أيضاً للمرسل نفسه
+                    ZegoGiftManager().service.entranceEffectNotifier.value =
+                        ZegoEntranceEffectItem(
+                          fileUrl: fileUrl,
+                          senderUserID: widget.currentUser!.objectId!,
+                          senderUserName: widget.currentUser!.getFullName ?? '',
+                        );
                   }
                 },
                 onLeave: (user) {
@@ -278,136 +298,58 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
                     message: 'live_streaming.finish_live_ask'.tr(),
                     cancelButtonName: "cancel".tr(),
                     confirmButtonName: "confirm_".tr(),
-                  ))
-                : ZegoUIKitPrebuiltLiveAudioRoomConfig.audience()
-              ..bottomMenuBar.audienceExtendButtons = [giftButton]
-              ..bottomMenuBar.speakerExtendButtons = [giftButton]
-              ..seat.avatarBuilder = (BuildContext context, Size size, ZegoUIKitUser? user, Map extraInfo) {
-                // ── مقعد فارغ: أيقونة مخصصة بدلاً من الأبيض الافتراضي ──
-                if (user == null) {
-                  return Container(
-                    width: size.width,
-                    height: size.height,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withOpacity(0.08),
-                      border: Border.all(color: Colors.white.withOpacity(0.25), width: 1.5),
-                    ),
-                    child: Icon(
-                      Icons.mic_none_rounded,
-                      color: Colors.white.withOpacity(0.4),
-                      size: size.width * 0.45,
-                    ),
-                  );
-                }
-                userAvatar = avatarService.fetchUserAvatar(user.id);
-                return FutureBuilder<String?>(
-                  future: avatarService.fetchUserAvatar(user.id),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return FadeShimmer(
-                        width: size.width,
-                        height: size.width,
-                        radius: 200,
-                        fadeTheme: QuickHelp.isDarkModeNoContext() ? FadeTheme.dark : FadeTheme.light,
-                      );
-                    } else if (snapshot.hasError || !snapshot.hasData) {
-                      return Icon(Icons.account_circle, size: size.width);
-                    }
-                    final avatarUrl = snapshot.data;
-                    return avatarUrl != null
-                        ? QuickActions.photosWidget(
-                      avatarUrl,
-                      width: size.width,
-                      height: size.height,
-                      borderRadius: 200,
-                    ) : const Icon(Icons.account_circle, size: 40);
-                  },
-                );
-              }
-            // ─── أنيميشن المايك على المقعد ────────────────────────────
-            ..seat.foregroundBuilder = (BuildContext context, Size size, ZegoUIKitUser? user, Map extraInfo) {
-                if (user == null) return const SizedBox();
-                bool isMicOn = extraInfo['isMicrophoneEnabled'] as bool? ?? true;
-                return Stack(
-                  children: [
-                    Positioned(
-                      bottom: 2,
-                      right: 2,
-                      child: Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: isMicOn ? Colors.transparent : Colors.black54,
-                          shape: BoxShape.circle,
+                  )
+                  ..bottomMenuBar.hostExtendButtons = [
+                    Obx((){
+                      return ContainerCorner(
+                        color: Colors.white,
+                        borderRadius: 50,
+                        height: 38,
+                        width: 38,
+                        onTap: () { toggleSharingMedia(); },
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: SvgPicture.asset(
+                            showGiftSendersController.shareMediaFiles.value
+                                ? "assets/svg/stop_sharing_media.svg"
+                                : "assets/svg/start_sharing_media.svg",
+                          ),
                         ),
-                        child: isMicOn
-                            ? Lottie.asset("assets/lotties/ic_activated_mic.json", fit: BoxFit.cover)
-                            : Lottie.asset("assets/lotties/ic_disabled_mic.json", fit: BoxFit.cover),
-                      ),
-                    ),
-                  ],
-                );
-              }
-            ..seat.layout.rowConfigs = List.generate(numberOfSeats, (index) {
-
-              // ─── شكل مميز: مقعد كبير يسار + شبكة يمين ───────────────
-              if (widget.liveStreaming!.getRoomLayout == "featured") {
-                // نستخدم صفوف من 3: المضيف (index 0) ثم صفوف ثلاثية
-                if (index == 0) {
-                  return ZegoLiveAudioRoomLayoutRowConfig(
-                    count: 1,
-                    alignment: ZegoLiveAudioRoomLayoutAlignment.center,
-                  );
-                }
-                return ZegoLiveAudioRoomLayoutRowConfig(
-                  count: 3,
-                  alignment: ZegoLiveAudioRoomLayoutAlignment.spaceEvenly,
-                );
-              }
-
-              // ─── شكل كلاسيكي ─────────────────────────────────────────
-              if (index == 0) {
-                return ZegoLiveAudioRoomLayoutRowConfig(count: 1, alignment: ZegoLiveAudioRoomLayoutAlignment.center);
-              }
-
-              if(widget.liveStreaming!.getNumberOfChairs == 20){
-                return ZegoLiveAudioRoomLayoutRowConfig(count: 5, alignment: ZegoLiveAudioRoomLayoutAlignment.start);
-              }
-
-              if(widget.liveStreaming!.getNumberOfChairs == 24){
-                return ZegoLiveAudioRoomLayoutRowConfig(count: 6, alignment: ZegoLiveAudioRoomLayoutAlignment.start);
-              }
-
-              return ZegoLiveAudioRoomLayoutRowConfig(count: 4, alignment: ZegoLiveAudioRoomLayoutAlignment.spaceEvenly);
-            })
-              ..foreground = customUiComponents()
-              ..inRoomMessage.visible = true
-              ..inRoomMessage.showAvatar = true
-              ..bottomMenuBar.hostExtendButtons = [Obx((){
-                return ContainerCorner(
-                  color: Colors.white,
-                  borderRadius: 50,
-                  height: 38,
-                  width: 38,
-                  onTap: () {
-                    toggleSharingMedia();
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: SvgPicture.asset(
-                      showGiftSendersController.shareMediaFiles.value ? "assets/svg/stop_sharing_media.svg":
-                      "assets/svg/start_sharing_media.svg",
-                    ),
-                  ),
-                );
-              }), privateLiveBtn]
-              ..background = Image.asset(
-                "assets/images/audio_bg_start.png",
-                height: size.height,
-                width: size.width,
-                fit: BoxFit.fill,
-              ),
+                      );
+                    }),
+                    privateLiveBtn,
+                    // ✅ زر الهدايا للمضيف
+                    audioGiftButton,
+                  ]
+                  ..foreground = customUiComponents()
+                  ..inRoomMessage.visible = true
+                  ..inRoomMessage.showAvatar = true
+                  ..background = Image.asset(
+                    "assets/images/audio_bg_start.png",
+                    height: size.height,
+                    width: size.width,
+                    fit: BoxFit.fill,
+                  )
+                  ..seat.avatarBuilder = _seatAvatarBuilder
+                  ..seat.foregroundBuilder = _seatForegroundBuilder
+                  ..seat.layout.rowConfigs = _buildRowConfigs()
+                )
+                : (ZegoUIKitPrebuiltLiveAudioRoomConfig.audience()
+                  ..bottomMenuBar.audienceExtendButtons = [audioGiftButton]
+                  ..bottomMenuBar.speakerExtendButtons = [audioGiftButton]
+                  ..foreground = customUiComponents()
+                  ..inRoomMessage.visible = true
+                  ..inRoomMessage.showAvatar = true
+                  ..background = Image.asset(
+                    "assets/images/audio_bg_start.png",
+                    height: size.height,
+                    width: size.width,
+                    fit: BoxFit.fill,
+                  )
+                  ..seat.avatarBuilder = _seatAvatarBuilder
+                  ..seat.foregroundBuilder = _seatForegroundBuilder
+                  ..seat.layout.rowConfigs = _buildRowConfigs()
+                ),
           ),
           Positioned(
             top: 30,
@@ -698,6 +640,9 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
         liveViewersModel.setAuthorId = widget.currentUser!.objectId!;
 
         liveViewersModel.setWatching = true;
+        // ✅ الوضع المخفي — يُخفي المستخدم من قائمة المشاهدين
+        liveViewersModel.setIsInvisible =
+            widget.currentUser!.getVipInvisibleMode == true;
 
         liveViewersModel.setLiveAuthorId = widget.liveStreaming!.getAuthorId!;
         liveViewersModel.setLiveId = widget.liveStreaming!.objectId!;
@@ -711,9 +656,10 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
     QueryBuilder<LiveViewersModel> query =
     QueryBuilder<LiveViewersModel>(LiveViewersModel());
 
-    //query.whereNotEqualTo(LiveViewersModel.keyAuthorId, widget.liveStreaming!.getAuthorId);
     query.whereEqualTo(LiveViewersModel.keyLiveId, widget.liveStreaming!.objectId);
     query.whereEqualTo(LiveViewersModel.keyWatching, true);
+    // ✅ إخفاء المستخدمين ذوي الوضع المخفي من قائمة المشاهدين
+    query.whereNotEqualTo(LiveViewersModel.keyIsInvisible, true);
     query.orderByDescending(LiveViewersModel.keyUpdatedAt);
     query.includeObject([
       LiveViewersModel.keyAuthor,
@@ -799,6 +745,186 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
         NotificationsModel.notificationTypeFollowers,
       );
     }
+  }
+
+  // ✅ زر الهدايا بالنوع الصحيح للغرفة الصوتية
+  ZegoLiveAudioRoomMenuBarExtendButton get audioGiftButton =>
+      ZegoLiveAudioRoomMenuBarExtendButton(
+        index: 0,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            shape: const CircleBorder(),
+            backgroundColor: Colors.black26,
+          ),
+          onPressed: () {
+            if (coHostsList.isNotEmpty) {
+              openUserToReceiveCoins();
+              return;
+            }
+            CoinsFlowPayment(
+              context: context,
+              currentUser: widget.currentUser!,
+              onCoinsPurchased: (coins) {},
+              onGiftSelected: (gift) {
+                sendGift(gift, widget.liveStreaming!.getAuthor!);
+                QuickHelp.showAppNotificationAdvanced(
+                  context: context,
+                  user: widget.currentUser,
+                  title: "live_streaming.gift_sent_title".tr(),
+                  message: "live_streaming.gift_sent_explain".tr(
+                    namedArgs: {
+                      "name": widget.liveStreaming!.getAuthor!.getFirstName!
+                    },
+                  ),
+                  isError: false,
+                );
+              },
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(3.0),
+            child: Lottie.asset("assets/lotties/ic_gift.json", height: 29),
+          ),
+        ),
+      );
+
+  // ✅ دالة بناء avatar المقعد (إطار الصورة + VIP badge)
+  Function get _seatAvatarBuilder => (BuildContext context, Size size,
+      ZegoUIKitUser? user, Map extraInfo) {
+    if (user == null) {
+      return Container(
+        width: size.width,
+        height: size.height,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white.withOpacity(0.08),
+          border: Border.all(
+              color: Colors.white.withOpacity(0.25), width: 1.5),
+        ),
+        child: Icon(Icons.mic_none_rounded,
+            color: Colors.white.withOpacity(0.4),
+            size: size.width * 0.45),
+      );
+    }
+    final avatarService = AvatarService();
+    return FutureBuilder<UserModel?>(
+      future: avatarService.fetchUserModel(user.id),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return FadeShimmer(
+            width: size.width,
+            height: size.width,
+            radius: 200,
+            fadeTheme: QuickHelp.isDarkModeNoContext()
+                ? FadeTheme.dark
+                : FadeTheme.light,
+          );
+        }
+        final userModel = snapshot.data;
+        final avatarUrl = userModel?.getAvatar?.url;
+        final frameUrl = (userModel?.getCanUseAvatarFrame == true)
+            ? userModel?.getAvatarFrame?.url
+            : null;
+        final isVip = userModel?.getIsUserVip == true;
+        final showVipBadge = userModel?.getShowVipLevel == true;
+        return Stack(
+          alignment: Alignment.center,
+          clipBehavior: Clip.none,
+          children: [
+            ClipOval(
+              child: avatarUrl != null
+                  ? QuickActions.photosWidget(avatarUrl,
+                      width: size.width, height: size.height)
+                  : Icon(Icons.account_circle, size: size.width),
+            ),
+            if (frameUrl != null)
+              QuickActions.photosWidget(frameUrl,
+                  width: size.width * 1.35, height: size.height * 1.35),
+            if (isVip && showVipBadge)
+              Positioned(
+                bottom: -4,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 5, vertical: 1),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                        colors: [Color(0xFFFFB800), Color(0xFFFF6B00)]),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text('VIP',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold)),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  };
+
+  // ✅ دالة foreground المقعد (مؤشر المايك)
+  Function get _seatForegroundBuilder =>
+      (BuildContext context, Size size, ZegoUIKitUser? user, Map extraInfo) {
+        if (user == null) return const SizedBox();
+        final isMicOn =
+            extraInfo['isMicrophoneEnabled'] as bool? ?? true;
+        return Stack(
+          children: [
+            Positioned(
+              bottom: 2,
+              right: 2,
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: isMicOn ? Colors.transparent : Colors.black54,
+                  shape: BoxShape.circle,
+                ),
+                child: isMicOn
+                    ? Lottie.asset("assets/lotties/ic_activated_mic.json",
+                        fit: BoxFit.cover)
+                    : Lottie.asset("assets/lotties/ic_disabled_mic.json",
+                        fit: BoxFit.cover),
+              ),
+            ),
+          ],
+        );
+      };
+
+  // ✅ إعدادات صفوف المقاعد
+  List<ZegoLiveAudioRoomLayoutRowConfig> _buildRowConfigs() {
+    return List.generate(numberOfSeats, (index) {
+      if (widget.liveStreaming!.getRoomLayout == "featured") {
+        if (index == 0) {
+          return ZegoLiveAudioRoomLayoutRowConfig(
+              count: 1,
+              alignment: ZegoLiveAudioRoomLayoutAlignment.center);
+        }
+        return ZegoLiveAudioRoomLayoutRowConfig(
+            count: 3,
+            alignment: ZegoLiveAudioRoomLayoutAlignment.spaceEvenly);
+      }
+      if (index == 0) {
+        return ZegoLiveAudioRoomLayoutRowConfig(
+            count: 1,
+            alignment: ZegoLiveAudioRoomLayoutAlignment.center);
+      }
+      if (widget.liveStreaming!.getNumberOfChairs == 20) {
+        return ZegoLiveAudioRoomLayoutRowConfig(
+            count: 5,
+            alignment: ZegoLiveAudioRoomLayoutAlignment.start);
+      }
+      if (widget.liveStreaming!.getNumberOfChairs == 24) {
+        return ZegoLiveAudioRoomLayoutRowConfig(
+            count: 6,
+            alignment: ZegoLiveAudioRoomLayoutAlignment.start);
+      }
+      return ZegoLiveAudioRoomLayoutRowConfig(
+          count: 4,
+          alignment: ZegoLiveAudioRoomLayoutAlignment.spaceEvenly);
+    });
   }
 
   ZegoLiveStreamingMenuBarExtendButton get giftButton =>
@@ -1247,6 +1373,9 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
             return showGiftAnimation(playData);
           },
         ),
+
+        // ✅ تأثير الدخول — يظهر لجميع أعضاء الغرفة
+        const EntranceEffectOverlay(),
         
         Obx((){
           return Visibility(
