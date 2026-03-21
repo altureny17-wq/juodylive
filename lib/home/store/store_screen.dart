@@ -17,7 +17,9 @@ import '../../utils/colors.dart';
 import '../choose_guardian/choose_guardian_screen.dart';
 import '../feed/visualize_multiple_pictures_screen.dart';
 import '../prebuild_live/gift/components/svga_player_widget.dart';
+import '../prebuild_live/gift/components/mp4_player_widget.dart';
 import '../prebuild_live/gift/gift_data.dart';
+import '../prebuild_live/gift/gift_manager/defines.dart';
 import '../prebuild_live/gift/gift_manager/gift_manager.dart';
 
 class StoreScreen extends StatefulWidget {
@@ -196,9 +198,7 @@ class _StoreScreenState extends State<StoreScreen>
     bool isDark = QuickHelp.isDarkMode(context);
 
     QueryBuilder<GiftsModel> query = QueryBuilder<GiftsModel>(GiftsModel());
-    //query.whereEqualTo(GiftsModel.keyGiftCategories, GiftsModel.categoryEntranceEffect);
-    query.whereEqualTo(
-        GiftsModel.keyGiftCategories, GiftsModel.categorySvgaGifts);
+    query.whereEqualTo(GiftsModel.keyGiftCategories, GiftsModel.categoryEntranceEffect);
 
     return Stack(
       alignment: Alignment.center,
@@ -384,18 +384,26 @@ class _StoreScreenState extends State<StoreScreen>
   }
 
   Widget svgaWidget(GiftsModel giftItem) {
-    /// you can define the area and size for displaying your own
-    /// animations here
+    final fileUrl = giftItem.getFile?.url ?? '';
+    final isMp4 = fileUrl.toLowerCase().endsWith('.mp4');
+
     return Positioned(
-      child: ZegoSvgaPlayerWidget(
-        key: UniqueKey(),
-        giftItem: giftItem,
-        onPlayEnd: () {
-          /// if there is another gift animation, then play
-          ZegoGiftManager().playList.next();
-        },
-        count: 1,
-      ),
+      child: isMp4
+          ? ZegoMp4PlayerWidget(
+              key: UniqueKey(),
+              playData: PlayData(giftItem: giftItem, count: 1),
+              onPlayEnd: () {
+                ZegoGiftManager().playList.next();
+              },
+            )
+          : ZegoSvgaPlayerWidget(
+              key: UniqueKey(),
+              giftItem: giftItem,
+              onPlayEnd: () {
+                ZegoGiftManager().playList.next();
+              },
+              count: 1,
+            ),
     );
   }
 
