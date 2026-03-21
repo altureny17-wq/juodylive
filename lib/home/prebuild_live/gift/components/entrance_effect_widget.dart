@@ -1,11 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_svga/flutter_svga.dart';
 
 import '../gift_manager/gift_manager.dart';
-import '../gift_manager/gift_protocol.dart';
+import '../gift_manager/gift_extras.dart';
 
 /// Overlay يُعرض فوق الغرفة عند استقبال تأثير دخول
 class EntranceEffectOverlay extends StatefulWidget {
