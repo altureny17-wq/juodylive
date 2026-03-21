@@ -2155,9 +2155,9 @@ class MultiUsersLiveScreenState extends State<MultiUsersLiveScreen> with TickerP
           },
         ),
         // ✅ تأثير الدخول
-        const EntranceEffectOverlay(),
+        EntranceEffectOverlay(),
         // ✅ الرسائل العائمة
-        const FloatMessageOverlay(),
+        FloatMessageOverlay(),
         Obx(() {
   return Visibility(
     visible: showGiftSendersController.shareMediaFiles.value,
