@@ -12,6 +12,7 @@ import 'package:zego_uikit/zego_uikit.dart';
 import '../../../../models/GiftsModel.dart';
 import '../components/mp4_player.dart';
 import 'defines.dart';
+import 'gift_extras.dart';
 
 part 'gift_cache.dart';
 part 'gift_protocol.dart';
