@@ -18,6 +18,34 @@ class GiftProtocolImpll {
   // ── تأثير الدخول ──────────────────────────────────────────────────────────
   final entranceEffectNotifier = ValueNotifier<ZegoEntranceEffectItem?>(null);
 
+  // ── رسالة عائمة ───────────────────────────────────────────────────────────
+  final floatMessageNotifier = ValueNotifier<ZegoFloatMessageItem?>(null);
+
+  Future<bool> sendFloatMessage({
+    required String text,
+    required String senderUserID,
+    required String senderUserName,
+    String? avatarUrl,
+  }) async {
+    final data = json.encode({
+      'msg_type': 'float_message',
+      'room_id': _liveID,
+      'user_id': senderUserID,
+      'user_name': senderUserName,
+      'avatar_url': avatarUrl ?? '',
+      'text': text,
+      'timestamp': DateTime.now().millisecondsSinceEpoch,
+    });
+    ZegoUIKit()
+        .getSignalingPlugin()
+        .sendInRoomCommandMessage(
+          roomID: _liveID,
+          message: _stringToUint8List(data),
+        )
+        .then((r) => debugPrint('sendFloatMessage result:$r'));
+    return true;
+  }
+
   /// يُرسَل فور دخول المستخدم الغرفة إذا كان لديه تأثير دخول مفعَّل
   Future<bool> sendEntranceEffect({
     required String fileUrl,
@@ -123,14 +151,19 @@ class GiftProtocolImpll {
       final msgType = parsed['msg_type'] as String?;
 
       if (msgType == 'entrance_effect') {
-        // تأثير دخول — يُعرض لجميع أعضاء الغرفة بما فيهم المرسل
         entranceEffectNotifier.value = ZegoEntranceEffectItem(
           fileUrl: parsed['file_url'] ?? '',
           senderUserID: parsed['user_id'] ?? '',
           senderUserName: parsed['user_name'] ?? '',
         );
+      } else if (msgType == 'float_message') {
+        floatMessageNotifier.value = ZegoFloatMessageItem(
+          text: parsed['text'] ?? '',
+          senderUserID: parsed['user_id'] ?? '',
+          senderUserName: parsed['user_name'] ?? '',
+          avatarUrl: parsed['avatar_url'] ?? '',
+        );
       } else {
-        // هدية عادية
         if (senderUserID != _localUserID) {
           final gift = ZegoGiftProtocol.fromJson(message);
           recvNotifier.value = gift.giftItem;
@@ -191,17 +224,4 @@ class ZegoGiftProtocol {
       ),
     );
   }
-}
-
-/// بيانات تأثير الدخول المستقبَل
-class ZegoEntranceEffectItem {
-  final String fileUrl;
-  final String senderUserID;
-  final String senderUserName;
-
-  ZegoEntranceEffectItem({
-    required this.fileUrl,
-    required this.senderUserID,
-    required this.senderUserName,
-  });
 }
