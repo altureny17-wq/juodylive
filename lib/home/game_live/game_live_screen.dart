@@ -32,6 +32,8 @@ import '../prebuild_live/gift/components/mp4_player_widget.dart';
 import '../prebuild_live/gift/gift_data.dart';
 import '../prebuild_live/gift/gift_manager/defines.dart';
 import '../prebuild_live/gift/gift_manager/gift_manager.dart';
+import '../prebuild_live/gift/gift_manager/gift_protocol.dart';
+import '../prebuild_live/gift/components/entrance_effect_widget.dart';
 import '../prebuild_live/global_private_live_price_sheet.dart';
 import '../prebuild_live/global_user_profil_sheet.dart';
 
@@ -203,7 +205,9 @@ class GameLiveScreenState extends State<GameLiveScreen>
         ..setAuthor = widget.currentUser!
         ..setAuthorId = widget.currentUser!.objectId!
         ..setLiveId = widget.liveStreaming!.objectId!
-        ..setLiveAuthorId = widget.liveStreaming!.getAuthorId!;
+        ..setLiveAuthorId = widget.liveStreaming!.getAuthorId!
+        // ✅ الوضع المخفي
+        ..setIsInvisible = (widget.currentUser!.getVipInvisibleMode == true);
       await v.save();
       widget.liveStreaming!.addViewersCount = 1;
       await widget.liveStreaming!.save();
@@ -342,6 +346,8 @@ class GameLiveScreenState extends State<GameLiveScreen>
               return _giftAnimationWidget(gift);
             },
           ),
+          // ✅ تأثير الدخول
+          const EntranceEffectOverlay(),
         ],
       ),
     );
@@ -714,7 +720,26 @@ class GameLiveScreenState extends State<GameLiveScreen>
                 },
               ),
               user: ZegoLiveStreamingUserEvents(
-                onEnter: (_) => _addViewerToLive(),
+                onEnter: (zegoUser) async {
+                  _addViewerToLive();
+                  // ✅ تأثير الدخول
+                  if (zegoUser.id == widget.currentUser!.objectId &&
+                      widget.currentUser!.getCanUseEntranceEffect == true &&
+                      widget.currentUser!.getEntranceEffect != null) {
+                    final fileUrl = widget.currentUser!.getEntranceEffect!.url!;
+                    await ZegoGiftManager().service.sendEntranceEffect(
+                      fileUrl: fileUrl,
+                      senderUserID: widget.currentUser!.objectId!,
+                      senderUserName: widget.currentUser!.getFullName ?? '',
+                    );
+                    ZegoGiftManager().service.entranceEffectNotifier.value =
+                        ZegoEntranceEffectItem(
+                          fileUrl: fileUrl,
+                          senderUserID: widget.currentUser!.objectId!,
+                          senderUserName: widget.currentUser!.getFullName ?? '',
+                        );
+                  }
+                },
                 onLeave: (_) => _onViewerLeave(),
               ),
             ),
