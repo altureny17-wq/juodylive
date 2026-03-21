@@ -41,10 +41,11 @@ import '../live_end/live_end_screen.dart';
 import 'gift/components/mp4_player_widget.dart';
 import 'gift/components/svga_player_widget.dart';
 import 'gift/components/entrance_effect_widget.dart';
+import 'gift/components/float_message_overlay.dart';
 import 'gift/gift_data.dart';
 import 'gift/gift_manager/defines.dart';
 import 'gift/gift_manager/gift_manager.dart';
-import 'gift/gift_manager/gift_protocol.dart';
+import 'gift/gift_manager/gift_extras.dart';
 import 'global_private_live_price_sheet.dart';
 import 'global_user_profil_sheet.dart';
 
@@ -320,6 +321,7 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
                     privateLiveBtn,
                     // ✅ زر الهدايا للمضيف
                     audioGiftButton,
+                    _floatMsgButton,
                   ]
                   ..foreground = customUiComponents()
                   ..inRoomMessage.visible = true
@@ -335,8 +337,8 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
                   ..seat.layout.rowConfigs = _buildRowConfigs()
                 )
                 : (ZegoUIKitPrebuiltLiveAudioRoomConfig.audience()
-                  ..bottomMenuBar.audienceExtendButtons = [audioGiftButton]
-                  ..bottomMenuBar.speakerExtendButtons = [audioGiftButton]
+                  ..bottomMenuBar.audienceExtendButtons = [audioGiftButton, _floatMsgButton]
+                  ..bottomMenuBar.speakerExtendButtons = [audioGiftButton, _floatMsgButton]
                   ..foreground = customUiComponents()
                   ..inRoomMessage.visible = true
                   ..inRoomMessage.showAvatar = true
@@ -747,9 +749,19 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
     }
   }
 
+  // ✅ زر الرسالة العائمة للغرفة الصوتية
+  ZegoLiveStreamingMenuBarExtendButton get _floatMsgButton =>
+      ZegoLiveStreamingMenuBarExtendButton(
+        index: 1,
+        child: FloatMessageButton(
+          currentUser: widget.currentUser!,
+          liveID: widget.liveStreaming!.objectId!,
+        ),
+      );
+
   // ✅ زر الهدايا بالنوع الصحيح للغرفة الصوتية
-  ZegoLiveAudioRoomMenuBarExtendButton get audioGiftButton =>
-      ZegoLiveAudioRoomMenuBarExtendButton(
+  ZegoLiveStreamingMenuBarExtendButton get audioGiftButton =>
+      ZegoLiveStreamingMenuBarExtendButton(
         index: 0,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
@@ -789,8 +801,8 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
       );
 
   // ✅ دالة بناء avatar المقعد (إطار الصورة + VIP badge)
-  Function get _seatAvatarBuilder => (BuildContext context, Size size,
-      ZegoUIKitUser? user, Map extraInfo) {
+  Widget? Function(BuildContext, Size, ZegoUIKitUser?, Map<String, dynamic>) get _seatAvatarBuilder => (BuildContext context, Size size,
+      ZegoUIKitUser? user, Map<String, dynamic> extraInfo) {
     if (user == null) {
       return Container(
         width: size.width,
@@ -865,8 +877,8 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
   };
 
   // ✅ دالة foreground المقعد (مؤشر المايك)
-  Function get _seatForegroundBuilder =>
-      (BuildContext context, Size size, ZegoUIKitUser? user, Map extraInfo) {
+  Widget Function(BuildContext, Size, ZegoUIKitUser?, Map<String, dynamic>) get _seatForegroundBuilder =>
+      (BuildContext context, Size size, ZegoUIKitUser? user, Map<String, dynamic> extraInfo) {
         if (user == null) return const SizedBox();
         final isMicOn =
             extraInfo['isMicrophoneEnabled'] as bool? ?? true;
@@ -1376,6 +1388,8 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
 
         // ✅ تأثير الدخول — يظهر لجميع أعضاء الغرفة
         const EntranceEffectOverlay(),
+        // ✅ الرسائل العائمة
+        const FloatMessageOverlay(),
         
         Obx((){
           return Visibility(
