@@ -1652,9 +1652,9 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
           },
         ),
         // ✅ تأثير الدخول
-        const EntranceEffectOverlay(),
+        EntranceEffectOverlay(),
         // ✅ الرسائل العائمة
-        const FloatMessageOverlay(),
+        FloatMessageOverlay(),
       ],
     );
   }
