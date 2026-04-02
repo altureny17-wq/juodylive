@@ -40,7 +40,6 @@ import '../level/level_screen.dart';
 import '../mvp/mvp_screen.dart';
 import '../my_moments/my_moments_screen.dart';
 import '../my_obtained_items/my_obtained_items.dart';
-import '../vip_features/vip_features_screen.dart';
 import '../relations/followers_screen.dart';
 import '../relations/visits_screen.dart';
 import '../report/report_screen.dart';
@@ -122,23 +121,17 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
   ];
 
   var secondOptionsCaption = [
-    //"tab_profile.guardian_".tr(),
-    //"tab_profile.help_".tr(),
+    "tab_profile.guardian_".tr(),
     "tab_profile.my_agency".tr(),
-    //"tab_profile.level_complete".tr(),
-    //"tab_profile.about_".tr(),
-    //"tab_profile.settings_".tr(),
-    //"tab_profile.follow_us".tr()
+    "tab_profile.help_".tr(),
+    "tab_profile.settings_".tr(),
   ];
 
   var secondOptionsLightIcons = [
-    //"assets/images/ic_profil_tab_guardian.png",
-    //"assets/images/ic_profil_tab_help.png",
+    "assets/images/ic_profil_tab_guardian.png",
     "assets/images/ic_tab_profile_agency.png",
-    //"assets/images/ic_tab_profile_level.png",
-    //"assets/images/ic_tab_profile_about.png",
-    //"assets/images/ic_tab_profile_settings.png",
-    //"assets/images/ic_tab_profile_follow.png",
+    "assets/images/ic_profil_tab_help.png",
+    "assets/images/ic_tab_profile_settings.png",
   ];
 
   var secondOptionsDarkIcons = [
@@ -405,29 +398,21 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
     ];
 
     secondOptionsScreens = [
-      /*GuardianAndVipStoreScreen(
+      // ✅ 1. Guardian / VIP
+      GuardianAndVipStoreScreen(
         currentUser: widget.currentUser,
-
         initialIndex: 0,
       ),
+      // ✅ 2. الوكالة — يعرض الشاشة المناسبة حسب دور المستخدم
+      agencyScreen(),
+      // ✅ 3. المساعدة
       HelpScreen(
         currentUser: widget.currentUser,
-
-      ),*/
-      agencyScreen(),
-      /*LevelScreen(
-        currentUser: widget.currentUser,
-
       ),
-      AboutUsScreen(
-        currentUser: widget.currentUser,
-
-      ),
+      // ✅ 4. الإعدادات
       SettingsScreen(
         currentUser: widget.currentUser,
-
       ),
-      null*/
     ];
 
     var numbers = [
@@ -1076,49 +1061,10 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
                                             fontSize: size.width / 40,
                                             color: kRoseVipClair,
                                           ),
-                                          // ✅ زر إدارة مميزات VIP
-                                          GestureDetector(
-                                            onTap: () async {
-                                              final updated = await QuickHelp
-                                                  .goToNavigatorScreenForResult(
-                                                context,
-                                                VipFeaturesScreen(
-                                                  currentUser:
-                                                      widget.currentUser,
-                                                ),
-                                              );
-                                              if (updated != null &&
-                                                  updated is UserModel) {
-                                                setState(() {
-                                                  widget.currentUser = updated;
-                                                });
-                                              }
-                                            },
-                                            child: ContainerCorner(
-                                              borderRadius: 50,
-                                              marginRight: 5,
-                                              marginLeft: 5,
-                                              marginTop: 10,
-                                              marginBottom: 10,
-                                              color: kPrimaryColor
-                                                  .withOpacity(0.85),
-                                              child: Center(
-                                                child: TextWithTap(
-                                                  "vip_features_screen.title"
-                                                      .tr(),
-                                                  fontSize: size.width / 42,
-                                                  marginRight: 10,
-                                                  marginLeft: 10,
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
                                           ContainerCorner(
                                             borderRadius: 50,
                                             marginRight: 15,
-                                            marginLeft: 5,
+                                            marginLeft: 10,
                                             marginTop: 10,
                                             marginBottom: 10,
                                             colors: [kRoseVip, kRoseVipClair],
