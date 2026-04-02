@@ -29,6 +29,8 @@ import 'package:juodylive/ui/text_with_tap.dart';
 import 'package:juodylive/utils/colors.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit/zego_uikit.dart';
+import 'package:juodylive/home/stories/story_type_chooser_screen.dart'; // تأكد من المسار الصحيح للمجلد
+import 'package:juodylive/home/fan_club/fan_club_screen.dart'; // تأكد من المسار الصحيح للمجلد
 
 import '../../app/constants.dart';
 import '../../app/setup.dart';
