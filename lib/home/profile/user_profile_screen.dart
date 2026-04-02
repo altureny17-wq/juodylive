@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:juodylive/home/menu/blocked_users_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
@@ -3426,7 +3427,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
       widget.currentUser = response.results!.first as UserModel;
 
       QuickHelp.hideLoadingDialog(context);
-      //QuickHelp.goToNavigator(context, BlockedUsersScreen.route);
+      QuickHelp.goToNavigatorScreen(context, BlockedUsersScreen(currentUser: widget.currentUser));
       QuickHelp.showAppNotificationAdvanced(
         context: context,
         title: "feed.post_block_success_title"
@@ -4217,7 +4218,10 @@ class _UserProfileScreenState extends State<UserProfileScreen>
               height: 50,
               borderRadius: 50,
               width: size.width / 2.3,
-              onTap: () {},
+              onTap: () => QuickHelp.goToNavigatorScreen(
+                context,
+                FanClubScreen(currentUser: widget.currentUser),
+              ),
               child: TextWithTap(
                 "profile_page.enter_group_chat".tr(),
                 color: kPrimaryColor,
@@ -4235,7 +4239,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                   height: 50,
                   borderRadius: 50,
                   width: size.width / 2.3,
-                  onTap: () {},
+                  onTap: () => joinFanClub(),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
