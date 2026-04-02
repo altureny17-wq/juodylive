@@ -43,6 +43,7 @@ import '../../models/MessageModel.dart';
 import '../../services/deep_links_service.dart';
 import '../feed/comment_post_screen.dart';
 import '../feed/create_pictures_post_screen.dart';
+import '../feed/create_text_post_screen.dart';
 import '../feed/create_video_post_screen.dart';
 import '../feed/feed_on_reels_screen.dart';
 import '../message/message_screen.dart';
@@ -1564,8 +1565,14 @@ class _ProfileScreenState extends State<ProfileScreen>
       toggleButtonAnimatedIconData: AnimatedIcons.menu_close,
       items: [
         CircularMenuItem(
-          color: kTransparentColor,
-          onTap: () {},
+          icon: Icons.text_fields,
+          color: kPrimaryColor.withOpacity(0.15),
+          onTap: () => QuickHelp.goToNavigatorScreen(
+            context,
+            CreateTextPostScreen(
+              currentUser: widget.currentUser!,
+            ),
+          ),
         ),
         CircularMenuItem(
           icon: Icons.camera,
@@ -1581,8 +1588,12 @@ class _ProfileScreenState extends State<ProfileScreen>
           onTap: () => goToVideoScreen(),
         ),
         CircularMenuItem(
-          color: kTransparentColor,
-          onTap: () {},
+          icon: Icons.auto_stories_outlined,
+          color: kPrimaryColor.withOpacity(0.15),
+          onTap: () => QuickHelp.goToNavigatorScreen(
+            context,
+            StoryTypeChooserScreen(currentUser: widget.currentUser!),
+          ),
         ),
       ],
     );
@@ -2849,7 +2860,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         message: 'live_streaming.location_needed_explain'.tr(),
         onPressed: () async {
           QuickHelp.goBackToPreviousPage(context);
-          //QuickHelp.goToNavigator(context, LocationScreen.route, arguments: widget.currentUser);
+          QuickHelp.goToNavigatorScreen(context, LocationScreen(currentUser: widget.currentUser));
 
           UserModel? user = await QuickHelp.goToNavigatorScreenForResult(
               context,
@@ -3510,7 +3521,10 @@ class _ProfileScreenState extends State<ProfileScreen>
       marginRight: 15,
       marginLeft: 15,
       width: size.width,
-      onTap: () {},
+      onTap: () => QuickHelp.goToNavigatorScreen(
+        context,
+        FanClubScreen(currentUser: widget.currentUser!),
+      ),
       child: TextWithTap(
         "profile_page.enter_group_chat".tr(),
         color: Colors.white,
