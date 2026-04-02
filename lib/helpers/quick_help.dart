@@ -635,6 +635,10 @@ class QuickHelp {
         locale: locale.toString(), name: currency);
   }
 
+  static String getDateFormatted(DateTime date) {
+    return DateFormat(dateFormatDmy).format(date);
+  }
+    
   static String levelImage({required int pointsInApp}) {
     if(pointsInApp <= Setup.level1MaxPoint){
       return "assets/images/lv_1.png";
