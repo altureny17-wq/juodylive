@@ -199,7 +199,10 @@ class _GetMoneyScreenState extends State<GetMoneyScreen> {
                   marginRight: 40,
                   marginLeft: 40,
                   height: 50,
-                  onTap: () {},
+                  onTap: () => QuickHelp.goToNavigatorScreen(context,
+                      LivePreviewScreen(
+                          currentUser: widget.currentUser!,
+                      )),
                   child: GestureDetector(
                     onTap: () => QuickHelp.goToNavigatorScreen(context,
                         LivePreviewScreen(
