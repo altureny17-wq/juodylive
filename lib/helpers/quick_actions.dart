@@ -170,8 +170,12 @@ class QuickActions {
                 ),
               ),
             ),
-          // ✅ إطار VIP فقط إذا لم يكن هناك إطار مشترى
-          if (!hideAvatarFrame && currentUser.getIsUserVip! && !currentUser.getCanUseAvatarFrame!)
+          // ✅ إطار VIP — يظهر فقط إذا لم يكن هناك إطار مشترى
+          //    ويحترم إعداد getShowVipLevel (إخفاء الشارة)
+          if (!hideAvatarFrame &&
+              currentUser.getIsUserVip! &&
+              !currentUser.getCanUseAvatarFrame! &&
+              (currentUser.getShowVipLevel ?? true))
             Container(
               margin: margin,
               child: Image.asset(
@@ -582,7 +586,8 @@ class QuickActions {
           vipFrameHeight: vipFrameHeight,
           hideAvatarFrame: hideAvatarFrame,
         ),
-        if(!(user.getIsUserVip! && !user.getCanUseAvatarFrame!))
+        if(!(user.getIsUserVip! && !user.getCanUseAvatarFrame!) ||
+            !(user.getShowVipLevel ?? true))
           Container(
             width: width, //160,
             height: height, //160,
