@@ -75,7 +75,7 @@
   "whatsapp_": "Whatsapp",
   "line_": "Line",
   "more_": "More",
-  "voice_" : "Voice",
+  "voice_": "Voice",
   "personal_": "Personal",
   "privileges_": "Privileges",
   "enter_": "Enter",
@@ -392,7 +392,6 @@
     "hk_": "Hong Kong",
     "nl_": "Netherlands"
   },
-
   "languages_iso": {
     "ab_": "Abkhazian",
     "aa_": "Afar",
@@ -569,7 +568,6 @@
     "za_": "Zhuang",
     "zu_": "Zulu"
   },
-
   "page_title": {
     "welcome_title": "Welcome to {app_name}",
     "notifications_title": "Notifications",
@@ -858,7 +856,7 @@
     "by_clicking": "By clicking Login, Register or Get Started, you agree with how we process your data learn more in our",
     "login_method": "Which method would you like to Sign In with?",
     "no_resent": "No recent",
-    "invalid_credentials" : "Invalid credentials"
+    "invalid_credentials": "Invalid credentials"
   },
   "date_time": {
     "yesterday_": "Yesterday",
@@ -1781,7 +1779,11 @@
     "super_vip_can_enjoy": "Super VIP can enjoy this privilege",
     "open_vip": "Open VIP",
     "super_diamond_can_enjoy": "Diamond VIP can enjoy this privilege",
-    "hide_profile_cover_frame": "Hide Profile Cover Frame"
+    "hide_profile_cover_frame": "Hide Profile Cover Frame",
+    "vip_invisible_mode": "Invisible Mode in Stream",
+    "vip_invisible_mode_explain": "Hide yourself from the viewers list during live",
+    "show_vip_level": "Show VIP Level",
+    "show_vip_level_explain": "Display your VIP badge and level frame on your avatar"
   },
   "new_message_notification_screen": {
     "new_message_notification": "New messages notification",
@@ -1974,7 +1976,6 @@
     "current_week": "Current week",
     "gave_it_to": "Gave it to {name}"
   },
-
   "withdraw_screen": {
     "withdraw_": "Withdraw",
     "record_": "Record",
@@ -1993,7 +1994,6 @@
     "third_rule": "3. Different payment method, service must vary, Please select the appropriate payment method.",
     "please_complete_first": "Please complete first"
   },
-
   "exchange_coins_screen": {
     "exchange_coins": "Exchange coins",
     "number_exchanges": "Number of exchanges",
@@ -2006,7 +2006,6 @@
     "insufficient_point": "Insufficient point",
     "verification_code_needed": "Verification code needed"
   },
-
   "withdrawal_method_screen": {
     "withdrawal_method": "Withdrawal method",
     "my_preferred_way_for_payment": "My most preferred way to receive payment",
@@ -2021,7 +2020,6 @@
     "withdrawal_amount": "Withdrawal amount",
     "minimum_withdrawal_withdrawal": "Minimum withdrawal amount is {amount}"
   },
-
   "bind_payoneer_account_screen": {
     "name_": "Name",
     "account_": "Account",
@@ -2032,7 +2030,6 @@
     "please_enter_correct_name": "Please enter correct name",
     "enter_account": "Enter Account"
   },
-
   "bind_bnb_smart_chain_screen": {
     "wallet_address": "Wallet Address",
     "please_enter": "Please enter",
@@ -2043,16 +2040,13 @@
     "rule_4": "4. Choose Network: BNB Smart chain (BEP20)",
     "rule_5": "5. Wallet Address: 0x*********************"
   },
-
   "bind_usdt_screen": {
     "contact_address": "Contact Address"
   },
-
   "payment_method_screen": {
     "input_hint_text": "Input your preferred payment method, will accomplish for you as soon as possible",
     "payment_method": "Payment method"
   },
-
   "reward_screen": {
     "reward_": "Reward",
     "live_": "Live",
@@ -2064,8 +2058,8 @@
     "reward_rule_explain": "Reward cycle is 24 hours: refreshing at UTC+8 time zone 00:00:00 everyday",
     "party_reward": "On the mic for 15 min in party."
   },
-
   "auth_screen": {
+    "profile_list_menu.auth": "auth",
     "auth_": "Auth",
     "my_authentication": "My authentication",
     "my_authentication_explain": "In order to ensure the property safety of your account and others, we recommend you to authenticate",
@@ -2077,7 +2071,6 @@
     "bind_phone": "Bing a phone",
     "bind_phone_explain": "For the security of your account, please bind your mobile phone"
   },
-
   "bind_phone_number_screen": {
     "modify_the_phone": "Modify the bound phone number",
     "phone_number": "Phone number",
@@ -2094,7 +2087,6 @@
     "already_linked_number": "Have you already linked this number",
     "original_phone": "Original phone number {number}"
   },
-
   "face_authentication_screen": {
     "auth_": "Auth",
     "please_upload_photo": "Please upload a clear photo of yourself first",
@@ -2111,11 +2103,9 @@
     "multiple_auth_not": "Multiple authentication is not allowed",
     "contact_customer_service": "If the authentication has been unsuccessful, please contact customer service"
   },
-
   "medal_screen": {
     "medal_": "Medal"
   },
-
   "fan_club_screen": {
     "fans_club": "Fans club",
     "joined_club": "Joined club",
@@ -2133,7 +2123,6 @@
     "renew_": "Renew",
     "wear_": "Wear"
   },
-
   "fan_club_privileges": {
     "i_see": "I see.",
     "fan_club_info": "Fan club information",
@@ -2146,11 +2135,10 @@
     "privilege_7": "7. Platform float tag /speaker can add up to {amount} intimacy/day;",
     "privilege_8": "8. If the intimacy does not increase within {days} days, it won't be counted int rank."
   },
-
   "my_agency_screen": {
     "my_agent": "My agency",
     "choose_method": "Choose",
-    "agent_join":  "Join Agent",
+    "agent_join": "Join Agent",
     "id_provided_by_agent": "Agent ID will be provided by agent",
     "please_enter_id": "Please enter agent's ID",
     "method_count": "Method {number}",
@@ -2163,24 +2151,22 @@
     "note_2": "2. Host cannot join multiple agents!",
     "note_3": "3. Agent cannot join other agents!"
   },
-
- "store_screen": {
-   "store_": "Store",
-   "mine_": "Mine",
-   "no_obtain": "Not obtained",
-   "sending_": "Sending",
-   "purchase_": "Purchase",
-   "avatar_frame": "Avatar frame",
-   "party_theme": "Party theme",
-   "entrance_effect": "Entrance effect",
-   "select_specification": "Select specification",
-   "select_object": "Select gift object",
-   "send_": "Send",
-   "price_per_some_days": "{amount}coins/{days}d",
-   "obtained_": "Obtained",
-   "confirm_purchase": "Congratulations on receiving a new {item_name}! Whether to user it immediately."
- },
-
+  "store_screen": {
+    "store_": "Store",
+    "mine_": "Mine",
+    "no_obtain": "Not obtained",
+    "sending_": "Sending",
+    "purchase_": "Purchase",
+    "avatar_frame": "Avatar frame",
+    "party_theme": "Party theme",
+    "entrance_effect": "Entrance effect",
+    "select_specification": "Select specification",
+    "select_object": "Select gift object",
+    "send_": "Send",
+    "price_per_some_days": "{amount}coins/{days}d",
+    "obtained_": "Obtained",
+    "confirm_purchase": "Congratulations on receiving a new {item_name}! Whether to user it immediately."
+  },
   "my_obtained_items_screen": {
     "remaining_time": "Remaining: {time}",
     "mine_": "Mine",
@@ -2188,7 +2174,6 @@
     "take_off": "Take off",
     "renewed_succeed": "Congratulations, you renewed your {item_name} from {category} adding {days} days."
   },
-
   "invitation_gift_screen": {
     "invitation_gift": "Invitation gift",
     "invite_someone": "Invite someone",
@@ -2217,7 +2202,6 @@
     "choose_promotional_image": "Choose promotional image",
     "save_promotional_image": "Save promotional image"
   },
-
   "rank_screen": {
     "host_": "Host",
     "rich_": "Rich",
@@ -2247,7 +2231,6 @@
     "fri_to_sun": "Fri.- Sun.",
     "rich_daily_ranking": "Daily rich ranking"
   },
-
   "live_application_screen": {
     "live_application": "Live application",
     "live_application_condition": "Live application Conditions",
@@ -2260,7 +2243,6 @@
     "live_now": "Live now",
     "at_less_live_photo": "At least upload the live photo"
   },
-
   "host_rules_screen": {
     "host_rules": "Host rules",
     "account_rules": "Account rules",
@@ -2304,7 +2286,6 @@
     "change_agency_4": "4. After submitting the leaving agency application, the host will not be able to submit another one within 30 days whether it has been approved or declined.",
     "change_agency_5": "5. Agents can still approve the application of the host to leave the agency within 14 days after the first rejection."
   },
-
   "new_task_system_screen": {
     "new_task_system": "New task system",
     "dear_host": "Dear hosts, in order for {app_name} to have a healthier development, {app_name} will adjust the host task system",
@@ -2327,7 +2308,6 @@
     "notice_3": "3. On the second day after the income reaches the target, the new live task will be automatically displayed.",
     "notice_4": "4. Hosts who have registered multiple accounts, and those who log in with multiple IPs and multiple devices will be closed all tasks."
   },
-
   "fans_ranking_screen": {
     "fans_ranking": "Fans ranking",
     "today_": "Today",
@@ -2337,7 +2317,6 @@
     "fans_ranking_today": "Fans ranking: Coin rank consumed by gifting in the live room today",
     "fans_ranking_week": "Fans ranking: Coin rank consumed by gifting in the live room in the recent 7 days"
   },
-
   "upload_live_photo_screen": {
     "live_photo": "Live photo",
     "sample_photo": "Sample photo",
@@ -2346,7 +2325,6 @@
     "cover_audit": "Cover cannot pass audit",
     "change_photo": "change photo"
   },
-
   "live_type": {
     "talking_": "Talking",
     "singing_": "Singing",
@@ -2354,7 +2332,6 @@
     "friends_": "Friends",
     "game_": "Game"
   },
-
   "live_start_screen": {
     "i_agree": "I read and agree",
     "hosting_contract": "hosting contract",
@@ -2366,7 +2343,6 @@
     "start_party": "Start party",
     "start_live_streaming": "Start live streaming"
   },
-
   "end_live_report_scree": {
     "live_ended": "Live ended",
     "earned_point": "Earned points",
@@ -2376,7 +2352,6 @@
     "today_party_duration": "Today's party duration",
     "today_live_duration": "Today's Live Duration"
   },
-
   "my_agent_screen": {
     "my_agent": "My agent",
     "congratulations_": "Congratulations",
@@ -2384,7 +2359,6 @@
     "glad_you_join_agency": "Glad you can join my agency! In the coming days we will work together and make a win-win cooperation!!!",
     "i_want_leave_agency": "I want to leave this agency >>"
   },
-
   "leave_agency_screen": {
     "apply_describe": "Application description",
     "apply_to_leave": "Apply to leave the agency",
@@ -2393,21 +2367,18 @@
     "immediate_processing": "Immediate processing",
     "leave_agency_sent": "Leave agency application sent"
   },
-
   "invite_agent_screen": {
     "invite_agent": "Invite agent",
     "share_link_explain": "Copy the link to invite agents, after successful invitation, you can enjoy the commission of agent's income.",
     "share_link": "Share to other platforms",
     "click_to_share": "Click to share"
   },
-
   "agents_menu": {
     "agent_": "Agent",
     "add_host": "Add host",
     "coins_trading": "Coins trading",
     "official_services": "Official services"
   },
-
   "add_host_screen": {
     "add_host": "Add host",
     "history_": "History",
@@ -2423,13 +2394,11 @@
     "invitation_sent": "Invitation sent",
     "make_sure_correct_id_code": "Make sure the host ID and code are corrects."
   },
-
   "invitation_report": {
     "user_": "User",
     "add_time": "Add time",
     "status_": "Status"
   },
-
   "agent_screen": {
     "agent_": "Agent",
     "host_": "Host",
@@ -2458,7 +2427,6 @@
     "agency_invitation": "Agency invitation",
     "quit_agency_application": "Quit agency application"
   },
-
   "agent_invitation_screen": {
     "agent_invitation": "Agent invitation",
     "hope_u_join_agency": "Sincerely hope you can join my agency",
@@ -2470,7 +2438,6 @@
     "reminder_2": "2. Each host can only join one agency.",
     "reminder_3": "3. If you want to leave the agency, you need to apply to your agent."
   },
-
   "story": {
     "create_story": "Create story",
     "image_": "Image",
@@ -2478,13 +2445,11 @@
     "a_a": "Aa",
     "type_story": "Type your story"
   },
-
   "colors_picker": {
     "select_color": "Select color",
     "select_shade": "Select color shade",
     "select_both": "Selected color and its shades"
   },
-
   "personal_menu": {
     "messages_": "Messages",
     "Backpacks_": "Backpacks",
@@ -2495,7 +2460,6 @@
     "farm_": "Farm",
     "badges_": "Badges"
   },
-
   "profile_list_menu": {
     "host_center": "Host center",
     "batter_of_glory": "Battle of Glory",
@@ -2514,12 +2478,10 @@
     "wallet_": "Wallet",
     "mission_center": "Mission center"
   },
-
   "my_moment_screen": {
     "post_moments": "Post moments",
     "my_moments": "My moments"
   },
-
   "wallet_screen": {
     "wallet_": "Wallet",
     "my_u_diamonds": "My uDiamonds",
@@ -2555,20 +2517,17 @@
     "month_": "{amount}Month",
     "exclusive_membership_privileges": "Exclusive membership privileges"
   },
-
   "my_silver_screen": {
     "custom_exchange": "Custom exchange: (1:1000)",
     "enter_coins_amount": "Enter coin amount",
     "enter_coins_amount_advice": "Enter an amount divisible by {divisible_amount}. Max {max_amount}"
   },
-
   "my_u_beans_screen": {
     "redeem_gifts": "Redeem Gifts",
     "gain_more": "Gain more",
     "complete_mission": "Complete mission",
     "do_mission": "Do missions"
   },
-
   "mission_center_screen": {
     "mission_center": "Mission center",
     "activeness_": "Activeness",
@@ -2579,18 +2538,15 @@
     "daily_missions": "Daily missions",
     "host_missions": "Host missions"
   },
-
   "post_chooser_screen": {
     "create_post": "Create post",
     "video_": "Video",
     "type_moment": "type your moment"
   },
-
   "live_starter_screen": {
     "select_live_cover_tittle": "Select live cover.",
     "select_live_cover_explain": "You can't start live/party without cover."
   },
-
   "host_center_screen": {
     "host_center": "Host center",
     "monthly_live_data": "Monthly streaming data",
@@ -2605,7 +2561,6 @@
     "influencer_academy": "influencer academy",
     "feedback_": "Feedback"
   },
-
   "contact_us_screen": {
     "contact_us": "Contact us",
     "official_fb_page": "Official FB page:",
@@ -2616,11 +2571,10 @@
     "suggestion_": "Suggestions",
     "for_more_details": "For more details, please visit our website"
   },
-
   "reward_coins": {
-    "get_coins" : "Get Coins",
+    "get_coins": "Get Coins",
     "to_support": "to support broadcaster",
-    "hot_" : "HOT",
+    "hot_": "HOT",
     "popular_": "Popular",
     "credits_": "Credits",
     "get_": "Get ",
@@ -2634,14 +2588,12 @@
     "earn_credits": "Earn uDiamonds",
     "wait_": "wait...",
     "congratulations_msg": "Congratulations, you just earned {credit} credits for watching the video.",
-    "congratulations_title" : "Congratulations",
+    "congratulations_title": "Congratulations",
     "diamonds": "{diamonds} Diamonds."
   },
-
   "mvp_screen": {
     "become_mvp_member": "Become MPV member"
   },
-
   "my_level_screen": {
     "my_level": "My level",
     "experience_points": "Experience points: {amount}",
@@ -2682,36 +2634,30 @@
     "share_your_stream": "Share your stream every day: 10 EXP/time; Max 30 EXP",
     "record_and_share": "Record and share your stream every day: 10 EXP/time; Max 30 EXP;"
   },
-
   "post_comment_screen": {
     "reported_succeed_title": "Reported successfully.",
     "reported_succeed_explain": "Comment reported, you won't see it again.",
     "reported_failed_title": "Report failed.",
     "reported_failed_explain": "Verify your internet connection and try again later."
   },
-
   "upload_video": {
     "size_exceeded_title": "Exceeded size.",
     "size_exceeded_explain": "Only videos up to {amount} MegaBytes are allowed"
   },
-
   "edit_post_screen": {
     "edit_post": "Edit post",
     "edit_video_post": "Edit video post",
     "update_": "Update",
     "new_selection": "New selection"
   },
-
   "banuba_video_editor_sdk": {
     "sdk_not_initialized": "Banuba Video Editor SDK is not initialized: license token is unknown or incorrect. Please check your license token or contact Banuba",
     "license_revoked_or_expired": "License is revoked or expired. Please contact Banuba https://www.banuba.com/faq/kb-tickets/new",
     "publish_video": "Do you intend to publish the edited video?"
   },
-
   "profile_edit_complete": {
     "select_avatar": "Please, upload an avatar"
   },
-
   "privilege_info_screen": {
     "privilege_info": "Privilege info",
     "more_record": "Can view more visitor record",
@@ -2726,21 +2672,18 @@
     "party_room_wallpaper": "Party room exclusive wallpaper",
     "claim_daily_diamonds": "Can claim 10 uDiamonds daily"
   },
-
   "video_editor_sdk_options": {
     "video_editor": "Video Editor",
     "video_editor_pip": "Video Editor - PIP",
     "video_editor_trimmer": "Video Editor - Trimmer",
     "upload_video": "Upload video"
   },
-
   "dynamic_welcome_screen": {
     "welcome_message": "Welcome to {app_name}, your all-in-one platform for live streaming, captivating video reels, and an engaging social experience. Explore the realm of real-time streaming, create amazing videos with our dynamic reels, and connect with a vibrant community through our interactive feed. {app_name} - where innovation meets authentic expression. Try it now!",
     "join_and_enjoy": "Join and enjoy +10k are using {app_name}",
     "invalid_password_explain": "Make sure your password is correct.",
     "invalid_credentials_explain": "No user was found with this credentials."
   },
-
   "responsive_signup_screen": {
     "email_required": "E-mail address is required.",
     "invalid_email": "Invalid email.",
@@ -2761,7 +2704,6 @@
     "used_username_title": "Username is in use",
     "used_username_explain": "Username already is use, try a new one."
   },
-
   "random_live_title": {
     "live_chat": "Live Chat and Coffee",
     "playing_chat": "Playing and Chatting Online",
@@ -2774,7 +2716,6 @@
     "drawing_live": "Drawing Live Right Now",
     "to_films": "Top 10 Favorite Movies"
   },
-
   "go_live_menu": {
     "live_streaming_title": "Live streaming",
     "live_streaming_explain": "Streaming live on the {app_name} app to engage with our audience, share valuable insights, entertain, and foster community growth.",
@@ -2783,7 +2724,6 @@
     "pk_title": "PK battle",
     "pk_explain": " A thrilling showcase of skill, strategy, and competition, where champions rise and legends are forged in battle."
   },
-
   "go_live_options": {
     "video_stream": "Video Stream",
     "live_party": "Live Party",
@@ -2827,7 +2767,6 @@
     "guardians_tab": "My Guardians",
     "you_don't_have": "You don't have a guardian yet, stream more to attract fans!"
   },
-
   "vip_rules_screen": {
     "vip_rule": "VIP Rules",
     "how_": "How",
@@ -2844,13 +2783,11 @@
     "note_more_privilege": "Note: more VIP privileges will be available soon",
     "none_": "None"
   },
-
   "leaderboard_screen": {
     "leaderboard_": "Leaderboard",
     "streamers_": "Streamers",
     "gift_giver": "Gift giver"
   },
-
   "group_creation": {
     "new_group": "New Group",
     "cancel": "Cancel",
@@ -2863,7 +2800,6 @@
     "error_explain": "Verify your internet connection and try again later",
     "chat_group": "chat group"
   },
-
   "coins_trading_screen": {
     "coins_trading": "Coins trading",
     "agent_account": "Agent account",
@@ -2879,7 +2815,6 @@
     "recent_transactions": "Recent transactions",
     "enter_id_nickname": "Enter ID number or nickname"
   },
-
   "trading_details_screen": {
     "details_": "Details",
     "all_": "All",
