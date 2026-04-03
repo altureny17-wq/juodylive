@@ -2073,7 +2073,7 @@
     "party_reward": "على الميكروفون لمدة 15 دقيقة في الحفلة."
   },
   "auth_screen": {
-    "profile_list_menu.auth": "التوثيق"
+    "profile_list_menu.auth": "التوثيق",
     "auth_": "المصادقة",
     "my_authentication": "مصادقتي",
     "my_authentication_explain": "لضمان أمان حسابك وحسابات الآخرين، ننصح بإجراء المصادقة",
