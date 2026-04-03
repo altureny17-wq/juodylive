@@ -15,6 +15,7 @@ import '../../helpers/quick_actions.dart';
 import '../../helpers/quick_help.dart';
 import '../../ui/container_with_corner.dart';
 import '../privilege/vip_exp_ranking_screen.dart';
+import '../privilege/privilege_setting_screen.dart';
 import '../privilege/vip_privilege_details_screen.dart';
 import '../profile/user_profile_screen.dart';
 import '../vip_rules/vip_rules.dart';
@@ -587,6 +588,45 @@ class _GuardianAndVipStoreScreenState extends State<GuardianAndVipStoreScreen>
                                 ],
                               ),
                               SizedBox(height: 8),
+                              Divider(),
+                              // ✅ زر إعدادات ميزات VIP
+                              Visibility(
+                                visible: widget.currentUser!.getIsUserVip!,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                                  child: GestureDetector(
+                                    onTap: () => QuickHelp.goToNavigatorScreen(
+                                      context,
+                                      PrivilegeSettingScreen(currentUser: widget.currentUser),
+                                    ),
+                                    child: ContainerCorner(
+                                      borderRadius: 8,
+                                      color: kPrimaryColor.withOpacity(0.08),
+                                      borderColor: kPrimaryColor.withOpacity(0.3),
+                                      borderWidth: 1,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Row(mainAxisSize: MainAxisSize.min, children: [
+                                              Icon(Icons.tune, color: kPrimaryColor, size: 18),
+                                              TextWithTap(
+                                                "privilege_screen.privilege_setting".tr(),
+                                                color: kPrimaryColor,
+                                                fontWeight: FontWeight.w600,
+                                                marginLeft: 8,
+                                                fontSize: 13,
+                                              ),
+                                            ]),
+                                            Icon(Icons.arrow_forward_ios, color: kPrimaryColor, size: 12),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
                               Divider(),
                               Padding(
                                 padding: const EdgeInsets.only(left: 15, top: 8, right: 15),
