@@ -28,25 +28,33 @@ class _PrivilegeSettingScreenState extends State<PrivilegeSettingScreen> {
     "privilege_screen.mysterious_man".tr(),
     "privilege_screen.mystery_man".tr(),
     "privilege_screen.hide_profile_cover_frame".tr(),
+    "privilege_screen.vip_invisible_mode".tr(),
+    "privilege_screen.show_vip_level".tr(),
   ];
 
   var explains = [
     "privilege_screen.invisible_visitor_explain".tr(),
     "privilege_screen.mysterious_man_explain".tr(),
     "privilege_screen.mystery_man_explain".tr(),
-    ""
+    "",
+    "privilege_screen.vip_invisible_mode_explain".tr(),
+    "privilege_screen.show_vip_level_explain".tr(),
   ];
 
-  bool invisible = false;
-  bool mysterious = false;
-  bool mystery = false;
-  bool coverFrame = false;
+  bool invisible    = false;
+  bool mysterious   = false;
+  bool mystery      = false;
+  bool coverFrame   = false;
+  bool vipInvisible = false; // الوضع المخفي أثناء البث
+  bool showVipLevel = false; // إظهار مستوى VIP
 
   initialize() {
-    invisible = widget.currentUser!.getInvisibleVisitor!;
-    mysterious = widget.currentUser!.getMysteriousMan!;
-    mystery = widget.currentUser!.getMysteryMan!;
-    coverFrame = widget.currentUser!.getProfileCoverFrame!;
+    invisible    = widget.currentUser!.getInvisibleVisitor!;
+    mysterious   = widget.currentUser!.getMysteriousMan!;
+    mystery      = widget.currentUser!.getMysteryMan!;
+    coverFrame   = widget.currentUser!.getProfileCoverFrame!;
+    vipInvisible = widget.currentUser!.getVipInvisibleMode ?? false;
+    showVipLevel = widget.currentUser!.getShowVipLevel ?? false;
   }
 
   @override
@@ -81,8 +89,12 @@ class _PrivilegeSettingScreenState extends State<PrivilegeSettingScreen> {
           ),
           Column(
             children: List.generate(titles.length, (index) {
+              // index 0-3: أساسية | index 4-5: تظهر لـ VIP فقط
+              final bool visible = index < 4
+                  ? (widget.currentUser!.getIsUserVip! ? true : index != 3)
+                  : widget.currentUser!.getIsUserVip!;
               return Visibility(
-                visible: widget.currentUser!.getIsUserVip! ? true : index != 3,
+                visible: visible,
                 child: option(
                   title: titles[index],
                   index: index,
@@ -139,7 +151,9 @@ class _PrivilegeSettingScreenState extends State<PrivilegeSettingScreen> {
                   ? mystery
                   : index == 3
                   ? coverFrame
-                  : false,
+                  : index == 4
+                  ? vipInvisible
+                  : showVipLevel,
               onChanged: (value) {
                 setState(() {
                   if (index == 0) {
@@ -163,8 +177,19 @@ class _PrivilegeSettingScreenState extends State<PrivilegeSettingScreen> {
                       activateInvisible(
                           msg: "privilege_screen.super_diamond_can_enjoy".tr());
                     }
-                  }else if(index == 3){
+                  } else if (index == 3) {
                     coverFrame = value;
+                  } else if (index == 4) {
+                    // الوضع المخفي أثناء البث — يتطلب VIP
+                    if (widget.currentUser!.getIsUserVip!) {
+                      vipInvisible = value;
+                    } else {
+                      activateInvisible(
+                          msg: "privilege_screen.super_vip_can_enjoy".tr());
+                    }
+                  } else if (index == 5) {
+                    // إظهار/إخفاء مستوى VIP — لجميع VIP
+                    showVipLevel = value;
                   }
                 });
               },
@@ -195,15 +220,20 @@ class _PrivilegeSettingScreenState extends State<PrivilegeSettingScreen> {
   }
 
   updateUserPrivilegeSettings() async {
-    if (invisible != widget.currentUser!.getInvisibleVisitor ||
-        mysterious != widget.currentUser!.getMysteriousMan ||
-        mystery != widget.currentUser!.getMysteryMan ||
-        coverFrame != widget.currentUser!.getProfileCoverFrame) {
+    bool changed = invisible    != widget.currentUser!.getInvisibleVisitor ||
+                   mysterious   != widget.currentUser!.getMysteriousMan    ||
+                   mystery      != widget.currentUser!.getMysteryMan       ||
+                   coverFrame   != widget.currentUser!.getProfileCoverFrame ||
+                   vipInvisible != (widget.currentUser!.getVipInvisibleMode ?? false) ||
+                   showVipLevel != (widget.currentUser!.getShowVipLevel ?? false);
 
+    if (changed) {
       widget.currentUser!.setInvisibleVisitor = invisible;
-      widget.currentUser!.setMysteriousMan = mysterious;
-      widget.currentUser!.setMysteryMan = mystery;
+      widget.currentUser!.setMysteriousMan    = mysterious;
+      widget.currentUser!.setMysteryMan       = mystery;
       widget.currentUser!.setProfileCoverFrame = coverFrame;
+      widget.currentUser!.setVipInvisibleMode = vipInvisible;
+      widget.currentUser!.setShowVipLevel     = showVipLevel;
 
       await widget.currentUser!.save();
     }
