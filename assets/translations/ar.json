@@ -392,7 +392,6 @@
     "hk_": "هونغ كونغ",
     "nl_": "هولندا"
   },
-
   "languages_iso": {
     "ab_": "الأبخازية",
     "aa_": "العفرية",
@@ -569,7 +568,6 @@
     "za_": "تشوانغ",
     "zu_": "الزولو"
   },
-
   "page_title": {
     "welcome_title": "مرحبًا بك في {app_name}",
     "notifications_title": "الإشعارات",
@@ -1157,7 +1155,7 @@
     "tab_vip": "VIP",
     "tab_love": "حب",
     "tab_moods": "مزاج",
-    "tab_artists": "فنانين",
+    "tab_artists": "مشاهير",
     "tab_collectibles": "تحف",
     "tab_games": "ألعاب",
     "tab_family": "عائلة"
@@ -1795,7 +1793,11 @@
     "super_vip_can_enjoy": "العملاء الخاصون سوبر VIP يمكنهم الاستفادة من هذا الامتياز",
     "open_vip": "فتح VIP",
     "super_diamond_can_enjoy": "عملاء VIP الماسي يمكنهم الاستفادة من هذا الامتياز",
-    "hide_profile_cover_frame": "إخفاء إطار غلاف الملف الشخصي"
+    "hide_profile_cover_frame": "إخفاء إطار غلاف الملف الشخصي",
+    "vip_invisible_mode": "الوضع المخفي في البث",
+    "vip_invisible_mode_explain": "أخفِ نفسك من قائمة المشاهدين أثناء البث",
+    "show_vip_level": "إظهار مستوى VIP",
+    "show_vip_level_explain": "أظهر شارة VIP وإطار مستواك على صورتك"
   },
   "new_message_notification_screen": {
     "new_message_notification": "إشعارات الرسائل الجديدة",
@@ -2071,6 +2073,7 @@
     "party_reward": "على الميكروفون لمدة 15 دقيقة في الحفلة."
   },
   "auth_screen": {
+    "profile_list_menu.auth": "التوثيق"
     "auth_": "المصادقة",
     "my_authentication": "مصادقتي",
     "my_authentication_explain": "لضمان أمان حسابك وحسابات الآخرين، ننصح بإجراء المصادقة",
@@ -2747,7 +2750,6 @@
     "radio": "راديو",
     "stream_tags": "علامات البث"
   },
-
   "pk_stuff": {
     "1v1_pk": "1v1 PK",
     "multi_pk": "Multi PK",
@@ -2786,13 +2788,11 @@
     "note_more_privilege": "ملاحظة: سيتم توفير المزيد من امتيازات VIP قريباً",
     "none_": "لا شيء"
   },
-
   "leaderboard_screen": {
     "leaderboard_": "لوحة الصدارة",
     "streamers_": "المذيعون",
     "gift_giver": "مانح الهدايا"
   },
-
   "group_creation": {
     "new_group": "مجموعة جديدة",
     "cancel": "إلغاء",
@@ -2805,7 +2805,6 @@
     "error_explain": "تحقق من اتصالك بالإنترنت وحاول مرة أخرى لاحقًا",
     "chat_group": "مجموعة دردشة"
   },
-
   "coins_trading_screen": {
     "coins_trading": "تداول العملات",
     "agent_account": "حساب الوكيل",
@@ -2821,7 +2820,6 @@
     "recent_transactions": "المعاملات الأخيرة",
     "enter_id_nickname": "أدخل رقم التعريف أو اللقب"
   },
-
   "trading_details_screen": {
     "details_": "تفاصيل",
     "all_": "الكل",
@@ -2831,13 +2829,4 @@
     "transfer_to_receiver": "نقل إلى {receiver}",
     "id_account_type": "معرف:{id} ({account_type})"
   }
-
 }
-
-
-
-
-
-
-
-
