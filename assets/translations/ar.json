@@ -1155,7 +1155,7 @@
     "tab_vip": "VIP",
     "tab_love": "حب",
     "tab_moods": "مزاج",
-    "tab_artists": "مشاهير",
+    "tab_artists": "فنانين",
     "tab_collectibles": "تحف",
     "tab_games": "ألعاب",
     "tab_family": "عائلة"
@@ -2073,7 +2073,6 @@
     "party_reward": "على الميكروفون لمدة 15 دقيقة في الحفلة."
   },
   "auth_screen": {
-    "profile_list_menu.auth": "التوثيق",
     "auth_": "المصادقة",
     "my_authentication": "مصادقتي",
     "my_authentication_explain": "لضمان أمان حسابك وحسابات الآخرين، ننصح بإجراء المصادقة",
@@ -2412,7 +2411,18 @@
   "invitation_report": {
     "user_": "المستخدم",
     "add_time": "وقت الإضافة",
-    "status_": "الحالة"
+    "status_": "الحالة",
+    "report_title": "تقرير الدعوات",
+    "hosts_tab": "مضيف",
+    "agents_tab": "دعوة الوكيل",
+    "all": "الجميع",
+    "accepted": "مقبول",
+    "pending": "معلق",
+    "declined": "مرفوض",
+    "level": "المستوى",
+    "total_lives": "إجمالي البث",
+    "host_stats": "إحصاءات المضيف",
+    "points_earned": "النقاط المكتسبة"
   },
   "agent_screen": {
     "agent_": "وكيل",
