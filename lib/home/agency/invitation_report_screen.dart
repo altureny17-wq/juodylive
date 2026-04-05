@@ -204,7 +204,7 @@ class _InvitationReportScreenState extends State<InvitationReportScreen>
                           host.getFullName ?? "",
                           fontWeight: FontWeight.w600,
                           fontSize: 12,
-                          maxLine: 1,
+                          maxLines: 1,
                         ),
                         GestureDetector(
                           onTap: () {
