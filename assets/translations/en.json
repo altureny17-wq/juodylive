@@ -2059,7 +2059,6 @@
     "party_reward": "On the mic for 15 min in party."
   },
   "auth_screen": {
-    "profile_list_menu.auth": "auth",
     "auth_": "Auth",
     "my_authentication": "My authentication",
     "my_authentication_explain": "In order to ensure the property safety of your account and others, we recommend you to authenticate",
@@ -2397,7 +2396,18 @@
   "invitation_report": {
     "user_": "User",
     "add_time": "Add time",
-    "status_": "Status"
+    "status_": "Status",
+    "report_title": "Invitation Report",
+    "hosts_tab": "Hosts",
+    "agents_tab": "Agent Invite",
+    "all": "All",
+    "accepted": "Accepted",
+    "pending": "Pending",
+    "declined": "Declined",
+    "level": "Level",
+    "total_lives": "Total Lives",
+    "host_stats": "Host Stats",
+    "points_earned": "Points Earned"
   },
   "agent_screen": {
     "agent_": "Agent",
