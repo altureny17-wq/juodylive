@@ -16,9 +16,7 @@ import 'package:parse_server_sdk/parse_server_sdk.dart';
 // ignore: must_be_immutable
 class LocationScreen extends StatefulWidget {
   static const String route = '/location';
-
   LocationScreen({this.currentUser});
-
   UserModel? currentUser;
 
   @override
@@ -26,136 +24,85 @@ class LocationScreen extends StatefulWidget {
 }
 
 class _LocationScreenState extends State<LocationScreen> {
+  bool _isLoading = false;
+
+  // ── طلب الإذن وجلب الموقع ────────────────────────────────────────────────
   Future<void> _determinePosition() async {
-    print("Location: _determinePosition clicked");
+    setState(() => _isLoading = true);
 
-    LocationForAll.Location location = LocationForAll.Location();
+    final location = LocationForAll.Location();
 
-    bool _serviceEnabled;
-    LocationForAll.PermissionStatus _permissionGranted;
-    LocationForAll.LocationData _locationData;
-
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        QuickHelp.showAppNotificationAdvanced(
-            title: "permissions.location_not_supported".tr(),
-            message: "permissions.add_location_manually"
-                .tr(namedArgs: {"app_name": Setup.appName}),
-            context: context);
-
+    // 1. تأكد أن الخدمة مفعّلة
+    bool serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        _showError(
+          title: "permissions.location_not_supported".tr(),
+          message: "permissions.add_location_manually"
+              .tr(namedArgs: {"app_name": Setup.appName}),
+        );
+        setState(() => _isLoading = false);
         return;
       }
     }
 
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == LocationForAll.PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-
-      if (_permissionGranted == LocationForAll.PermissionStatus.granted ||
-          _permissionGranted ==
-              LocationForAll.PermissionStatus.grantedLimited) {
-        QuickHelp.showLoadingDialog(context);
-
-        _locationData = await location.getLocation();
-        goHome(_locationData);
-      } else if (_permissionGranted == LocationForAll.PermissionStatus.denied) {
-        QuickHelp.showAppNotificationAdvanced(
-            title: "permissions.location_access_denied".tr(),
-            message: "permissions.location_explain"
-                .tr(namedArgs: {"app_name": Setup.appName}),
-            context: context);
-      } else if (_permissionGranted ==
-          LocationForAll.PermissionStatus.deniedForever) {
-        QuickHelp.showAppNotificationAdvanced(
-            title: "permissions.enable_location".tr(),
-            message: "permissions.location_access_denied_explain"
-                .tr(namedArgs: {"app_name": Setup.appName}),
-            context: context);
-      }
-    } else if (_permissionGranted ==
-        LocationForAll.PermissionStatus.deniedForever) {
-      _permissionDeniedForEver();
-    } else if (_permissionGranted == LocationForAll.PermissionStatus.granted ||
-        _permissionGranted == LocationForAll.PermissionStatus.grantedLimited) {
-      QuickHelp.showLoadingDialog(context);
-
-      _locationData = await location.getLocation();
-      goHome(_locationData);
+    // 2. تأكد من الإذن
+    LocationForAll.PermissionStatus permission = await location.hasPermission();
+    if (permission == LocationForAll.PermissionStatus.denied) {
+      permission = await location.requestPermission();
     }
-  }
 
-  _permissionDeniedForEver() {
-    QuickHelp.showDialogPermission(
-        context: context,
+    if (permission == LocationForAll.PermissionStatus.deniedForever) {
+      setState(() => _isLoading = false);
+      _permissionDeniedForever();
+      return;
+    }
+
+    if (permission == LocationForAll.PermissionStatus.denied) {
+      setState(() => _isLoading = false);
+      _showError(
         title: "permissions.location_access_denied".tr(),
-        confirmButtonText: "permissions.okay_settings".tr().toUpperCase(),
-        message: "permissions.location_access_denied_explain"
+        message: "permissions.location_explain"
             .tr(namedArgs: {"app_name": Setup.appName}),
-        onPressed: () async {
-          QuickHelp.hideLoadingDialog(context);
+      );
+      return;
+    }
 
-          QuickHelp.showAppNotificationAdvanced(
-              title: "permissions.enable_location".tr(),
-              message: "permissions.location_access_denied_explain"
-                  .tr(namedArgs: {"app_name": Setup.appName}),
-              context: context);
-        });
-  }
-
-  goHome(LocationForAll.LocationData locationData) async {
-    print("Location ${locationData.latitude}, ${locationData.longitude}");
-
-    if (!widget.currentUser!.getLocationTypeNearBy!) {
-      QuickHelp.hideLoadingDialog(context);
-      QuickHelp.goBackToPreviousPage(context, result: widget.currentUser);
-
-      /* QuickHelp.goToNavigatorScreen(
-          context,
-          HomeScreen(
-            currentUser: widget.currentUser,
-          ), back: false,
-        finish: true
-      );*/
-      //return;
-
-    } else {
-      print("Location getAddressFromLatLong");
-
-      getAddressFromLatLong(locationData);
+    // 3. اجلب الموقع
+    try {
+      final locationData = await location.getLocation();
+      await _saveLocation(locationData);
+    } catch (e) {
+      debugPrint("Location error: $e");
+      setState(() => _isLoading = false);
+      _showError(
+        title: "permissions.location_access_denied".tr(),
+        message: "permissions.location_explain"
+            .tr(namedArgs: {"app_name": Setup.appName}),
+      );
     }
   }
 
-  Future<void> getAddressFromLatLong(
-      LocationForAll.LocationData position) async {
-    ParseGeoPoint parseGeoPoint = new ParseGeoPoint();
-    parseGeoPoint.latitude = position.latitude!;
-    parseGeoPoint.longitude = position.longitude!;
+  // ── حفظ الموقع في Back4App ───────────────────────────────────────────────
+  Future<void> _saveLocation(LocationForAll.LocationData locationData) async {
+    if (!mounted) return;
+    QuickHelp.showLoadingDialog(context);
+
+    final geoPoint = ParseGeoPoint()
+      ..latitude  = locationData.latitude!
+      ..longitude = locationData.longitude!;
 
     widget.currentUser!.setHasGeoPoint = true;
-    widget.currentUser!.setGeoPoint = parseGeoPoint;
+    widget.currentUser!.setGeoPoint    = geoPoint;
 
-    /*if(QuickHelp.isMobile()){
+    final response = await widget.currentUser!.save();
+    QuickHelp.hideLoadingDialog(context);
 
-      List<Placemark>? placements;
-      placements = await placemarkFromCoordinates(position.latitude!, position.longitude!);
-      print(placements);
+    if (!mounted) return;
 
-      Placemark place = placements[0];
-      //Address = '${place.street}, ${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
-
-      widget.currentUser!.setLocation = "${place.locality}, ${place.country}";
-      widget.currentUser!.setCity = "${place.locality}";
-    }*/
-
-    ParseResponse parseResponse = await widget.currentUser!.save();
-
-    if (parseResponse.success) {
-      widget.currentUser = parseResponse.results!.first as UserModel;
-
-      QuickHelp.hideLoadingDialog(context);
-      QuickHelp.goBackToPreviousPage(context, result: widget.currentUser);
+    if (response.success && response.results != null) {
+      widget.currentUser = response.results!.first as UserModel;
 
       QuickHelp.showAppNotificationAdvanced(
         context: context,
@@ -165,16 +112,10 @@ class _LocationScreenState extends State<LocationScreen> {
         isError: false,
       );
 
-      /* QuickHelp.goToNavigatorScreen(
-          context,
-          HomeScreen(
-            currentUser: widget.currentUser,
-          ), back: false, finish: true);*/
-
+      // ✅ أعِد المستخدم المحدَّث للشاشة السابقة
+      await Future.delayed(const Duration(milliseconds: 800));
+      if (mounted) QuickHelp.goBackToPreviousPage(context, result: widget.currentUser);
     } else {
-      QuickHelp.hideLoadingDialog(context);
-      QuickHelp.goBackToPreviousPage(context);
-
       QuickHelp.showAppNotificationAdvanced(
         context: context,
         user: widget.currentUser,
@@ -182,111 +123,129 @@ class _LocationScreenState extends State<LocationScreen> {
         message: "permissions.location_updated_null_explain".tr(),
         isError: true,
       );
+      QuickHelp.goBackToPreviousPage(context);
     }
+    setState(() => _isLoading = false);
   }
 
-  Future<bool> _onBackPressed() async {
-    return true;
+  void _showError({required String title, required String message}) {
+    QuickHelp.showAppNotificationAdvanced(
+      title: title,
+      message: message,
+      context: context,
+    );
+  }
+
+  void _permissionDeniedForever() {
+    QuickHelp.showDialogPermission(
+      context: context,
+      title: "permissions.location_access_denied".tr(),
+      confirmButtonText: "permissions.okay_settings".tr().toUpperCase(),
+      message: "permissions.location_access_denied_explain"
+          .tr(namedArgs: {"app_name": Setup.appName}),
+      onPressed: () {
+        QuickHelp.hideLoadingDialog(context);
+        QuickHelp.showAppNotificationAdvanced(
+          title: "permissions.enable_location".tr(),
+          message: "permissions.location_access_denied_explain"
+              .tr(namedArgs: {"app_name": Setup.appName}),
+          context: context,
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    //QuickHelp.setWebPageTitle(context, "page_title.location_title".tr());
-
-    return new PopScope(
-      onPopInvoked: (pop) => _onBackPressed,
+    return PopScope(
+      onPopInvoked: (_) async {},
       child: ToolBar(
-        leftButtonIcon:
-            QuickHelp.isIOSPlatform() ? Icons.arrow_back_ios : Icons.arrow_back,
+        leftButtonIcon: QuickHelp.isIOSPlatform()
+            ? Icons.arrow_back_ios
+            : Icons.arrow_back,
         onLeftButtonTap: () => QuickHelp.goBackToPreviousPage(context),
-        child: SafeArea(
-          child: body(),
-        ),
+        child: SafeArea(child: _body()),
       ),
     );
   }
 
-  Widget body() {
-    return Container(
-      margin: EdgeInsets.only(left: 20, right: 20),
+  Widget _body() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            children: [
-              Container(),
-            ],
-          ),
-          Container(
-            child: Icon(
-              Icons.location_on_outlined,
-              color: kPrimaryColor,
-              size: 200,
-            ),
-          ),
+          const SizedBox(height: 20),
+          // ── أيقونة الموقع ─────────────────────────────────────────────
+          Icon(Icons.location_on_outlined, color: kPrimaryColor, size: 180),
+
+          // ── نصوص + زر ────────────────────────────────────────────────
           Column(
             children: [
               TextWithTap(
                 "permissions.enable_location".tr(),
                 marginTop: 20,
-                fontSize: 25,
-                marginBottom: 5,
+                fontSize: 24,
+                marginBottom: 8,
                 fontWeight: FontWeight.bold,
                 color: kPrimaryColor,
+                textAlign: TextAlign.center,
               ),
               TextWithTap(
                 "permissions.location_explain"
                     .tr(namedArgs: {"app_name": Setup.appName}),
                 textAlign: TextAlign.center,
-                marginTop: 0,
                 fontSize: 14,
                 marginBottom: 5,
-                marginLeft: 50,
-                marginRight: 50,
-                color: kPrimacyGrayColor,
-              ),
-              RoundedGradientButton(
-                height: 48,
                 marginLeft: 30,
                 marginRight: 30,
-                marginBottom: 30,
-                borderRadius: 60,
-                borderRadiusBottomLeft: 15,
-                marginTop: 50,
-                fontSize: 17,
-                colors: [kPrimaryColor, kSecondaryColor],
-                textColor: Colors.white,
-                text: "permissions.allow_location".tr().toUpperCase(),
-                fontWeight: FontWeight.normal,
-                onTap: () {
-                  _determinePosition();
-                },
+                color: kPrimacyGrayColor,
               ),
+              const SizedBox(height: 40),
+              // ✅ زر السماح بالموقع
+              _isLoading
+                  ? const CircularProgressIndicator()
+                  : RoundedGradientButton(
+                      height: 50,
+                      marginLeft: 30,
+                      marginRight: 30,
+                      marginBottom: 20,
+                      borderRadius: 60,
+                      borderRadiusBottomLeft: 15,
+                      marginTop: 0,
+                      fontSize: 16,
+                      colors: [kPrimaryColor, kSecondaryColor],
+                      textColor: Colors.white,
+                      text: "permissions.allow_location".tr().toUpperCase(),
+                      fontWeight: FontWeight.w600,
+                      onTap: _determinePosition,
+                    ),
+
+              // ✅ رابط "معرفة المزيد"
               TextWithTap(
                 "permissions.location_tell_more".tr(),
                 textAlign: TextAlign.center,
-                marginTop: 0,
-                fontSize: 14,
-                marginBottom: 10,
-                marginLeft: 50,
-                marginRight: 50,
+                fontSize: 13,
+                marginBottom: 20,
+                marginLeft: 40,
+                marginRight: 40,
                 color: kPrimacyGrayColor,
                 onTap: () {
                   QuickHelp.showDialogPermission(
-                      context: context,
-                      confirmButtonText:
-                          "permissions.allow_location".tr().toUpperCase(),
-                      title: "permissions.meet_people".tr(),
-                      message: "permissions.meet_people_explain".tr(),
-                      onPressed: () async {
-                        QuickHelp.hideLoadingDialog(context);
-
-                        _determinePosition();
-                      });
+                    context: context,
+                    confirmButtonText:
+                        "permissions.allow_location".tr().toUpperCase(),
+                    title: "permissions.meet_people".tr(),
+                    message: "permissions.meet_people_explain".tr(),
+                    onPressed: () async {
+                      QuickHelp.hideLoadingDialog(context);
+                      _determinePosition();
+                    },
+                  );
                 },
               ),
             ],
-          )
+          ),
         ],
       ),
     );
