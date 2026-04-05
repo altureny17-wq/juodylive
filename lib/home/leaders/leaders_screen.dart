@@ -64,8 +64,8 @@ class _LeadersPageState extends State<LeadersPage> {
         leftButtonIcon: Icons.arrow_back_ios,
         onLeftButtonTap: () => QuickHelp.goBackToPreviousPage(context),
         elevation: QuickHelp.isAndroidPlatform() ? 2 : 1,
-        //rightButtonAsset: "ic_settings_menu.svg",
-        //rightButtonPress: () => QuickHelp.goToNavigator(context, SelectCountryScreen.route),
+        rightButtonAsset: "ic_settings_menu.svg",
+        rightButtonPress: () => openSheet(),
         child: SafeArea(
           child: SingleChildScrollView(
             child: ContainerCorner(
@@ -103,6 +103,13 @@ class _LeadersPageState extends State<LeadersPage> {
     QueryBuilder<UserModel> queryBuilder = QueryBuilder(UserModel.forQuery());
     queryBuilder.whereGreaterThan(UserModel.keyDiamondsTotal, Setup.diamondsNeededForLeaders);
     queryBuilder.orderByDescending(UserModel.keyDiamondsTotal);
+    // ✅ فلتر الدولة — يُطبَّق عند اختيار دول من القائمة
+    if (countrySelectedList.isNotEmpty) {
+      queryBuilder.whereContainedIn(
+        UserModel.keyCountryCode,
+        countrySelectedList.map((e) => e.toString()).toList(),
+      );
+    }
 
     return ParseLiveListWidget<UserModel>(
       query: queryBuilder,
@@ -292,11 +299,20 @@ class _LeadersPageState extends State<LeadersPage> {
                               QuickHelp.goBackToPreviousPage(context),
                         ),
                         actions: [
-                          TextWithTap(
-                            "leaders.menu_clear_all".tr(),
-                            color: kGrayColor,
-                            marginTop: 20,
-                            marginRight: 15,
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                countrySelectedList = [];
+                                selectCountry = false;
+                              });
+                              QuickHelp.goBackToPreviousPage(context);
+                            },
+                            child: TextWithTap(
+                              "leaders.menu_clear_all".tr(),
+                              color: kPrimaryColor,
+                              marginTop: 20,
+                              marginRight: 15,
+                            ),
                           )
                         ],
                         backgroundColor: kTransparentColor,
@@ -305,6 +321,31 @@ class _LeadersPageState extends State<LeadersPage> {
                           "leaders.title_select_county".tr(),
                           color: Colors.black,
                           fontSize: 17,
+                        ),
+                      ),
+                      bottomNavigationBar: SafeArea(
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() => selectCountry = countrySelectedList.isNotEmpty);
+                            QuickHelp.goBackToPreviousPage(context);
+                          },
+                          child: ContainerCorner(
+                            color: kPrimaryColor,
+                            height: 48,
+                            marginLeft: 20,
+                            marginRight: 20,
+                            marginBottom: 10,
+                            borderRadius: 50,
+                            borderWidth: 0,
+                            child: TextWithTap(
+                              "done".tr(),
+                              alignment: Alignment.center,
+                              textAlign: TextAlign.center,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                            ),
+                          ),
                         ),
                       ),
                       body: FutureBuilder<List>(
@@ -332,21 +373,26 @@ class _LeadersPageState extends State<LeadersPage> {
                                     itemBuilder: (context, index) {
                                       return GestureDetector(
                                         onTap: () {
-                                          print("Apertou $index");
-                                          print(snapshot.data![index]["cca2"]);
-                                          countrySelectedList.add(
-                                              snapshot.data![index]["cca2"]);
+                                          final code = snapshot.data![index]["cca2"].toString();
+                                          setState(() {
+                                            if (countrySelectedList.contains(code)) {
+                                              countrySelectedList.remove(code);
+                                            } else {
+                                              countrySelectedList.add(code);
+                                            }
+                                            selectCountry = countrySelectedList.isNotEmpty;
+                                          });
+                                          // ✅ أعِد بناء قائمة التصنيف مع الفلتر
+                                          this.setState(() {});
                                         },
                                         child: Row(
                                           children: [
                                             ContainerCorner(
-                                              color:
-                                                  countrySelectedList.contains(
-                                                          snapshot.data![index]
-                                                              ["cca2"])
-                                                      ? kGreenColor
-                                                      : kTransparentColor,
-                                              borderColor: kGreenColor,
+                                              color: countrySelectedList.contains(
+                                                      snapshot.data![index]["cca2"].toString())
+                                                  ? kPrimaryColor
+                                                  : kTransparentColor,
+                                              borderColor: kPrimaryColor,
                                               height: 15,
                                               width: 15,
                                               borderRadius: 50,
