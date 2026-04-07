@@ -33,11 +33,13 @@ class CreateVideoPostScreen extends StatefulWidget {
   static String route = "/create/video/post";
 
   final UserModel? currentUser;
-  final String? pageId; // ✅ المتغير
+  final String? pageId;
+  final String? pageName; // ✅ أضف هذا
 
   const CreateVideoPostScreen({
     this.currentUser,
-    this.pageId, // ✅ مهم جداً تضيفه هنا
+    this.pageId,
+    this.pageName, // ✅ مهم تضيفه هنا
     Key? key,
   }) : super(key: key);
 
