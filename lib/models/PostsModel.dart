@@ -45,6 +45,10 @@ class PostsModel extends ParseObject implements ParseCloneable {
 
   static String keyViews = "views";
   static String keyViewers = "viewers";
+  // ✅ حقول الصفحة التجارية
+  static const String keyIsPagePost = "isPagePost";
+  static const String keyPageId     = "pageId";
+  static const String keyPageName   = "pageName";
 
   static String keyImagesList = "list_of_images";
   static String keyNumberOfPictures = "numer_of_pictures";
@@ -213,6 +217,16 @@ class PostsModel extends ParseObject implements ParseCloneable {
   }
 
   set addView(int view) => setIncrement(keyViews, view);
+
+  // ✅ صفحة تجارية
+  bool get getIsPagePost => get<bool>(keyIsPagePost) ?? false;
+  set setIsPagePost(bool v) => set<bool>(keyIsPagePost, v);
+
+  String? get getPageId => get<String>(keyPageId);
+  set setPageId(String id) => set<String>(keyPageId, id);
+
+  String? get getPageName => get<String>(keyPageName);
+  set setPageName(String name) => set<String>(keyPageName, name);
 
   UserModel? get getLastLikeAuthor => get<UserModel>(keyLastLikeAuthor);
 
