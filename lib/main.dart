@@ -34,6 +34,7 @@ import 'package:juodylive/models/LeadersModel.dart';
 import 'package:juodylive/models/MessageModel.dart';
 import 'package:juodylive/models/NotificationsModel.dart';
 import 'package:juodylive/models/PictureModel.dart';
+import 'package:juodylive/models/BusinessPageModel.dart';
 import 'package:juodylive/helpers/quick_help.dart';
 import 'package:juodylive/models/PostsModel.dart';
 import 'package:juodylive/models/ReportModel.dart';
