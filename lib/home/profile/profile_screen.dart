@@ -30,8 +30,6 @@ import 'package:juodylive/models/UserModel.dart';
 import 'package:juodylive/ui/container_with_corner.dart';
 import 'package:juodylive/ui/text_with_tap.dart';
 import 'package:juodylive/utils/colors.dart';
-import 'package:juodylive/home/stories/story_type_chooser_screen.dart'; // تأكد من المسار الصحيح للمجلد
-import 'package:juodylive/home/fan_club/fan_club_screen.dart'; // تأكد من المسار الصحيح للمجلد
 
 import '../../app/constants.dart';
 import '../../app/setup.dart';
@@ -1597,8 +1595,37 @@ class _ProfileScreenState extends State<ProfileScreen>
             StoryTypeChooserScreen(currentUser: widget.currentUser!),
           ),
         ),
+        // ✅ زر إنشاء صفحة تجارية
+        CircularMenuItem(
+          icon: Icons.store_outlined,
+          color: kOrangeColor.withOpacity(0.15),
+          iconColor: kOrangeColor,
+          onTap: () => _openMyBusinessPage(),
+        ),
       ],
     );
+  }
+
+  // ✅ فتح الصفحة التجارية أو إنشاء واحدة جديدة
+  _openMyBusinessPage() async {
+    QuickHelp.showLoadingDialog(context);
+    final q = QueryBuilder<BusinessPageModel>(BusinessPageModel())
+      ..whereEqualTo(BusinessPageModel.keyOwnerId, widget.currentUser!.objectId!);
+    final r = await q.query();
+    QuickHelp.hideLoadingDialog(context);
+    if (!mounted) return;
+    if (r.success && r.results != null && r.results!.isNotEmpty) {
+      final page = r.results!.first as BusinessPageModel;
+      QuickHelp.goToNavigatorScreen(
+        context,
+        MyBusinessPageScreen(currentUser: widget.currentUser!, page: page),
+      );
+    } else {
+      QuickHelp.goToNavigatorScreen(
+        context,
+        CreateBusinessPageScreen(currentUser: widget.currentUser!),
+      );
+    }
   }
 
   goToVideoScreen() {
