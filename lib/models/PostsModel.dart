@@ -163,7 +163,26 @@ class PostsModel extends ParseObject implements ParseCloneable {
   }
 
   set setComments(String commentId) => setAddUnique(keyComments, commentId);
+    // أضف هذا الكود لجلب عدد التعليقات
+  int get getCommentCount {
+    List<dynamic>? comments = get<List<dynamic>>(keyComments);
+    if (comments != null) {
+      return comments.length;
+    } else {
+      return 0;
+    }
+  }
 
+  // وأيضاً يفضل إضافة عدد الإعجابات إذا كنت ستحتاجه بنفس الطريقة
+  int get getLikeCount {
+    List<dynamic>? likes = get<List<dynamic>>(keyLikes);
+    if (likes != null) {
+      return likes.length;
+    } else {
+      return 0;
+    }
+  }
+  
   List<dynamic>? get getLikes {
     List<dynamic> like = [];
 
