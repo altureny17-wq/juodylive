@@ -32,7 +32,7 @@ import '../reels/video_editor_screen.dart';
 class CreateVideoPostScreen extends StatefulWidget {
   static String route = "/create/video/post";
   UserModel? currentUser;
-
+  final String? pageId; 
   CreateVideoPostScreen({this.currentUser, Key? key})
       : super(key: key);
 
