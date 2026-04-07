@@ -19,7 +19,9 @@ import 'comment_post_screen.dart';
 
 class CreateTextPostScreen extends StatefulWidget {
   UserModel? currentUser;
-  CreateTextPostScreen({Key? key, this.currentUser})
+  String? pageId;   // ✅ إذا كان المنشور من صفحة تجارية
+  String? pageName;
+  CreateTextPostScreen({Key? key, this.currentUser, this.pageId, this.pageName})
       : super(key: key);
 
   @override
@@ -347,6 +349,12 @@ class _CreateTextPostScreenState extends State<CreateTextPostScreen> {
     postModel.setAuthorId = widget.currentUser!.objectId!;
     postModel.setAuthor = widget.currentUser!;
     postModel.setText = postTextController.text;
+    // ✅ ربط بالصفحة التجارية إذا وُجدت
+    if (widget.pageId != null) {
+      postModel.setIsPagePost = true;
+      postModel.setPageId = widget.pageId!;
+      postModel.setPageName = widget.pageName ?? "";
+    }
     postModel.setTextColors = textColor.hex.toString();
     postModel.setBackgroundColor = backgroundColor.hex.toString();
 
