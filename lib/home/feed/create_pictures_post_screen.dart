@@ -25,6 +25,8 @@ import '../../ui/text_with_tap.dart';
 class CreatePicturesPostScreen extends StatefulWidget {
   static String route = "/create/pictures/post";
   UserModel? currentUser;
+  String? pageId;    // ✅ صفحة تجارية
+  String? pageName;
 
   CreatePicturesPostScreen({this.currentUser, this.pageId, this.pageName, Key? key}) : super(key: key);
 
