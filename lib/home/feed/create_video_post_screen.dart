@@ -31,13 +31,19 @@ import '../reels/video_editor_screen.dart';
 
 class CreateVideoPostScreen extends StatefulWidget {
   static String route = "/create/video/post";
-  UserModel? currentUser;
-  final String? pageId; 
-  CreateVideoPostScreen({this.currentUser, Key? key})
-      : super(key: key);
+
+  final UserModel? currentUser;
+  final String? pageId; // ✅ المتغير
+
+  const CreateVideoPostScreen({
+    this.currentUser,
+    this.pageId, // ✅ مهم جداً تضيفه هنا
+    Key? key,
+  }) : super(key: key);
 
   @override
-  State<CreateVideoPostScreen> createState() => _CreateVideoPostScreenState();
+  _CreateVideoPostScreenState createState() =>
+      _CreateVideoPostScreenState();
 }
 
 class _CreateVideoPostScreenState extends State<CreateVideoPostScreen> {
