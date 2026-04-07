@@ -130,6 +130,7 @@ void main() async {
       <String, ParseObjectConstructor>{
     PictureModel.keyTableName: () => PictureModel(),
     PostsModel.keyTableName: () => PostsModel(),
+        BusinessPageModel.keyTableName: () => BusinessPageModel(),
     NotificationsModel.keyTableName: () => NotificationsModel(),
     MessageModel.keyTableName: () => MessageModel(),
     MessageListModel.keyTableName: () => MessageListModel(),
