@@ -26,7 +26,7 @@ class CreatePicturesPostScreen extends StatefulWidget {
   static String route = "/create/pictures/post";
   UserModel? currentUser;
 
-  CreatePicturesPostScreen({this.currentUser, Key? key}) : super(key: key);
+  CreatePicturesPostScreen({this.currentUser, this.pageId, this.pageName, Key? key}) : super(key: key);
 
   @override
   State<CreatePicturesPostScreen> createState() =>
