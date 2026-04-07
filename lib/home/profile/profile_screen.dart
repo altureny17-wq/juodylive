@@ -50,6 +50,11 @@ import '../message/message_screen.dart';
 import 'package:http/http.dart' as http;
 
 import '../ranking_fans/fans_ranking_screen.dart';
+import '../business_page/create_page_screen.dart';
+import '../business_page/my_business_page_screen.dart';
+import '../fan_club/fan_club_screen.dart';
+import '../stories/story_type_chooser_screen.dart';
+import '../../models/BusinessPageModel.dart';
 
 // ignore: must_be_immutable
 class ProfileScreen extends StatefulWidget {
