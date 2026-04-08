@@ -97,7 +97,6 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
     "tab_profile.medal_".tr(),
     "tab_profile.fans_club".tr(),
     "tab_profile.auth_".tr(),
-    "tab_profile.my_page".tr(),   // ✅ صفحة تجارية
   ];
 
   var firstOptionsIcons = [
@@ -108,7 +107,6 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
     "assets/images/ic_tab_profile_medal.png",
     "assets/images/ic_tab_profile_fans.png",
     "assets/images/ic_tab_profile_auth.png",
-    "assets/images/ic_tab_profile_store.png",  // ✅ صفحة تجارية (نفس أيقونة المتجر)
   ];
 
   var agentOptionsIcons = [
@@ -128,14 +126,14 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
   var secondOptionsCaption = [
     "tab_profile.guardian_".tr(),
     "tab_profile.my_agency".tr(),
-    "tab_profile.help_".tr(),
+    "tab_profile.my_page".tr(),   // ✅ صفحة تجارية بدل المساعدة
     "tab_profile.settings_".tr(),
   ];
 
   var secondOptionsLightIcons = [
     "assets/images/ic_profil_tab_guardian.png",
     "assets/images/ic_tab_profile_agency.png",
-    "assets/images/ic_profil_tab_help.png",
+    "assets/images/ic_tab_profile_store.png",   // ✅ أيقونة الصفحة التجارية
     "assets/images/ic_tab_profile_settings.png",
   ];
 
@@ -400,10 +398,6 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
       TaskRulesScreen(
         currentUser: widget.currentUser,
       ),
-      // ✅ صفحة تجارية — placeholder (سيتم تجاوزه بمنطق خاص)
-      CreateBusinessPageScreen(
-        currentUser: widget.currentUser,
-      ),
     ];
 
     secondOptionsScreens = [
@@ -414,8 +408,8 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
       ),
       // ✅ 2. الوكالة — يعرض الشاشة المناسبة حسب دور المستخدم
       agencyScreen(),
-      // ✅ 3. المساعدة
-      HelpScreen(
+      // ✅ 3. صفحة تجارية — placeholder يتم تجاوزه بـ _businessPageOption
+      CreateBusinessPageScreen(
         currentUser: widget.currentUser,
       ),
       // ✅ 4. الإعدادات
@@ -755,6 +749,13 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
                   children: List.generate(
                     secondOptionsCaption.length,
                         (index) {
+                      // ✅ index 2 = صفحة تجارية
+                      if (index == 2) {
+                        return _businessPageOption(
+                          caption: secondOptionsCaption[index],
+                          iconURL: secondOptionsLightIcons[index],
+                        );
+                      }
                       return secondOptions(
                         caption: secondOptionsCaption[index],
                         screenTogo: secondOptionsScreens[index],
@@ -1133,13 +1134,6 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
                                     children: List.generate(
                                       firstOptionsCaption.length,
                                       (index) {
-                                        // ✅ زر الصفحة التجارية — يفتح صفحة موجودة أو يُنشئ جديدة
-                                        if (index == firstOptionsCaption.length - 1) {
-                                          return _businessPageOption(
-                                            caption: firstOptionsCaption[index],
-                                            iconURL: firstOptionsIcons[index],
-                                          );
-                                        }
                                         return options(
                                           caption: firstOptionsCaption[index],
                                           screenTogo:
