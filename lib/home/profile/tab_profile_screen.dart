@@ -19,6 +19,9 @@ import '../../models/UserModel.dart';
 import '../../ui/text_with_tap.dart';
 import '../../utils/colors.dart';
 import '../agency/add_host_screen.dart';
+import '../business_page/create_page_screen.dart';
+import '../business_page/my_business_page_screen.dart';
+import '../../models/BusinessPageModel.dart';
 import '../agency/agency_group_creation_screen.dart';
 import '../agency/agency_screen.dart';
 import '../agency/agent_screen.dart';
@@ -94,6 +97,7 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
     "tab_profile.medal_".tr(),
     "tab_profile.fans_club".tr(),
     "tab_profile.auth_".tr(),
+    "tab_profile.my_page".tr(),   // ✅ صفحة تجارية
   ];
 
   var firstOptionsIcons = [
@@ -104,6 +108,7 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
     "assets/images/ic_tab_profile_medal.png",
     "assets/images/ic_tab_profile_fans.png",
     "assets/images/ic_tab_profile_auth.png",
+    "assets/images/ic_tab_profile_store.png",  // ✅ صفحة تجارية (نفس أيقونة المتجر)
   ];
 
   var agentOptionsIcons = [
@@ -393,6 +398,10 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
         currentUser: widget.currentUser!,
       ),
       TaskRulesScreen(
+        currentUser: widget.currentUser,
+      ),
+      // ✅ صفحة تجارية — placeholder (سيتم تجاوزه بمنطق خاص)
+      CreateBusinessPageScreen(
         currentUser: widget.currentUser,
       ),
     ];
@@ -1124,6 +1133,13 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
                                     children: List.generate(
                                       firstOptionsCaption.length,
                                       (index) {
+                                        // ✅ زر الصفحة التجارية — يفتح صفحة موجودة أو يُنشئ جديدة
+                                        if (index == firstOptionsCaption.length - 1) {
+                                          return _businessPageOption(
+                                            caption: firstOptionsCaption[index],
+                                            iconURL: firstOptionsIcons[index],
+                                          );
+                                        }
                                         return options(
                                           caption: firstOptionsCaption[index],
                                           screenTogo:
@@ -1260,6 +1276,59 @@ class _TabProfileScreenState extends State<TabProfileScreen> {
           vipIconUrl(),
           height: 15,
         ),
+      ),
+    );
+  }
+
+  // ✅ زر الصفحة التجارية
+  Widget _businessPageOption({required String caption, required String iconURL}) {
+    Size size = MediaQuery.of(context).size;
+    return GestureDetector(
+      onTap: () async {
+        QuickHelp.showLoadingDialog(context);
+        final q = QueryBuilder<BusinessPageModel>(BusinessPageModel())
+          ..whereEqualTo(BusinessPageModel.keyOwnerId, widget.currentUser!.objectId!);
+        final r = await q.query();
+        QuickHelp.hideLoadingDialog(context);
+        if (!mounted) return;
+        if (r.success && r.results != null && r.results!.isNotEmpty) {
+          final page = r.results!.first as BusinessPageModel;
+          await QuickHelp.goToNavigatorScreenForResult(
+            context,
+            MyBusinessPageScreen(currentUser: widget.currentUser, page: page),
+          );
+        } else {
+          await QuickHelp.goToNavigatorScreenForResult(
+            context,
+            CreateBusinessPageScreen(currentUser: widget.currentUser),
+          );
+        }
+      },
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Stack(
+            alignment: Alignment.topRight,
+            children: [
+              Image.asset(
+                iconURL,
+                width: size.width / 10,
+                height: size.width / 10,
+              ),
+              ContainerCorner(
+                width: 10, height: 10,
+                borderRadius: 50,
+                borderWidth: 0,
+                color: kOrangeColor,
+              ),
+            ],
+          ),
+          TextWithTap(
+            caption,
+            marginTop: 6,
+            fontSize: size.width / 40,
+          ),
+        ],
       ),
     );
   }
