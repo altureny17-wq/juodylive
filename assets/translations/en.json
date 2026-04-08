@@ -2875,6 +2875,8 @@
     "create_first_post": "Create first post",
     "edit_page": "Edit Page",
     "edit_page_msg": "This feature will be added soon",
-    "created_at": "Created at"
+    "created_at": "Created at",
+    "edit_success": "Updated",
+    "edit_success_msg": "Page updated successfully"
   }
 }
