@@ -2880,6 +2880,8 @@
     "create_first_post": "أنشئ أول منشور",
     "edit_page": "تعديل الصفحة",
     "edit_page_msg": "سيتم إضافة هذه الميزة قريباً",
-    "created_at": "تاريخ الإنشاء"
+    "created_at": "تاريخ الإنشاء",
+    "edit_success": "تم التعديل",
+    "edit_success_msg": "تم تحديث بيانات الصفحة بنجاح"
   }
 }
