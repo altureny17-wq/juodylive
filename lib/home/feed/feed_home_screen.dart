@@ -751,53 +751,88 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
                                     : Colors.white,
                                 child: Row(
                                   children: [
-                                    Stack(
-                                      alignment: AlignmentDirectional.center,
-                                      children: [
-                                        QuickActions.avatarWidget(
-                                          post.getAuthor!,
-                                          width: 35,
-                                          height: 35,
-                                        ),
-                                        if (post.getAuthor!.getAvatarFrame !=
-                                            null &&
-                                            post.getAuthor!
-                                                .getCanUseAvatarFrame!)
-                                          ContainerCorner(
+                                    // ✅ صورة الصفحة التجارية أو صورة المستخدم
+                                    if (post.getIsPagePost && (post.getPageId ?? "").isNotEmpty)
+                                      FutureBuilder<BusinessPageModel?>(
+                                        future: _fetchPageInfo(post.getPageId!),
+                                        builder: (context, snap) {
+                                          final pg = snap.data;
+                                          return ContainerCorner(
+                                            width: 38, height: 38,
+                                            borderRadius: 8,
                                             borderWidth: 0,
-                                            width: 55,
-                                            height: 55,
-                                            child: CachedNetworkImage(
-                                              imageUrl: post.getAuthor!
-                                                  .getAvatarFrame!.url!,
-                                              imageBuilder:
-                                                  (context, imageProvider) =>
-                                                  Container(
-                                                    decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      image: DecorationImage(
-                                                          image: imageProvider,
-                                                          fit: BoxFit.fill),
-                                                    ),
-                                                  ),
-                                            ),
+                                            color: kPrimaryColor.withOpacity(0.1),
+                                            child: pg?.getAvatar?.url != null
+                                                ? ClipRRect(
+                                                    borderRadius: BorderRadius.circular(8),
+                                                    child: Image.network(pg!.getAvatar!.url!,
+                                                        fit: BoxFit.cover))
+                                                : Icon(Icons.store, color: kPrimaryColor, size: 20),
+                                          );
+                                        },
+                                      )
+                                    else
+                                      Stack(
+                                        alignment: AlignmentDirectional.center,
+                                        children: [
+                                          QuickActions.avatarWidget(
+                                            post.getAuthor!,
+                                            width: 35,
+                                            height: 35,
                                           ),
-                                      ],
-                                    ),
+                                          if (post.getAuthor!.getAvatarFrame !=
+                                              null &&
+                                              post.getAuthor!
+                                                .getCanUseAvatarFrame!)
+                                            ContainerCorner(
+                                              borderWidth: 0,
+                                              width: 55,
+                                              height: 55,
+                                              child: CachedNetworkImage(
+                                                imageUrl: post.getAuthor!
+                                                    .getAvatarFrame!.url!,
+                                                imageBuilder:
+                                                    (context, imageProvider) =>
+                                                    Container(
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        image: DecorationImage(
+                                                            image: imageProvider,
+                                                            fit: BoxFit.fill),
+                                                      ),
+                                                    ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Row(
                                           children: [
-                                            TextWithTap(
-                                              post.getAuthor?.getFullName ?? "",
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: size.width / 20,
-                                              marginLeft: 10,
-                                              marginRight: 5,
-                                            ),
-                                            if(post.getAuthor!.getCountryCode != null && post.getAuthor!.getCountryCode!.isNotEmpty)
+                                            // ✅ اسم الصفحة أو اسم المستخدم
+                                            if (post.getIsPagePost && (post.getPageName ?? "").isNotEmpty)
+                                              Row(mainAxisSize: MainAxisSize.min, children: [
+                                                TextWithTap(
+                                                  post.getPageName ?? "",
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: size.width / 20,
+                                                  marginLeft: 10,
+                                                  marginRight: 5,
+                                                  color: kPrimaryColor,
+                                                ),
+                                                Icon(Icons.store, color: kPrimaryColor, size: 13),
+                                              ])
+                                            else
+                                              TextWithTap(
+                                                post.getAuthor?.getFullName ?? "",
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: size.width / 20,
+                                                marginLeft: 10,
+                                                marginRight: 5,
+                                              ),
+                                            if(!post.getIsPagePost && post.getAuthor!.getCountryCode != null && post.getAuthor!.getCountryCode!.isNotEmpty)
                                               Image.asset(
                                                 QuickHelp.getCountryFlag(code: post.getAuthor!.getCountryCode!),
                                                 height: 12,
