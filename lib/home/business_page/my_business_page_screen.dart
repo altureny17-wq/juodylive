@@ -431,35 +431,40 @@ class _MyBusinessPageScreenState extends State<MyBusinessPageScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // رأس المنشور
+          // ✅ رأس المنشور — يعرض اسم وصورة الصفحة التجارية
           Padding(
             padding: const EdgeInsets.all(12),
             child: Row(children: [
               // صورة الصفحة
               ContainerCorner(
-                width: 40, height: 40,
-                borderRadius: 8,
+                width: 42, height: 42,
+                borderRadius: 10,
                 borderWidth: 0,
-                color: kPrimaryColor.withOpacity(0.15),
-                child: widget.page?.getAvatar != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          widget.page!.getAvatar!.url!,
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                    : Icon(Icons.store, color: kPrimaryColor, size: 20),
+                color: kPrimaryColor.withOpacity(0.12),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: widget.page?.getAvatar?.url != null
+                      ? Image.network(widget.page!.getAvatar!.url!, fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              Icon(Icons.store, color: kPrimaryColor, size: 22))
+                      : Icon(Icons.store, color: kPrimaryColor, size: 22),
+                ),
               ),
               const SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextWithTap(
-                    widget.page?.getName ?? "",
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                  ),
+                  Row(mainAxisSize: MainAxisSize.min, children: [
+                    TextWithTap(
+                      widget.page?.getName ?? "",
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                    if (widget.page?.getIsVerified == true) ...[
+                      const SizedBox(width: 4),
+                      const Icon(Icons.verified, color: Colors.blue, size: 14),
+                    ],
+                  ]),
                   TextWithTap(
                     post.createdAt != null
                         ? QuickHelp.getMessageListTime(post.createdAt!)
@@ -661,14 +666,18 @@ class _MyBusinessPageScreenState extends State<MyBusinessPageScreen>
     );
   }
 
-  void _editPage() {
-    // يمكن فتح شاشة تعديل الصفحة
-    QuickHelp.showAppNotificationAdvanced(
-      context: context,
-      title: "page.edit_page".tr(),
-      message: "page.edit_page_msg".tr(),
-      isError: false,
+  Future<void> _editPage() async {
+    // ✅ فتح شاشة التعديل مع بيانات الصفحة الحالية
+    final updated = await QuickHelp.goToNavigatorScreenForResult(
+      context,
+      CreateBusinessPageScreen(
+        currentUser: widget.currentUser,
+        existingPage: widget.page,
+      ),
     );
+    if (updated != null && updated is BusinessPageModel) {
+      setState(() => widget.page = updated);
+    }
   }
 }
 
