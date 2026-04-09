@@ -24,6 +24,7 @@ import 'package:juodylive/models/CommentsModel.dart';
 import 'package:juodylive/models/NotificationsModel.dart';
 import 'package:juodylive/models/PostReactionsModel.dart';
 import 'package:juodylive/models/PostsModel.dart';
+import 'package:juodylive/models/BusinessPageModel.dart';
 import 'package:juodylive/models/ReportModel.dart';
 import 'package:juodylive/models/UserModel.dart';
 import 'package:juodylive/ui/container_with_corner.dart';
@@ -628,6 +629,21 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
 
       _objectDeleted(post);
     });
+  }
+
+  // ✅ جلب بيانات الصفحة التجارية (مع تخزين مؤقت)
+  final Map<String, BusinessPageModel?> _pageCache = {};
+  Future<BusinessPageModel?> _fetchPageInfo(String pageId) async {
+    if (_pageCache.containsKey(pageId)) return _pageCache[pageId];
+    try {
+      final q = QueryBuilder<BusinessPageModel>(BusinessPageModel())
+        ..whereEqualTo(BusinessPageModel.keyObjectId, pageId);
+      final r = await q.query();
+      final page = (r.success && r.results != null && r.results!.isNotEmpty)
+          ? r.results!.first as BusinessPageModel : null;
+      _pageCache[pageId] = page;
+      return page;
+    } catch (_) { return null; }
   }
 
   Future<dynamic> _loadFeeds() async {
