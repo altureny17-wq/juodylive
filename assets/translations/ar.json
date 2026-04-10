@@ -2882,6 +2882,26 @@
     "edit_page_msg": "سيتم إضافة هذه الميزة قريباً",
     "created_at": "تاريخ الإنشاء",
     "edit_success": "تم التعديل",
-    "edit_success_msg": "تم تحديث بيانات الصفحة بنجاح"
+    "edit_success_msg": "تم تحديث بيانات الصفحة بنجاح",
+    "page_settings": "إعدادات الصفحة",
+    "page_info": "معلومات الصفحة",
+    "page_admins": "مديرو الصفحة",
+    "save": "حفظ",
+    "tap_to_change": "اضغط للتغيير",
+    "search_by_id": "ابحث بالـ ID...",
+    "add": "إضافة",
+    "add_admin": "إضافة مدير",
+    "admin_permissions_note": "المديرون يمكنهم النشر والرد على التعليقات والرسائل فقط",
+    "admin_role": "مدير",
+    "remove_admin": "إزالة مدير",
+    "remove_admin_confirm": "هل تريد إزالة {name} من مديري الصفحة؟",
+    "remove": "إزالة",
+    "no_admins_yet": "لا يوجد مديرون حتى الآن",
+    "admin_added": "تمت الإضافة",
+    "admin_self_error": "خطأ",
+    "admin_self_error_msg": "لا يمكنك إضافة نفسك كمدير",
+    "already_admin": "هذا المستخدم مدير بالفعل",
+    "user_not_found": "المستخدم غير موجود",
+    "user_not_found_msg": "تحقق من الـ ID وحاول مجدداً"
   }
 }
