@@ -169,48 +169,7 @@ class _PageSettingsScreenState extends State<PageSettingsScreen> {
     }
   }
 
-  void _showAddAdminDialog(UserModel user) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: TextWithTap("page.add_admin".tr(), fontWeight: FontWeight.bold),
-        content: Row(children: [
-          QuickActions.avatarWidget(user, height: 44, width: 44),
-          const SizedBox(width: 12),
-          Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-            TextWithTap(user.getFullName ?? "", fontWeight: FontWeight.w600),
-            TextWithTap("ID: ${user.getUid ?? ''}", color: kGrayColor, fontSize: 12),
-          ]),
-        ]),
-        content: Column(mainAxisSize: MainAxisSize.min, children: [
-          Row(children: [
-            QuickActions.avatarWidget(user, height: 44, width: 44),
-            const SizedBox(width: 12),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              TextWithTap(user.getFullName ?? "", fontWeight: FontWeight.w600),
-              TextWithTap("ID: ${user.getUid ?? ''}", color: kGrayColor, fontSize: 12),
-            ])),
-          ]),
-          const SizedBox(height: 12),
-          TextWithTap("page.admin_permissions_note".tr(),
-              color: kGrayColor, fontSize: 12),
-        ]),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: TextWithTap("cancel".tr(), color: kGrayColor),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _addAdmin(user);
-            },
-            child: TextWithTap("page.add_admin".tr(), color: kPrimaryColor),
-          ),
-        ],
-      ),
-    );
-  }
+  
 
   Future<void> _addAdmin(UserModel user) async {
     QuickHelp.showLoadingDialog(context);
@@ -229,7 +188,57 @@ class _PageSettingsScreenState extends State<PageSettingsScreen> {
     }
     _searchCtrl.clear();
   }
+  
+  void _showAddAdminDialog(UserModel user) { // تأكد أن حرف v في void صغير
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: TextWithTap("page.add_admin".tr(), fontWeight: FontWeight.bold),
+        // تم حذف الـ content الأول المكرر ودمج المحتوى هنا
+        content: Column(
+          mainAxisSize: MainAxisSize.min, 
+          children: [
+            Row(
+              children: [
+                QuickActions.avatarWidget(user, height: 44, width: 44),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start, 
+                    children: [
+                      TextWithTap(user.getFullName ?? "", fontWeight: FontWeight.w600),
+                      TextWithTap("ID: ${user.getUid ?? ''}", color: kGrayColor, fontSize: 12),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            TextWithTap(
+              "page.admin_permissions_note".tr(),
+              color: kGrayColor, 
+              fontSize: 12,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: TextWithTap("cancel".tr(), color: kGrayColor),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _addAdmin(user);
+            },
+            child: TextWithTap("page.add_admin".tr(), color: kPrimaryColor),
+          ),
+        ],
+      ),
+    );
+  }
 
+  
   Future<void> _removeAdmin(UserModel admin) async {
     final confirmed = await showDialog<bool>(
       context: context,
