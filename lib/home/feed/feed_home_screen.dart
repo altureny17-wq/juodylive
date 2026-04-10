@@ -25,6 +25,7 @@ import 'package:juodylive/models/NotificationsModel.dart';
 import 'package:juodylive/models/PostReactionsModel.dart';
 import 'package:juodylive/models/PostsModel.dart';
 import 'package:juodylive/models/BusinessPageModel.dart';
+import '../business_page/my_business_page_screen.dart';
 import 'package:juodylive/models/ReportModel.dart';
 import 'package:juodylive/models/UserModel.dart';
 import 'package:juodylive/ui/container_with_corner.dart';
@@ -855,29 +856,39 @@ class _FeedHomeScreenState extends State<FeedHomeScreen>
                                               )
                                           ],
                                         ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(left: 6.0),
-                                          child: QuickHelp.usersMoreInfo(
-                                            context,
-                                            post.getAuthor!,
+                                        if (!post.getIsPagePost)
+                                          Padding(
+                                            padding: const EdgeInsets.only(left: 6.0),
+                                            child: QuickHelp.usersMoreInfo(
+                                              context,
+                                              post.getAuthor!,
+                                            ),
                                           ),
-                                        ),
                                       ],
                                     ),
                                   ],
                                 ),
                                 marginLeft: 15,
-                                onTap: () {
-                                  if (post.getAuthorId ==
-                                      widget.currentUser!.objectId!) {
+                                onTap: () async {
+                                  // ✅ منشور صفحة تجارية → افتح الصفحة
+                                  if (post.getIsPagePost && (post.getPageId ?? "").isNotEmpty) {
+                                    final pg = await _fetchPageInfo(post.getPageId!);
+                                    if (pg != null && mounted) {
+                                      QuickHelp.goToNavigatorScreen(
+                                        context,
+                                        MyBusinessPageScreen(
+                                          currentUser: widget.currentUser,
+                                          page: pg,
+                                        ),
+                                      );
+                                    }
+                                  } else if (post.getAuthorId == widget.currentUser!.objectId!) {
                                     QuickHelp.goToNavigatorScreen(
                                         context,
-                                        ProfileScreen(
-                                          currentUser: widget.currentUser,
-                                        ));
+                                        ProfileScreen(currentUser: widget.currentUser));
                                   } else {
-                                    QuickActions.showUserProfile(context,
-                                      widget.currentUser!, post.getAuthor!,);
+                                    QuickActions.showUserProfile(
+                                        context, widget.currentUser!, post.getAuthor!);
                                   }
                                 }),
                           ),
