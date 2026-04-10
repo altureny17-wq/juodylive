@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 import '../../helpers/quick_actions.dart';
 import 'create_page_screen.dart';
+import 'page_settings_screen.dart';
 import '../../helpers/quick_help.dart';
 import '../../models/BusinessPageModel.dart';
 import '../../models/PostsModel.dart';
@@ -31,12 +32,15 @@ class _MyBusinessPageScreenState extends State<MyBusinessPageScreen>
   List<PostsModel> _posts = [];
   bool _loadingPosts = true;
   bool _isOwner = false;
+  bool _isActualOwner = false; // المالك الأصلي فقط
 
   @override
   void initState() {
     super.initState();
     _tabs     = TabController(length: 2, vsync: this);
-    _isOwner  = widget.page?.getOwnerId == widget.currentUser?.objectId;
+    // ✅ المالك أو المدير يمكنه إدارة الصفحة
+    _isOwner = widget.page?.isManagerOrOwner(widget.currentUser?.objectId ?? "") ?? false;
+    _isActualOwner = widget.page?.getOwnerId == widget.currentUser?.objectId;
     _loadPosts();
   }
 
@@ -123,11 +127,12 @@ class _MyBusinessPageScreenState extends State<MyBusinessPageScreen>
             automaticallyImplyLeading: true,
             leading: BackButton(color: Colors.white),
             actions: [
-              if (_isOwner)
-                IconButton(
-                  icon: const Icon(Icons.edit_outlined, color: Colors.white),
-                  onPressed: () => _editPage(),
-                ),
+              // ✅ زر الإعدادات (للمالك والمديرين)
+            if (_isOwner)
+              IconButton(
+                icon: const Icon(Icons.settings_outlined, color: Colors.white),
+                onPressed: () => _openSettings(),
+              ),
               if (_isOwner)
                 IconButton(
                   icon: const Icon(Icons.add_circle_outline, color: Colors.white),
@@ -651,32 +656,33 @@ class _MyBusinessPageScreenState extends State<MyBusinessPageScreen>
       builder: (_) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ListTile(
-            leading: const Icon(Icons.delete_outline, color: Colors.red),
-            title: TextWithTap("delete_".tr(), color: Colors.red),
-            onTap: () async {
-              Navigator.pop(context);
-              QuickHelp.showLoadingDialog(context);
-              await post.delete();
-              QuickHelp.hideLoadingDialog(context);
-              _loadPosts();
-            },
-          ),
+          // ✅ المالك والمديرون يمكنهم الحذف
+          if (_isOwner)
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              title: TextWithTap("delete_".tr(), color: Colors.red),
+              onTap: () async {
+                Navigator.pop(context);
+                QuickHelp.showLoadingDialog(context);
+                await post.delete();
+                QuickHelp.hideLoadingDialog(context);
+                _loadPosts();
+              },
+            ),
         ],
       ),
     );
   }
 
-  Future<void> _editPage() async {
-    // ✅ فتح شاشة التعديل مع بيانات الصفحة الحالية
+  Future<void> _openSettings() async {
     final updated = await QuickHelp.goToNavigatorScreenForResult(
       context,
-      CreateBusinessPageScreen(
+      PageSettingsScreen(
         currentUser: widget.currentUser,
-        existingPage: widget.page,
+        page: widget.page!,
       ),
     );
-    if (updated != null && updated is BusinessPageModel) {
+    if (updated != null && updated is BusinessPageModel && mounted) {
       setState(() => widget.page = updated);
     }
   }
