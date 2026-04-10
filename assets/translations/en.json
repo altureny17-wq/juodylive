@@ -2877,6 +2877,26 @@
     "edit_page_msg": "This feature will be added soon",
     "created_at": "Created at",
     "edit_success": "Updated",
-    "edit_success_msg": "Page updated successfully"
+    "edit_success_msg": "Page updated successfully",
+    "page_settings": "Page Settings",
+    "page_info": "Page Information",
+    "page_admins": "Page Admins",
+    "save": "Save",
+    "tap_to_change": "Tap to change",
+    "search_by_id": "Search by ID...",
+    "add": "Add",
+    "add_admin": "Add Admin",
+    "admin_permissions_note": "Admins can post, reply to comments and messages only",
+    "admin_role": "Admin",
+    "remove_admin": "Remove Admin",
+    "remove_admin_confirm": "Remove {name} from page admins?",
+    "remove": "Remove",
+    "no_admins_yet": "No admins yet",
+    "admin_added": "Admin Added",
+    "admin_self_error": "Error",
+    "admin_self_error_msg": "You cannot add yourself as admin",
+    "already_admin": "This user is already an admin",
+    "user_not_found": "User not found",
+    "user_not_found_msg": "Check the ID and try again"
   }
 }
