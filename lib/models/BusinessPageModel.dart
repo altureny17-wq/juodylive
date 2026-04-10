@@ -27,6 +27,7 @@ class BusinessPageModel extends ParseObject implements ParseCloneable {
   static const String keyPostCount  = "postCount";
   static const String keyWebsite    = "website";
   static const String keyIsActive   = "isActive";
+  static const String keyAdminIds   = "adminIds";   // ✅ مديرو الصفحة
 
   // ── الفئات ────────────────────────────────────────────────────────────────
   static const String catBusiness    = "business";
@@ -88,4 +89,20 @@ class BusinessPageModel extends ParseObject implements ParseCloneable {
   set setIsActive(bool v) => set<bool>(keyIsActive, v);
 
   int get followersCount => getFollowers?.length ?? 0;
+
+  // ── مديرو الصفحة ──────────────────────────────────────────────────────────
+  List<dynamic>? get getAdminIds => get<List<dynamic>>(keyAdminIds);
+  set addAdminId(String id) => setAddUnique(keyAdminIds, id);
+  set removeAdminId(String id) => setRemove(keyAdminIds, id);
+
+  /// هل المستخدم مالك أو مدير؟
+  bool isManagerOrOwner(String userId) {
+    if (getOwnerId == userId) return true;
+    return getAdminIds?.contains(userId) ?? false;
+  }
+
+  /// هل المستخدم مدير فقط (ليس مالكاً)؟
+  bool isAdminOnly(String userId) {
+    return (getAdminIds?.contains(userId) ?? false) && getOwnerId != userId;
+  }
 }
