@@ -688,115 +688,27 @@ class QuickHelp {
   }
 
   static int levelPositionIndexOld({required int pointsInApp}) {
-    if(pointsInApp <= Setup.level1MaxPoint){
-      return 1;
-    }else if (pointsInApp <= Setup.level2MaxPoint) {
-      return 2;
-    } else if (pointsInApp <= Setup.level3MaxPoint) {
-      return 3;
-    } else if (pointsInApp <= Setup.level4MaxPoint) {
-      return 4;
-    } else if (pointsInApp <= Setup.level5MaxPoint) {
-      return 5;
-    } else if (pointsInApp <= Setup.level7MaxPoint) {
-      return 6;
-    } else if (pointsInApp <= Setup.level8MaxPoint) {
-      return 7;
-    } else if (pointsInApp <= Setup.level9MaxPoint) {
-      return 8;
-    } else if (pointsInApp <= Setup.level10MaxPoint) {
-      return 9;
-    } else if (pointsInApp <= Setup.level11MaxPoint) {
-      return 10;
-    } else if (pointsInApp <= Setup.level12MaxPoint) {
-      return 11;
-    } else if (pointsInApp <= Setup.level13MaxPoint) {
-      return 12;
-    } else if (pointsInApp <= Setup.level14MaxPoint) {
-      return 13;
-    } else if (pointsInApp <= Setup.level15MaxPoint) {
-      return 14;
-    } else if (pointsInApp <= Setup.level16MaxPoint) {
-      return 15;
-    } else if (pointsInApp <= Setup.level17MaxPoint) {
-      return 16;
-    } else if (pointsInApp <= Setup.level18MaxPoint) {
-      return 17;
-    } else if (pointsInApp <= Setup.level19MaxPoint) {
-      return 18;
-    } else if (pointsInApp <= Setup.level20MaxPoint) {
-      return 19;
-    } else if (pointsInApp <= Setup.level21MaxPoint) {
-      return 20;
-    } else if (pointsInApp <= Setup.level22MaxPoint) {
-      return 21;
-    } else if (pointsInApp <= Setup.level23MaxPoint) {
-      return 22;
-    } else if (pointsInApp <= Setup.level24MaxPoint) {
-      return 23;
-    } else if (pointsInApp <= Setup.level25MaxPoint) {
-      return 24;
-    } else if (pointsInApp <= Setup.level26MaxPoint) {
-      return 25;
-    } else{
-      return 0;
+    int level = 1;
+    for (int i = 1; i <= 200; i++) {
+      if (pointsInApp <= Setup.getLevelMaxPoints(i)) {
+        level = i;
+        break;
+      }
+      if (i == 200) level = 200;
     }
+    return level;
   }
 
   static int levelPositionValues({required int pointsInApp}) {
-    if(pointsInApp <= Setup.level1MaxPoint){
-      return Setup.level1MaxPoint;
-    }else if (pointsInApp <= Setup.level2MaxPoint) {
-      return Setup.level2MaxPoint;
-    } else if (pointsInApp <= Setup.level3MaxPoint) {
-      return Setup.level3MaxPoint;
-    } else if (pointsInApp <= Setup.level4MaxPoint) {
-      return Setup.level4MaxPoint;
-    } else if (pointsInApp <= Setup.level5MaxPoint) {
-      return Setup.level5MaxPoint;
-    } else if (pointsInApp <= Setup.level7MaxPoint) {
-      return Setup.level7MaxPoint;
-    } else if (pointsInApp <= Setup.level8MaxPoint) {
-      return Setup.level8MaxPoint;
-    } else if (pointsInApp <= Setup.level9MaxPoint) {
-      return Setup.level9MaxPoint;
-    } else if (pointsInApp <= Setup.level10MaxPoint) {
-      return Setup.level10MaxPoint;
-    } else if (pointsInApp <= Setup.level11MaxPoint) {
-      return Setup.level11MaxPoint;
-    } else if (pointsInApp <= Setup.level12MaxPoint) {
-      return Setup.level12MaxPoint;
-    } else if (pointsInApp <= Setup.level13MaxPoint) {
-      return Setup.level13MaxPoint;
-    } else if (pointsInApp <= Setup.level14MaxPoint) {
-      return Setup.level14MaxPoint;
-    } else if (pointsInApp <= Setup.level15MaxPoint) {
-      return Setup.level15MaxPoint;
-    } else if (pointsInApp <= Setup.level16MaxPoint) {
-      return Setup.level16MaxPoint;
-    } else if (pointsInApp <= Setup.level17MaxPoint) {
-      return Setup.level17MaxPoint;
-    } else if (pointsInApp <= Setup.level18MaxPoint) {
-      return Setup.level18MaxPoint;
-    } else if (pointsInApp <= Setup.level19MaxPoint) {
-      return Setup.level19MaxPoint;
-    } else if (pointsInApp <= Setup.level20MaxPoint) {
-      return Setup.level20MaxPoint;
-    } else if (pointsInApp <= Setup.level21MaxPoint) {
-      return Setup.level21MaxPoint;
-    } else if (pointsInApp <= Setup.level22MaxPoint) {
-      return Setup.level22MaxPoint;
-    } else if (pointsInApp <= Setup.level23MaxPoint) {
-      return Setup.level23MaxPoint;
-    } else if (pointsInApp <= Setup.level24MaxPoint) {
-      return Setup.level24MaxPoint;
-    } else if (pointsInApp <= Setup.level25MaxPoint) {
-      return Setup.level25MaxPoint;
-    } else if (pointsInApp <= Setup.level26MaxPoint) {
-      return Setup.level26MaxPoint;
-    } else{
-      return 0;
+    int level = 1;
+    for (int i = 1; i <= 200; i++) {
+      if (pointsInApp <= Setup.getLevelMaxPoints(i)) {
+        level = i;
+        break;
+      }
+      if (i == 200) level = 200;
     }
+    return Setup.getLevelMaxPoints(level);
   }
 
   static int wealthLevelValue({required int creditSent}) {
