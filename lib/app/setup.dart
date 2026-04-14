@@ -160,4 +160,51 @@ class Setup {
   static const int level35MaxPoint = 2139595110;
   static const int level36MaxPoint = 32395100120;
 
+  // Dynamic levels up to 200
+  static int getLevelMaxPoints(int level) {
+    if (level <= 36) {
+      switch (level) {
+        case 1: return level1MaxPoint;
+        case 2: return level2MaxPoint;
+        case 3: return level3MaxPoint;
+        case 4: return level4MaxPoint;
+        case 5: return level5MaxPoint;
+        case 6: return level6MaxPoint;
+        case 7: return level7MaxPoint;
+        case 8: return level8MaxPoint;
+        case 9: return level9MaxPoint;
+        case 10: return level10MaxPoint;
+        case 11: return level11MaxPoint;
+        case 12: return level12MaxPoint;
+        case 13: return level13MaxPoint;
+        case 14: return level14MaxPoint;
+        case 15: return level15MaxPoint;
+        case 16: return level16MaxPoint;
+        case 17: return level17MaxPoint;
+        case 18: return level18MaxPoint;
+        case 19: return level19MaxPoint;
+        case 20: return level20MaxPoint;
+        case 21: return level21MaxPoint;
+        case 22: return level22MaxPoint;
+        case 23: return level23MaxPoint;
+        case 24: return level24MaxPoint;
+        case 25: return level25MaxPoint;
+        case 26: return level26MaxPoint;
+        case 27: return level27MaxPoint;
+        case 28: return level28MaxPoint;
+        case 29: return level29MaxPoint;
+        case 30: return level30MaxPoint;
+        case 31: return level31MaxPoint;
+        case 32: return level32MaxPoint;
+        case 33: return level33MaxPoint;
+        case 34: return level34MaxPoint;
+        case 35: return level35MaxPoint;
+        case 36: return level36MaxPoint;
+        default: return level36MaxPoint;
+      }
+    } else {
+      // Linear growth for levels above 36
+      return level36MaxPoint + ((level - 36) * 1000000000);
+    }
+  }
 }

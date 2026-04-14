@@ -640,198 +640,54 @@ class QuickHelp {
   }
     
   static String levelImage({required int pointsInApp}) {
-    if(pointsInApp <= Setup.level1MaxPoint){
-      return "assets/images/lv_1.png";
-    }else if (pointsInApp <= Setup.level2MaxPoint) {
-      return "assets/images/lv_2.png";
-    } else if (pointsInApp <= Setup.level3MaxPoint) {
-      return "assets/images/lv_3.png";
-    } else if (pointsInApp <= Setup.level4MaxPoint) {
-      return "assets/images/lv_4.png";
-    } else if (pointsInApp <= Setup.level5MaxPoint) {
-      return "assets/images/lv_5.png";
-    } else if (pointsInApp <= Setup.level6MaxPoint) {
-      return "assets/images/lv_6.png";
-    } else if (pointsInApp <= Setup.level7MaxPoint) {
-      return "assets/images/lv_7.png";
-    } else if (pointsInApp <= Setup.level8MaxPoint) {
-      return "assets/images/lv_8.png";
-    } else if (pointsInApp <= Setup.level9MaxPoint) {
-      return "assets/images/lv_9.png";
-    } else if (pointsInApp <= Setup.level10MaxPoint) {
-      return "assets/images/lv_10.png";
-    } else if (pointsInApp <= Setup.level11MaxPoint) {
-      return "assets/images/lv_11.png";
-    } else if (pointsInApp <= Setup.level12MaxPoint) {
-      return "assets/images/lv_12.png";
-    } else if (pointsInApp <= Setup.level13MaxPoint) {
-      return "assets/images/lv_13.png";
-    } else if (pointsInApp <= Setup.level14MaxPoint) {
-      return "assets/images/lv_14.png";
-    } else if (pointsInApp <= Setup.level15MaxPoint) {
-      return "assets/images/lv_15.png";
-    } else if (pointsInApp <= Setup.level16MaxPoint) {
-      return "assets/images/lv_16.png";
-    } else if (pointsInApp <= Setup.level17MaxPoint) {
-      return "assets/images/lv_17.png";
-    } else if (pointsInApp <= Setup.level18MaxPoint) {
-      return "assets/images/lv_18.png";
-    } else if (pointsInApp <= Setup.level19MaxPoint) {
-      return "assets/images/lv_19.png";
-    } else if (pointsInApp <= Setup.level20MaxPoint) {
-      return "assets/images/lv_20.png";
-    } else if (pointsInApp <= Setup.level21MaxPoint) {
-      return "assets/images/lv_21.png";
-    } else if (pointsInApp <= Setup.level22MaxPoint) {
-      return "assets/images/lv_22.png";
-    } else if (pointsInApp <= Setup.level23MaxPoint) {
-      return "assets/images/lv_23.png";
-    } else if (pointsInApp <= Setup.level24MaxPoint) {
-      return "assets/images/lv_24.png";
-    } else if (pointsInApp <= Setup.level25MaxPoint) {
-      return "assets/images/lv_25.png";
-    } else if (pointsInApp <= Setup.level26MaxPoint) {
-      return "assets/images/lv_26.png";
-    } else if (pointsInApp <= Setup.level27MaxPoint) {
-      return "assets/images/lv_27.png";
-    } else if (pointsInApp <= Setup.level28MaxPoint) {
-      return "assets/images/lv_28.png";
-    } else if (pointsInApp <= Setup.level29MaxPoint) {
-      return "assets/images/lv_29.png";
-    } else if (pointsInApp <= Setup.level30MaxPoint) {
-      return "assets/images/lv_30.png";
-    } else if (pointsInApp <= Setup.level31MaxPoint) {
-      return "assets/images/lv_31.png";
-    } else if (pointsInApp <= Setup.level32MaxPoint) {
-      return "assets/images/lv_32.png";
-    } else if (pointsInApp <= Setup.level33MaxPoint) {
-      return "assets/images/lv_33.png";
-    } else if (pointsInApp <= Setup.level34MaxPoint) {
-      return "assets/images/lv_34.png";
-    } else if (pointsInApp <= Setup.level35MaxPoint) {
-      return "assets/images/lv_35.png";
-    } else if (pointsInApp <= Setup.level36MaxPoint) {
-      return "assets/images/lv_36.png";
-    } else{
-      return "assets/images/lv_1.png";
+    int level = 1;
+    for (int i = 1; i <= 200; i++) {
+      if (pointsInApp <= Setup.getLevelMaxPoints(i)) {
+        level = i;
+        break;
+      }
+      if (i == 200) level = 200;
     }
+    return "assets/level/caifu_level_$level.png";
   }
 
   static String levelImageWithBanner({required int pointsInApp}) {
-    if(pointsInApp <= Setup.level1MaxPoint){
-      return "assets/images/grade_big_1.png";
-    }else if (pointsInApp <= Setup.level2MaxPoint) {
-      return "assets/images/grade_big_2.png";
-    } else if (pointsInApp <= Setup.level3MaxPoint) {
-      return "assets/images/grade_big_3.png";
-    } else if (pointsInApp <= Setup.level4MaxPoint) {
-      return "assets/images/grade_big_4.png";
-    } else if (pointsInApp <= Setup.level5MaxPoint) {
-      return "assets/images/grade_big_5.png";
-    } else if (pointsInApp <= Setup.level6MaxPoint) {
-      return "assets/images/lv_6.png";
-    } else if (pointsInApp <= Setup.level7MaxPoint) {
-      return "assets/images/grade_big_6.png";
-    } else if (pointsInApp <= Setup.level8MaxPoint) {
-      return "assets/images/grade_big_7.png";
-    } else if (pointsInApp <= Setup.level9MaxPoint) {
-      return "assets/images/grade_big_8.png";
-    } else if (pointsInApp <= Setup.level10MaxPoint) {
-      return "assets/images/grade_big_9.png";
-    } else if (pointsInApp <= Setup.level11MaxPoint) {
-      return "assets/images/grade_big_10.png";
-    } else if (pointsInApp <= Setup.level12MaxPoint) {
-      return "assets/images/grade_big_11.png";
-    } else if (pointsInApp <= Setup.level13MaxPoint) {
-      return "assets/images/grade_big_12.png";
-    } else if (pointsInApp <= Setup.level14MaxPoint) {
-      return "assets/images/grade_big_13.png";
-    } else if (pointsInApp <= Setup.level15MaxPoint) {
-      return "assets/images/grade_big_14.png";
-    } else if (pointsInApp <= Setup.level16MaxPoint) {
-      return "assets/images/grade_big_15.png";
-    } else if (pointsInApp <= Setup.level17MaxPoint) {
-      return "assets/images/grade_big_16.png";
-    } else if (pointsInApp <= Setup.level18MaxPoint) {
-      return "assets/images/grade_big_17.png";
-    } else if (pointsInApp <= Setup.level19MaxPoint) {
-      return "assets/images/grade_big_18.png";
-    } else if (pointsInApp <= Setup.level20MaxPoint) {
-      return "assets/images/grade_big_19.png";
-    } else if (pointsInApp <= Setup.level21MaxPoint) {
-      return "assets/images/grade_big_20.png";
-    } else if (pointsInApp <= Setup.level22MaxPoint) {
-      return "assets/images/grade_big_21.png";
-    } else if (pointsInApp <= Setup.level23MaxPoint) {
-      return "assets/images/grade_big_22.png";
-    } else if (pointsInApp <= Setup.level24MaxPoint) {
-      return "assets/images/grade_big_23.png";
-    } else if (pointsInApp <= Setup.level25MaxPoint) {
-      return "assets/images/grade_big_24.png";
-    } else if (pointsInApp <= Setup.level26MaxPoint) {
-      return "assets/images/grade_big_25.png";
-    } else{
-      return "assets/images/grade_big_1.png";
+    int level = 1;
+    for (int i = 1; i <= 200; i++) {
+      if (pointsInApp <= Setup.getLevelMaxPoints(i)) {
+        level = i;
+        break;
+      }
+      if (i == 200) level = 200;
     }
+    return "assets/level/caifu_level_$level.png";
   }
 
   static String levelCaption({required int pointsInApp}) {
-    if(pointsInApp <= Setup.level1MaxPoint){
-      return "LV 1";
-    }else if (pointsInApp <= Setup.level2MaxPoint) {
-      return "LV 2";
-    } else if (pointsInApp <= Setup.level3MaxPoint) {
-      return "LV 3";
-    } else if (pointsInApp <= Setup.level4MaxPoint) {
-      return "LV 4";
-    } else if (pointsInApp <= Setup.level5MaxPoint) {
-      return "LV 5";
-    } else if (pointsInApp <= Setup.level7MaxPoint) {
-      return "LV 6";
-    } else if (pointsInApp <= Setup.level8MaxPoint) {
-      return "LV 7";
-    } else if (pointsInApp <= Setup.level9MaxPoint) {
-      return "LV 8";
-    } else if (pointsInApp <= Setup.level10MaxPoint) {
-      return "LV 9";
-    } else if (pointsInApp <= Setup.level11MaxPoint) {
-      return "LV 10";
-    } else if (pointsInApp <= Setup.level12MaxPoint) {
-      return "LV 11";
-    } else if (pointsInApp <= Setup.level13MaxPoint) {
-      return "LV 12";
-    } else if (pointsInApp <= Setup.level14MaxPoint) {
-      return "LV 13";
-    } else if (pointsInApp <= Setup.level15MaxPoint) {
-      return "LV 14";
-    } else if (pointsInApp <= Setup.level16MaxPoint) {
-      return "LV 15";
-    } else if (pointsInApp <= Setup.level17MaxPoint) {
-      return "LV 16";
-    } else if (pointsInApp <= Setup.level18MaxPoint) {
-      return "LV 17";
-    } else if (pointsInApp <= Setup.level19MaxPoint) {
-      return "LV 18";
-    } else if (pointsInApp <= Setup.level20MaxPoint) {
-      return "LV 19";
-    } else if (pointsInApp <= Setup.level21MaxPoint) {
-      return "LV 20";
-    } else if (pointsInApp <= Setup.level22MaxPoint) {
-      return "LV 21";
-    } else if (pointsInApp <= Setup.level23MaxPoint) {
-      return "LV 22";
-    } else if (pointsInApp <= Setup.level24MaxPoint) {
-      return "LV 23";
-    } else if (pointsInApp <= Setup.level25MaxPoint) {
-      return "LV 24";
-    } else if (pointsInApp <= Setup.level26MaxPoint) {
-      return "LV 26";
-    } else{
-      return "LV 0";
+    int level = 1;
+    for (int i = 1; i <= 200; i++) {
+      if (pointsInApp <= Setup.getLevelMaxPoints(i)) {
+        level = i;
+        break;
+      }
+      if (i == 200) level = 200;
     }
+    return "LV $level";
   }
 
   static int levelPositionIndex({required int pointsInApp}) {
+    int level = 1;
+    for (int i = 1; i <= 200; i++) {
+      if (pointsInApp <= Setup.getLevelMaxPoints(i)) {
+        level = i;
+        break;
+      }
+      if (i == 200) level = 200;
+    }
+    return level;
+  }
+
+  static int levelPositionIndexOld({required int pointsInApp}) {
     if(pointsInApp <= Setup.level1MaxPoint){
       return 1;
     }else if (pointsInApp <= Setup.level2MaxPoint) {
