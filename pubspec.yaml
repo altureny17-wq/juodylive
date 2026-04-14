@@ -176,6 +176,7 @@ flutter:
     - assets/video/
     - assets/icons/
     - assets/countries/
+    - assets/level/
 
 flutter_native_splash:
   color: "#ffffff"
