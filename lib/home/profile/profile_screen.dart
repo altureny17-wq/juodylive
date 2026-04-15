@@ -921,13 +921,15 @@ class _ProfileScreenState extends State<ProfileScreen>
                 colors: [kSecondGreenLevel, kPrimaryGreenLevel],
                 child: Row(
                   children: [
-                    TextWithTap(
-                      "profile_page.lv_".tr(),
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 20,
-                      marginLeft: 10,
-                      marginRight: 15,
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10, right: 5),
+                      child: Image.asset(
+                        QuickHelp.levelImage(
+                          pointsInApp: widget.currentUser!.getCreditsSent!,
+                        ),
+                        height: 35,
+                        width: 35,
+                      ),
                     ),
                     Column(
                       mainAxisSize: MainAxisSize.min,
@@ -1030,8 +1032,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(left: 10, right: 5),
-                      child: SvgPicture.asset(
-                        "assets/svg/ic_live_level.svg",
+                      child: Image.asset(
+                        QuickHelp.levelImage(
+                          pointsInApp: widget.currentUser!.getDiamondsTotal!,
+                        ),
                         height: 35,
                         width: 35,
                       ),
