@@ -766,21 +766,41 @@ class PreBuildLiveScreenState extends State<PreBuildLiveScreen>
         });
         addOrUpdateLiveViewers();
         // ✅ تأثير الدخول
-        if (zegoUser.id == widget.currentUser!.objectId &&
-            widget.currentUser!.getCanUseEntranceEffect == true &&
-            widget.currentUser!.getEntranceEffect != null) {
-          final fileUrl = widget.currentUser!.getEntranceEffect!.url!;
-          await ZegoGiftManager().service.sendEntranceEffect(
-            fileUrl: fileUrl,
+        if (zegoUser.id == widget.currentUser!.objectId) {
+          // 1. تأثير الوسائط (SVGA/MP4)
+          if (widget.currentUser!.getCanUseEntranceEffect == true &&
+              widget.currentUser!.getEntranceEffect != null) {
+            final fileUrl = widget.currentUser!.getEntranceEffect!.url!;
+            await ZegoGiftManager().service.sendEntranceEffect(
+              fileUrl: fileUrl,
+              senderUserID: widget.currentUser!.objectId!,
+              senderUserName: widget.currentUser!.getFullName ?? '',
+            );
+            ZegoGiftManager().service.entranceEffectNotifier.value =
+                ZegoEntranceEffectItem(
+                  fileUrl: fileUrl,
+                  senderUserID: widget.currentUser!.objectId!,
+                  senderUserName: widget.currentUser!.getFullName ?? '',
+                );
+          }
+          
+          // 2. تأثير الدخول الملون (الرسالة العائمة)
+          final joinText = "joined_room".tr();
+          await ZegoGiftManager().service.sendFloatMessage(
+            text: joinText,
             senderUserID: widget.currentUser!.objectId!,
             senderUserName: widget.currentUser!.getFullName ?? '',
+            avatarUrl: widget.currentUser!.getAvatar?.url ?? '',
+            userPoints: widget.currentUser!.getUserPoints ?? 0,
           );
-          ZegoGiftManager().service.entranceEffectNotifier.value =
-              ZegoEntranceEffectItem(
-                fileUrl: fileUrl,
-                senderUserID: widget.currentUser!.objectId!,
-                senderUserName: widget.currentUser!.getFullName ?? '',
-              );
+          ZegoGiftManager().service.floatMessageNotifier.value =
+              ZegoFloatMessageItem(
+            text: joinText,
+            senderUserID: widget.currentUser!.objectId!,
+            senderUserName: widget.currentUser!.getFullName ?? '',
+            avatarUrl: widget.currentUser!.getAvatar?.url ?? '',
+            userPoints: widget.currentUser!.getUserPoints ?? 0,
+          );
         }
       }, onLeave: (zegoUser) {
         onViewerLeave();

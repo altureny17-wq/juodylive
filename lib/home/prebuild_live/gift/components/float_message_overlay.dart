@@ -134,6 +134,7 @@ class _FloatMessageBubbleState extends State<_FloatMessageBubble>
 
   @override
   Widget build(BuildContext context) {
+    final levelColor = QuickHelp.levelColor(points: widget.item.userPoints);
     return FadeTransition(
       opacity: _opacity,
       child: ScaleTransition(
@@ -142,15 +143,22 @@ class _FloatMessageBubbleState extends State<_FloatMessageBubble>
           margin: const EdgeInsets.symmetric(vertical: 6),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.65),
+            gradient: LinearGradient(
+              colors: [
+                levelColor.withOpacity(0.85),
+                levelColor.withOpacity(0.4),
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
             borderRadius: BorderRadius.circular(30),
             border: Border.all(
-              color: Colors.white.withOpacity(0.2),
-              width: 1,
+              color: Colors.white.withOpacity(0.5),
+              width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.3),
+                color: levelColor.withOpacity(0.4),
                 blurRadius: 12,
                 spreadRadius: 2,
               ),
@@ -303,6 +311,7 @@ class FloatMessageButton extends StatelessWidget {
                       senderUserID: currentUser.objectId!,
                       senderUserName: currentUser.getFullName ?? '',
                       avatarUrl: currentUser.getAvatar?.url ?? '',
+                      userPoints: currentUser.getUserPoints ?? 0,
                     );
 
                     // شغّله محلياً للمرسل نفسه
@@ -312,6 +321,7 @@ class FloatMessageButton extends StatelessWidget {
                       senderUserID: currentUser.objectId!,
                       senderUserName: currentUser.getFullName ?? '',
                       avatarUrl: currentUser.getAvatar?.url ?? '',
+                      userPoints: currentUser.getUserPoints ?? 0,
                     );
                   },
                   child: const Text(

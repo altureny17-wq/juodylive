@@ -26,6 +26,7 @@ class GiftProtocolImpll {
     required String senderUserID,
     required String senderUserName,
     String? avatarUrl,
+    int? userPoints,
   }) async {
     final data = json.encode({
       'msg_type': 'float_message',
@@ -33,6 +34,7 @@ class GiftProtocolImpll {
       'user_id': senderUserID,
       'user_name': senderUserName,
       'avatar_url': avatarUrl ?? '',
+      'user_points': userPoints ?? 0,
       'text': text,
       'timestamp': DateTime.now().millisecondsSinceEpoch,
     });
@@ -162,6 +164,7 @@ class GiftProtocolImpll {
           senderUserID: parsed['user_id'] ?? '',
           senderUserName: parsed['user_name'] ?? '',
           avatarUrl: parsed['avatar_url'] ?? '',
+          userPoints: parsed['user_points'] ?? 0,
         );
       } else {
         if (senderUserID != _localUserID) {

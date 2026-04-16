@@ -260,22 +260,42 @@ class _PrebuildAudioRoomScreenState extends State<PrebuildAudioRoomScreen> with 
                     sendMessage("has_entered_the_room".tr());
                   }
                   // ✅ إذا كان المستخدم الداخل هو المستخدم الحالي → أرسل تأثير دخوله
-                  if (user.id == widget.currentUser!.objectId &&
-                      widget.currentUser!.getCanUseEntranceEffect == true &&
-                      widget.currentUser!.getEntranceEffect != null) {
-                    final fileUrl = widget.currentUser!.getEntranceEffect!.url!;
-                    await ZegoGiftManager().service.sendEntranceEffect(
-                      fileUrl: fileUrl,
+                  if (user.id == widget.currentUser!.objectId) {
+                    // 1. تأثير الوسائط (SVGA/MP4)
+                    if (widget.currentUser!.getCanUseEntranceEffect == true &&
+                        widget.currentUser!.getEntranceEffect != null) {
+                      final fileUrl = widget.currentUser!.getEntranceEffect!.url!;
+                      await ZegoGiftManager().service.sendEntranceEffect(
+                        fileUrl: fileUrl,
+                        senderUserID: widget.currentUser!.objectId!,
+                        senderUserName: widget.currentUser!.getFullName ?? '',
+                      );
+                      // ✅ شغّله محلياً أيضاً للمرسل نفسه
+                      ZegoGiftManager().service.entranceEffectNotifier.value =
+                          ZegoEntranceEffectItem(
+                            fileUrl: fileUrl,
+                            senderUserID: widget.currentUser!.objectId!,
+                            senderUserName: widget.currentUser!.getFullName ?? '',
+                          );
+                    }
+                    
+                    // 2. تأثير الدخول الملون (الرسالة العائمة)
+                    final joinText = "joined_room".tr();
+                    await ZegoGiftManager().service.sendFloatMessage(
+                      text: joinText,
                       senderUserID: widget.currentUser!.objectId!,
                       senderUserName: widget.currentUser!.getFullName ?? '',
+                      avatarUrl: widget.currentUser!.getAvatar?.url ?? '',
+                      userPoints: widget.currentUser!.getUserPoints ?? 0,
                     );
-                    // ✅ شغّله محلياً أيضاً للمرسل نفسه
-                    ZegoGiftManager().service.entranceEffectNotifier.value =
-                        ZegoEntranceEffectItem(
-                          fileUrl: fileUrl,
-                          senderUserID: widget.currentUser!.objectId!,
-                          senderUserName: widget.currentUser!.getFullName ?? '',
-                        );
+                    ZegoGiftManager().service.floatMessageNotifier.value =
+                        ZegoFloatMessageItem(
+                      text: joinText,
+                      senderUserID: widget.currentUser!.objectId!,
+                      senderUserName: widget.currentUser!.getFullName ?? '',
+                      avatarUrl: widget.currentUser!.getAvatar?.url ?? '',
+                      userPoints: widget.currentUser!.getUserPoints ?? 0,
+                    );
                   }
                 },
                 onLeave: (user) {

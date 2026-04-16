@@ -19,11 +19,13 @@ class ZegoFloatMessageItem {
   final String senderUserID;
   final String senderUserName;
   final String avatarUrl;
+  final int userPoints;
 
   ZegoFloatMessageItem({
     required this.text,
     required this.senderUserID,
     required this.senderUserName,
     required this.avatarUrl,
+    this.userPoints = 0,
   });
 }

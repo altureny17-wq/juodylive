@@ -6702,3 +6702,16 @@ extension DurationExtensions on Duration {
   }
 }
 
+
+  static Color levelColor({required int points}) {
+    int level = wealthLevelNumber(creditSent: points);
+    if (level == 0) return Colors.grey;
+    if (level <= 5) return Colors.blue;
+    if (level <= 10) return Colors.green;
+    if (level <= 20) return Colors.orange;
+    if (level <= 35) return Colors.purple;
+    if (level <= 50) return Colors.red;
+    if (level <= 100) return Colors.deepOrange;
+    if (level <= 150) return Colors.pink;
+    return Colors.amber;
+  }
